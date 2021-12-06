@@ -1,0 +1,3168 @@
+openapi: 3.0.3
+info:
+  title: "REST API для интеграции с ПО Энфорс"
+  description: Описание REST API функций для интеграции с ПО Энфорс
+  version: 1.0.0
+paths:
+  /login:
+    post:
+      tags:
+        - login
+      summary: Авторизоваться на сервере.
+      description: Для использования сервиса клиенту выдается уникальный apiKey в виде строки символов и описание алгоритма кодирования хеша пароля для передачи. Для авторизации на стороне сервера (не конечного клиента) вычисляется значение id и передается в качестве параметра в функцию. Хеш пароля для передачи в функцию должен быть закодирован с использованием открытокго ключа, полученного методом /get_open_key, закодированного по алгоритму RSA (RSAES-PKCS1-V1_5 в формате Base64). В ответ передаются сгенерированные на стороне сервиса два ***token***'а. Первый используется для идентификации при вызове все остальных функций. Время жизни даннго ***token***'а отграничена 10 минутами, по истечению которых необходимо запросить новый ***token***. Второй ***refreshToken*** используется для получения новой пары ***token*** и ***refreshToken***, время его жизни ограничено 1 часом.
+      operationId: login
+      parameters:
+        - name: id
+          in: header
+          description: Хешированное значение apiKey по которому будет идентифицирован пользователь в системе
+          required: true
+          schema:
+            type: string
+        - name: keyUid
+          in: header
+          description: Уникальный UID открытого ключа, полученного в методе /get_open_key
+          required: true
+          schema:
+            type: string
+      responses:
+        202:
+          description: Успешная авторизация
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/tokenWithUserType'
+        500:
+          description: В случае ошибки на сервере
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorMessage'
+        401:
+          description: Во случае невалидного id
+  /login/user:
+    post:
+      tags:
+        - login
+      summary: Авторизоваться на сервере по имени пользователя и хешу пароля.
+      description: Авторизация на сервере по имени пользователя и хешу пароля. Хеш пароля для передачи в функцию должен быть закодирован с использованием открытокго ключа, полученного методом /get_open_key, закодированного по алгоритму RSA (RSAES-PKCS1-V1_5 в формате Base64). В ответ передаются сгенерированные на стороне сервиса два token'а. Первый используется для идентификации при вызове все остальных функций. Время жизни даннго token'а отграничена 10 минутами, по истечению которых необходимо запросить новый token. Второй refreshToken используется для получения новой пары token и refreshToken, время его жизни ограничено 1 часом.
+      operationId: loginUser
+      parameters:
+        - name: user
+          in: header
+          description: Имя пользователя
+          required: true
+          schema:
+            type: string
+        - name: keyUid
+          in: header
+          description: Уникальный UID открытого ключа, полученного в методе /get_open_key
+          required: true
+          schema:
+            type: string
+        - name: hashPassword
+          in: header
+          description: Закодированное значение hashPassword
+          required: true
+          schema:
+            type: string
+      responses:
+        202:
+          description: Успешная авторизация
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/tokenWithUserType'
+        500:
+          description: В случае ошибки на сервере
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorMessage'
+        401:
+          description: Во случае невалидной пары user и hashPassword
+  /login/refresh:
+    post:
+      tags:
+        - login
+      summary: Запросить обновление token'а.
+      description: Запросить на сервере новую пару ***token*** и ***refreshToken***
+      operationId: refreshToken
+      parameters:
+        - name: refreshToken
+          in: header
+          description: старое значение ***refreshToken***
+          required: true
+          schema:
+            type: string
+      responses:
+        202:
+          description: Успешное обновление пары ***token*** и ***refreshToken***
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/token'
+        500:
+          description: В случае ошибки на сервере
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorMessage'
+        401:
+          description: Во случае невалидного ***refreshToken***
+  /login/exit:
+    post:
+      tags:
+        - login
+      summary: Выйти из системы.
+      description: Выйти из системы для ***token***
+      operationId: unLogin
+      parameters:
+        - name: token
+          in: header
+          description: Полученный ранее ***token***
+          required: true
+          schema:
+            type: string
+      responses:
+        202:
+          description: Успешное завершение авторизации для ранее выданного ***token*** (также останавливает действие парного переданному ***token*** - ***refreshToken***)
+        500:
+          description: В случае ошибки на сервере
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorMessage'
+        401:
+          description: Во случае невалидного ***token***
+  /login/change_password:
+    post:
+      tags:
+        - login
+      summary: Запрос изменения хеша пароля пользователя
+      description: Для пользователя зарегистрированного с ***token*** запросить изменение хеша пароля
+      operationId: ChangeHashPassword
+      parameters:
+        - name: token
+          in: header
+          description: Полученный ранее ***token***
+          required: true
+          schema:
+            type: string
+        - name: old_hash_password
+          in: header
+          description: Старый хеш пароля пользователя
+          required: true
+          schema:
+            type: string
+        - name: new_hash_password
+          in: header
+          description: Новый хеш пароля пользователя
+          required: true
+          schema:
+            type: string
+      responses:
+        202:
+          description: Успешное завершение операции - хеш пароля пользователя заменен на новый
+        500:
+          description: В случае ошибки на сервере
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorMessage'
+        401:
+          description: Во случае невалидного ***token***; в случае, если для пользователя установлен разрешенный IP адрес и запрос впроизведен не с него; в случае, если переданный ***old_hash_password*** не совпадает с установленным ранее
+  /get_open_key:
+    get:
+      tags:
+        - login
+      summary: Запрос RSA public key для передачи хеша пароля в других методах (2048 бит)
+      description: Возвращает RSA public key для кодирования хеша пароля в кодировке Base64 (по стандарту X.509)
+      operationId: getOpenKey
+      responses:
+        200:
+          description: RSA public key и UID
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/rsaOpenKey'
+        500:
+          description: В случае ошибки на сервере
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorMessage'
+        401:
+          description: В случае, если для IP, с которого пришел запрос запрещено получения RSA public key
+  /device:
+    post:
+      tags:
+        - device
+      summary: Получить значения нескольких свойств НСИ ПУ
+      description: Получить значение нескольких свойств НСИ ПУ по универсальному ***GUID*** прибора учета
+      operationId: schetPropertiesValues
+      parameters:
+        - name: token
+          in: header
+          description: Token, полученный при авторизации
+          required: true
+          schema:
+            type: string
+        - name: guid
+          in: header
+          description: Униварсальный GUID прибора учета
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: Массив ID запрашиваемых свойств НСИ ПУ
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/deviceDescriptionId'
+        required: true
+      responses:
+        200:
+          description: Массив со значениями свойств НСИ ПУ
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/devicePropertyValue'
+        404:
+          description: Не существует запрошенного ПУ
+        500:
+          description: В случае ошибки на сервере
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorMessage'
+        401:
+          description: В случае если истек срок действия token'а или token невалиден
+  /device/directory:
+    post:
+      tags:
+        - device
+      summary: Получить справочник-перечень свойств НСИ ПУ
+      description: Возвращает массив с описанием запрошенных свойств НСИ ПУ, которые поддерживаются системой. Если в запросе свойств передать пустой массив ***ID*** свойств, то вернет весь список поддерживаемых свойств НСИ ПУ.
+      operationId: schetDescriptionDirectory
+      parameters:
+        - name: token
+          in: header
+          description: Token, полученный при авторизации
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: Массив ID свойств ПУ
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/deviceDescriptionId'
+        required: true
+      responses:
+        200:
+          description: Массив с описанием свойств ПУ
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/deviceDescription'
+        500:
+          description: В случае ошибки на сервере
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorMessage'
+        401:
+          description: В случае если истек срок действия token'а или token невалиден
+  /measured:
+    post:
+      tags:
+        - measured
+      summary: Получить значения показаний для прибора учета
+      description: Возвращает массив со значениями запрошенных показаний для прибора учета
+      operationId: measuredValues
+      parameters:
+        - name: token
+          in: header
+          description: Token, полученный при авторизации
+          required: true
+          schema:
+            type: string
+        - name: guid
+          in: header
+          description: Униварсальный GUID прибора учета
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: Массив ID типов измеряемых показателей
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/measuredValue'
+      responses:
+        200:
+          description: Массив со значениями измеряемых показателей
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/measuredValues'
+        404:
+          description: Не существует запрошенного ПУ
+        500:
+          description: В случае ошибки на сервере
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorMessage'
+        401:
+          description: В случае если истек срок действия token'а или token невалиден
+  /measured/directory:
+    post:
+      tags:
+        - measured
+      summary: Получить справочник-перечень собираемых показаний
+      description: Возвращает массив с описанием запрошенных типов измеряемых показателей. Описание включает полное наименование, сокращенное наименование, единицу измерения. Если в теле запроса будет передан пустой массив, то функция вернет полный список всех доступных собираемых показаний.
+      operationId: measuredDirectory
+      parameters:
+        - name: token
+          in: header
+          description: Token, полученный при авторизации
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: Массив ID типов измеряемых показателей
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/measuredValueDescriptionsId'
+      responses:
+        200:
+          description: Массив с описанием измеряемых показателей
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/measuredValueDescription'
+        500:
+          description: В случае ошибки на сервере
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorMessage'
+        401:
+          description: В случае если истек срок действия token'а или token невалиден
+  /events:
+    post:
+      tags:
+        - events
+      summary: Запросить список событий из журнала ПУ за период
+      description: Возвращает массив событий журнала ПУ за период и время их регистрации.
+      operationId: eventsRead
+      parameters:
+        - name: token
+          in: header
+          description: Token, полученный при авторизации
+          required: true
+          schema:
+            type: string
+        - name: guid
+          in: header
+          description: Униварсальный GUID прибора учета
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: Массив ID запрашиваемых событий журнала ПУ с периодами запроса
+        required: true
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '#/components/schemas/eventIdAndPeriods'
+      responses:
+        200:
+          description: Массив с перечислением ID событий журнала ПУ с временными метками их регистрации
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/eventRegistration'
+        500:
+          description: В случае ошибки на сервере
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorMessage'
+        401:
+          description: В случае если истек срок действия token'а или token невалиден
+  /events/directory:
+    post:
+      tags:
+        - events
+      summary: Получить справочник-перечень событий ПУ
+      description: Возвращает массив с описанием запрошенных типов событий. Если в теле запроса будет передан пустой массив, то функция вернет полный список всех доступных событий.
+      operationId: eventsDirectory
+      parameters:
+        - name: token
+          in: header
+          description: Token, полученный при авторизации
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: Массив ID типов событий журнала ПУ, по которыми запрашивается описание
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/eventDescriptionId'
+      responses:
+        200:
+          description: Массив с описанием событий
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/eventDescription'
+        500:
+          description: В случае ошибки на сервере
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorMessage'
+        401:
+          description: В случае если истек срок действия token'а или token невалиден
+  /documents/list:
+    post:
+      tags:
+        - documents
+      summary: Получить список документов для объекта
+      description: Возвращает массив с описанием документов, прикрепленных к указанному объекту
+      operationId: getObjectDocumentsList
+      parameters:
+        - name: token
+          in: header
+          description: Token, полученный при авторизации
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: ID объекта и ID типа объекта
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/objectDocumentIds'
+      responses:
+        200:
+          description: Массив с описанием документов, прикрепленных к указанному объекту
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/objectDocumentItem'
+        500:
+          description: В случае ошибки на сервере
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorMessage'
+        401:
+          description: В случае если истек срок действия token'а или token невалиден
+  /documents/get_one:
+    post:
+      tags:
+        - documents
+      summary: Получить документ, прикрепленный к объекту
+      description: Возвращает бинарные данные запрошенного документа. Если указан параметр заголовка "Range", то вернет запрошенный диапазон данных
+      operationId: getObjectDocument
+      parameters:
+        - name: token
+          in: header
+          description: Token, полученный при авторизации
+          required: true
+          schema:
+            type: string
+        - name: Range
+          in: header
+          description: Указывает часть документа, который сервер должен вернуть. Формат "bytes = <range-start>-<range-end>"
+          required: false
+          schema:
+            type: string
+      requestBody:
+        description: ID одокумента
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/objectDocumentId'
+      responses:
+        200:
+          description: Возвращает полный объем бинарных данных запрошенного документа
+          content:
+            application/octet-stream:
+              schema:
+                type: string
+                format: binary
+        206:
+          description: Возвращает запрошенный диапазон бинарных данных документа
+          headers:
+            Content-Range:
+              description: Описание диапазона возвращаемых данных в формате "bytes <range-start>-<range-end>/<size>"
+              schema:
+                type: string
+                format: binary
+          content:
+            application/octet-stream:
+              schema:
+                type: string
+                format: binary
+        500:
+          description: В случае ошибки на сервере
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorMessage'
+        401:
+          description: В случае если истек срок действия token'а или token невалиден
+
+  /requisitions/status_types:
+    post:
+      tags:
+        - requisitions
+      summary: Получить массив доступных ID типов статусов заявок
+      description: Возвращает массив доступных ID типов статусов заявок. Заявки на параметрирование имеют тип статуса ID = 1. Наличие в возвращаемом массиве ID = 1 можно использовать как проверку факта поддержки функционала "Заявок на параметрирование"
+      operationId: getRequisitionStatusTypes
+      parameters:
+        - name: token
+          in: header
+          description: Token, полученный при авторизации
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: Массив доступных ID типов статусов заявок
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/requisitionStatusTypeIdArray'
+        500:
+          description: В случае какой-либо ошибки
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorMessage'
+        401:
+          description: В случае если истек срок действия token'а или token невалиден
+  /requisitions/status_types_name:
+    post:
+      tags:
+        - requisitions
+      summary: Получить наименование типа статуса заявок
+      description: Возвращает наименование типа статуса заявок
+      operationId: getRequisitionStatusTypeName
+      parameters:
+        - name: token
+          in: header
+          description: Token, полученный при авторизации
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: ID типа статуса заявок
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/requisitionStatusTypeId'
+      responses:
+        200:
+          description: Наименование типа статусов заявок
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/requisitionStatusTypeName'
+        500:
+          description: В случае какой-либо ошибки
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorMessage'
+        401:
+          description: В случае если истек срок действия token'а или token невалиден
+  /requisitions/statuses_all:
+    post:
+      tags:
+        - requisitions
+      summary: Получить список всех возможных статусов заявок
+      description: Возвращает список всех возможных статусов заявок
+      operationId: getListOfRequisitionStatuses
+      parameters:
+        - name: token
+          in: header
+          description: Token, полученный при авторизации
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: ID типа статуса заявок
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/requisitionStatusTypeId'
+      responses:
+        200:
+          description: Список всех возможных статусов заявок
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/requisitionStatusList'
+        500:
+          description: В случае какой-либо ошибки
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorMessage'
+        401:
+          description: В случае если истек срок действия token'а или token невалиден
+  /requisitions/statuses_for_user:
+    post:
+      tags:
+        - requisitions
+      summary: Получить список доступных для установки текущему пользователю статусов заявок
+      description: Возвращает список доступных для установки текущему пользователю статусов заявок
+      operationId: getRequisitionStatusesByUser
+      parameters:
+        - name: token
+          in: header
+          description: Token, полученный при авторизации
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: ID типа статуса заявок
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/requisitionStatusTypeId'
+      responses:
+        200:
+          description: Список доступных для установки текущему пользователю статусов заявок
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/requisitionStatusList'
+        500:
+          description: В случае какой-либо ошибки
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorMessage'
+        401:
+          description: В случае если истек срок действия token'а или token невалиден
+  /requisitions/operations:
+    post:
+      tags:
+        - requisitions
+      summary: Получить список доступных текущему пользователю типов операций для заявок
+      description: Возвращает список доступных текущему пользователю типов операций для заявок
+      operationId: getListOfRequisitionOperationTypes
+      parameters:
+        - name: token
+          in: header
+          description: Token, полученный при авторизации
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: Список доступных текущему пользователю типов операций для заявок
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/requisitionOperationsList'
+        500:
+          description: В случае какой-либо ошибки
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorMessage'
+        401:
+          description: В случае если истек срок действия token'а или token невалиден
+  /requisitions/operation_by_id:
+    post:
+      tags:
+        - requisitions
+      summary: Получить описание типа операций для заявок по ID
+      description: Возвращает описание типа операций для заявок по ID (если операция с заданным ID пользователю не доступна, вернет пустой объект)
+      operationId: getRequisitionOperationType
+      parameters:
+        - name: token
+          in: header
+          description: Token, полученный при авторизации
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: ID типа операции для заявки
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/requisitionOperationTypeId'
+      responses:
+        200:
+          description: Описание типа операций для заявок
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/requisitionOperationType'
+        500:
+          description: В случае какой-либо ошибки
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorMessage'
+        401:
+          description: В случае если истек срок действия token'а или token невалиден
+  /requisitions/make_ticket:
+    post:
+      tags:
+        - requisitions
+      summary: Создать заявку на параметрирование
+      description: Создает заявку на параметрирование от имени текущего пользователя
+      operationId: makeRequisitionTicket
+      parameters:
+        - name: token
+          in: header
+          description: Token, полученный при авторизации
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: Параметры заявки на параметрирование
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/paramsMakeRequisitionTicket'
+      responses:
+        200:
+          description: Описание созданной заявки на параметрирование включая историю изменения статусов
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/requisitionTicketWithHistory'
+        500:
+          description: В случае какой-либо ошибки
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorMessage'
+        401:
+          description: В случае если истек срок действия token'а или token невалиден
+  /requisitions/get_ticket:
+    post:
+      tags:
+        - requisitions
+      summary: Получить описание заявки на параметрирование по ее ID
+      description: Возвращает описание заявки на параметрирование по ее ID
+      operationId: getRequisitionTicket
+      parameters:
+        - name: token
+          in: header
+          description: Token, полученный при авторизации
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: Уникальный ID заявки
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/requisitionTicketId'
+      responses:
+        200:
+          description: Описание заявки на параметрирование включая историю изменения статусов
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/requisitionTicketWithHistory'
+        500:
+          description: В случае какой-либо ошибки
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorMessage'
+        401:
+          description: В случае если истек срок действия token'а или token невалиден
+  /requisitions/filter_tickets:
+    post:
+      tags:
+        - requisitions
+      summary: Получить список заявок на параметрирование отфильтрованный по параметрам
+      description: Возвращает список заявок на параметрирование по отфильтрованный по параметрам (типы статусов, временной период)
+      operationId: filterRequisitionTicket
+      parameters:
+        - name: token
+          in: header
+          description: Token, полученный при авторизации
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: Описание фильтра формирования списка заявок
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/filterRequisitionTickets'
+      responses:
+        200:
+          description: Список заявок, сформированный по параметрам фильтра
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/requisitionTicketList'
+        500:
+          description: В случае какой-либо ошибки
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorMessage'
+        401:
+          description: В случае если истек срок действия token'а или token невалиден
+  /requisitions/add_ticket_status:
+    post:
+      tags:
+        - requisitions
+      summary: Добавить в историю новый статус заявки на параметрирование
+      description: Возвращает описание заявки на параметрирование (включая историю изменения статусов)
+      operationId: addRequisitionTicketStatus
+      parameters:
+        - name: token
+          in: header
+          description: Token, полученный при авторизации
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: Параметры (ID заявки, ID статуса)
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/requisitionAddStatusParams'
+      responses:
+        200:
+          description: Описание заявки на параметрирование включая историю изменения статусов
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/requisitionTicketWithHistory'
+        500:
+          description: В случае какой-либо ошибки
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorMessage'
+        401:
+          description: В случае если истек срок действия token'а или token невалиден
+  /wcon/get_nodes:
+    post:
+      tags:
+        - web_consol.exe
+      summary: Получить ближайшие узлы дерева от родителя
+      description: Получить ближайшие узлы дерева от родителя
+      operationId: get_nodes
+      parameters:
+        - name: token
+          in: header
+          description: Token, полученный при авторизации
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: Массив параметров, по которым запрашивается описание
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/getNodes'
+      responses:
+        200:
+          description: 'Ответ: <br />
+                       {"type":"object","properties":{"success":{"type":"boolean"},"errMsg":{"type":"string"},"children":{"type":"array","item":{"type":{"type":"number,string"},"name":{"type":"string"},"hasChild":{"type":"boolean"},"objectId":{"type":"number"},"subjectId":{"type":"number"},"resources":{"type":"object","properties":{"resourceId":{"type":"boolean"}}}}}}}<br /><br />
+                       Описание:<br />
+                       "success" - Результат запроса<br />
+                       "errMsg" - Текст ошибки (при наличии)<br />
+                       "children" - Массив выдаваемых узлов<br />
+                       "item" - Объект узла<br />
+                       "type" - Тип узла<br />
+                       "name" - Название узла<br />
+                       "hasChild" - Наличие потомков<br />
+                       "objectId" - ID узла (объект учета)<br />
+                       "subjectId" - ID абонента<br />
+                       "resources" - Объект типов ресурсов, имеющихся у потомков. Если потомков нет - пустой объект.<br />'
+          content:
+            application/json:
+              schema:
+                type: object
+        500:
+          description: В случае ошибки на сервере
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorMessage'
+        401:
+          description: В случае если истек срок действия token'а или token невалиден
+  /wcon/get_object_info:
+    post:
+      tags:
+        - web_consol.exe
+      summary: Получить НСИ по выбранному объекту
+      description: Получить НСИ по выбранному объекту
+      operationId: get_object_info
+      parameters:
+        - name: token
+          in: header
+          description: Token, полученный при авторизации
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: Массив параметров, по которым запрашивается описание
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/getObjectInfo'
+      responses:
+        200:
+          description: 'Ответ: <br />
+                       {"type":"object","properties":{"success":{"type":"boolean"},"errMsg":{"type":"string"},"result":{"type":"array","item":{"title":{"type":"string"},"options":{"type":"object","properties":{"dataFormat":{"type":"string"},"preset":{"type":"string"}}},"headers":{"type":"array","item":{"header":{"type":"string"},"accessor":{"type":"string"},"dataType":{"type":"string"}}},"data":{"type":"array","item":{"id":{"type":"string"},"nodeId":{"type":"string"},"accessor":{"type":"string"}}},"filters":{"type":"object","properties":{"resourceId":{"type":"object"},"data":{"type":"array"}}},"selectors":{"type":"object","properties":{"nodeId":{"type":"string"}}}}}}}<br /><br />
+                       Описание:<br />
+                       "success" - Результат запроса<br />
+                       "errMsg" - Текст ошибки (при наличии)<br />
+                       "objectId" - id выбранного объекта<br />
+                       "result" - Массив данных по объекту<br />
+                       "title" - Заголовок блока информации (например: "Индивидуальные приборы учета")<br />
+                       "options" - Объект настроек данных<br />
+                       "dataFormat" - Формат данных (table - таблица, fields - поля)<br />
+                       "preset" - Набор пресетов. Если несколько, то разделяются пробелом.
+                                  (Для fields:
+                                  edit - разрешает редактировать значения полей.
+                                  Для table:
+                                  filter - таблица с фильтрами, вместо массива data ожидает объект filters;
+                                  selector - таблица с селектором, ожидает объект selectors)<br />
+                       "headers" - Массив объектов названий и ключей колонок<br />
+                       "header" - Название колонки или поля<br />
+                       "accessor" - Ключ колонки или поля<br />
+                       "dataType" - Тип данных (string, integer, date (UTC), boolean)<br />
+                       "data" - Массив объектов данных<br />
+                       "id" - ID счетчика<br />
+                       "nodeId" - ID родительского узла (дома)<br />
+                       "accessor" - Строка данных (ключ - значение accessor из объекта item массива headers см. выше)<br />
+                       "filters" - Объект, в котором ключи - это идентификаторы ресурсов. Имеется только при наличии filter в preset<br />
+                       "selectors" - Объект, в котором ключи - это идентификаторы узлов. Необходим для формирования селектора, который фильтрует таблицу по принадлежности счётчиков к определённым домам. Имеется только при наличии selector в preset<br />
+                       "nodeId" - Название узла (дома)<br />'
+          content:
+            application/json:
+              schema:
+                type: object
+        500:
+          description: В случае ошибки на сервере
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorMessage'
+        401:
+          description: В случае если истек срок действия token'а или token невалиден
+  /wcon/get_object_journal_selector:
+    post:
+      tags:
+        - web_consol.exe
+      summary: ''
+      description: ''
+      operationId: get_object_journal_selector
+      parameters:
+        - name: token
+          in: header
+          description: Token, полученный при авторизации
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: Массив параметров, по которым запрашивается описание
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/getObjectJournalSelector'
+      responses:
+        200:
+          description: 'Ответ: <br />
+                       {"type":"object","properties":{"success":{"type":"boolean"},"errMsg":{"type":"string"},"result":{"type":"array","item":{"title":{"type":"string"},"accessor":{"type":"string"}}}}}<br /><br />
+                       Описание:<br />
+                       "success" - Результат запроса<br />
+                       "errMsg" - Текст ошибки (при наличии)<br />
+                       "item" - Селектор<br />
+                       "title" - Наименование селектора<br />
+                       "accessor" - Идентификатор селектора<br />'
+          content:
+            application/json:
+              schema:
+                type: object
+        500:
+          description: В случае ошибки на сервере
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorMessage'
+        401:
+          description: В случае если истек срок действия token'а или token невалиден
+  /wcon/get_object_journal:
+    post:
+      tags:
+        - web_consol.exe
+      summary: ''
+      description: ''
+      operationId: get_object_journal
+      parameters:
+        - name: token
+          in: header
+          description: Token, полученный при авторизации
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: Массив параметров, по которым запрашивается описание
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/getObjectJournal'
+      responses:
+        200:
+          description: 'Ответ: <br />
+                       {"type":"object","properties":{"success":{"type":"boolean"},"errMsg":{"type":"string"},"result":{"type":"array","item":{"counter":{"type":"string"},"counterId":{"type":"string"},"counterType":{"type":"string"},"date":{"type":"string"},"description":{"type":"string"},"event":{"type":"string"},"eventGroup":{"type":"string"},"eventId":{"type":"string"},"isCritical":{"type":"integer"},"isRead":{"type":"integer"}}}}}<br /><br />
+                       Описание:<br />
+                       "success" - Результат запроса<br />
+                       "errMsg" - Текст ошибки (при наличии)<br />
+                       "eventCount" - коичество событий <br />
+                       "item" - Событие<br />
+                       "counter" - Наименование счётчика<br />
+                       "counterId" - Идентификатор счётчика<br />
+                       "counterType" - тип счётчика<br />
+                       "date" - Дата и время события<br />
+                       "description" - Описание события<br />
+                       "event" - Наименование события<br />
+                       "eventGroup" - Группа события<br />
+                       "eventId" - Идентификатор события<br />
+                       "isCritical" - Признак критичности события (1 - да, 0 - нет)<br />
+                       "isRead" - Признак прочтения события (1 - да, 0 - нет)<br />'
+          content:
+            application/json:
+              schema:
+                type: object
+        500:
+          description: В случае ошибки на сервере
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorMessage'
+        401:
+          description: В случае если истек срок действия token'а или token невалиден
+  /wcon/get_object_balance:
+    post:
+      tags:
+        - web_consol.exe
+      summary: ''
+      description: ''
+      operationId: get_object_balance
+      parameters:
+        - name: token
+          in: header
+          description: Token, полученный при авторизации
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: Массив параметров, по которым запрашивается описание
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/getObjectBalance'
+      responses:
+        200:
+          description: 'Ответ: <br />
+                       {"type":"object","properties":{"success":{"type":"boolean"},"errMsg":{"type":"string"},"timestamp":{"type":"date"},"result":{"type":"object","properties":{"data":{"type":"object","properties":{"resourceId":{"type":"array","item":{"title":{"type":"string"},"objectId":{"type":"string"},"schetCount":{"type":"number"},"values":{"type":"object","properties":{"odpu":{"type":"number"},"ipu":{"type":"number"},"balance":{"type":"number"},"date":{"type":"string"}}}}}}}}}}}<br /><br />
+                       Описание:<br />
+                       "success" - Результат запроса<br />
+                       "errMsg" - Текст ошибки (при наличии)<br />
+                       "timestamp" - Время сбора данных в UTC<br />
+                       "result" - Данные по объекту<br />
+                       "resourceId" - Ключ - одно из следующих значений: a, b, c, d, e<br />
+                       "title" - Наименование дома<br />
+                       "objectId" - Идентификатор дома<br />
+                       "schetCount" - Количество ПУ дома, участвующих в балансе<br />
+                       "odpu" - Суммарное значение ОДПУ<br />
+                       "ipu" - Суммарное значение ИПУ<br />
+                       "balance" - Разница между значениями<br /><br />
+
+                       Пример:<br />
+                       {"success":true,"timestamp":1535020628696,"result":{"data":{"a":[{"title":"Дом 1.1.1","objectId":"1.1.1","values":[{"odpu":2730,"ipu":4478,"balance":-1748,"date":"01.08 00:00"}]}],"b":[{"title":"Дом 1.1.1","objectId":"1.1.1","values":[{"odpu":9251,"ipu":10141,"balance":-890,"date":"01.08 00:00"}]}]}}}'
+          content:
+            application/json:
+              schema:
+                type: object
+        500:
+          description: В случае ошибки на сервере
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorMessage'
+        401:
+          description: В случае если истек срок действия token'а или token невалиден
+  /wcon/get_report:
+    post:
+      tags:
+        - web_consol.exe
+      summary: 'Получение сформированного отчета'
+      description: 'Получение сформированного отчета'
+      operationId: get_report
+      parameters:
+        - name: token
+          in: header
+          description: Token, полученный при авторизации
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: Массив параметров, по которым запрашивается описание
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/getRport'
+      responses:
+        200:
+          description: 'Ответ: <br />
+                       {"type":"object","properties":{"success":{"type":"boolean"},"errMsg":{"type":"string"},"result":{"type":"object","properties":{"files":{"type":"array","item":{"file":{"type":"string"},"status":{"type":"string"}}}}}}}<br /><br />
+                       Описание:<br />
+                       "success" - Результат запроса<br />
+                       "errMsg" - Текст ошибки (при наличии)<br />
+                       "timestamp" - Время сбора данных в UTC<br />
+                       "result" - Данные по объекту<br />
+                       "files" - Массив объектов описания файлов<br />
+                       "item" - Объект заголовка колонки<br />
+                       "file" - Путь к файлу (*.json) на дисковом пространстве на сервере<br />
+                       "status" - Статус выполнения отчета (0 - ок, 1 - в процессе формирования отчета произошла ошибка)<br />'
+          content:
+            application/json:
+              schema:
+                type: object
+        500:
+          description: В случае ошибки на сервере
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorMessage'
+        401:
+          description: В случае если истек срок действия token'а или token невалиден
+  /wcon/get_generated_reports:
+    post:
+      tags:
+        - web_consol.exe
+      summary: 'Получение списка сформированных/в процессе формирования отчетов указанного пользователя'
+      description: 'Получение списка сформированных/в процессе формирования отчетов указанного пользователя'
+      operationId: get_generated_reports
+      parameters:
+        - name: token
+          in: header
+          description: Token, полученный при авторизации
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: Массив параметров, по которым запрашивается описание
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/getGeneratedReports'
+      responses:
+        200:
+          description: 'Ответ: <br />
+                       {"type":"object","properties":{"success":{"type":"boolean"},"errMsg":{"type":"string"},"result":"array","item":{"item":{"type":"object","properties":{"reportKey":{"type":"string"},"title":{"type":"string"},"status":{"type":"number"},"dt_beg":{"type":"date"},"dt_end":{"type":"date"},"type_result":{"type":"number"},"params":{"type":"string"}}}}}}<br /><br />
+                       Описание:<br />
+                       "success" - Результат запроса<br />
+                       "errMsg" - Текст ошибки (при наличии)<br />
+                       "item" - отчет<br />
+                       "title" - Наименование отчета<br />
+                       "status" - 0 - готов, 1 - в процессе, 2 - ошибка формирования<br />
+                       "dt_beg" - Время запуска формирования отчета<br />
+                       "dt_end" - Время окончания формирования отчета<br />
+                       "type_result" - 1 - json, 2 - excel, 3 - xml<br />
+                       "params" - Параметры, указанные при формировании отчета<br />'
+          content:
+            application/json:
+              schema:
+                type: object
+        500:
+          description: В случае ошибки на сервере
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorMessage'
+        401:
+          description: В случае если истек срок действия token'а или token невалиден
+  /wcon/get_metrology:
+    post:
+      tags:
+        - web_consol.exe
+      summary: 'Получить метрологическое НСИ  по выбранному ПУ'
+      description: 'Получить метрологическое НСИ  по выбранному ПУ'
+      operationId: get_metrology
+      parameters:
+        - name: token
+          in: header
+          description: Token, полученный при авторизации
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: Массив параметров, по которым запрашивается описание
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/getMetrology'
+      responses:
+        200:
+          description: 'Ответ: <br />
+                       {"type":"object","properties":{"success":{"type":"boolean"},"errMsg":{"type":"string"},"schetId":{"type":"number"},"result":"array","item":{"item":{"type":"object","properties":{"typeDevice":{"type":"string"},"attributes":"array","item":{"item":{"type":"object","properties":{"title":{"type":"string"},"value":{"type":"string"}}}}}}}}}<br /><br />
+                       Описание:<br />
+                       "success" - Результат запроса<br />
+                       "errMsg" - Текст ошибки (при наличии)<br />
+                       "schetId" - отчет<br />
+                       "result" - Массив данных по объекту<br />
+                       "typeDevice" - Тип оборудования (например: PU, TT, TN)<br />
+                       "attributes" - Массив объектов данных<br />
+                       "item" - Объект данных<br />
+                       "title" - Наименование атрибута<br />
+                       "value" - Значение атрибута<br />'
+          content:
+            application/json:
+              schema:
+                type: object
+        500:
+          description: В случае ошибки на сервере
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorMessage'
+        401:
+          description: В случае если истек срок действия token'а или token невалиден
+  /wcon/get_nsi:
+    post:
+      tags:
+        - web_consol.exe
+      summary: 'Получить атрибуты указанной сущности'
+      description: 'Получить атрибуты указанной сущности.<br />
+                    Текущая реализация: для абонента (все абоненты пользователя)'
+      operationId: get_nsi
+      parameters:
+        - name: token
+          in: header
+          description: Token, полученный при авторизации
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: Массив параметров, по которым запрашивается описание
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/getNsi'
+      responses:
+        200:
+          description: 'Ответ: <br />
+                       {"type":"object","properties":{"success":{"type":"boolean"},"errMsg":{"type":"string"},"result":"array","item":{"item":{"type":"object","properties":{"attributes":"array","item":{"item":{"type":"object","properties":{"field":{"type":"string"},"title":{"type":"string"},"value":{"type":"string"},"dataType":{"type":"string"}}}}}}}}}<br /><br />
+                       Описание:<br />
+                       "success" - Результат запроса<br />
+                       "errMsg" - Текст ошибки (при наличии)<br />
+                       "result" - Массив экземпляров сущности<br />
+                       "item" - Экземпляр сущности<br />
+                       "attributes" - Массив атрибутов<br />
+                       "item" - Атрибут<br />
+                       "field" - Идентификатор атрибута<br />
+                       "title" - Наименование атрибута<br />
+                       "value" - Значение атрибута<br />
+                       "dataType" - Тип данных атрибута<br />'
+          content:
+            application/json:
+              schema:
+                type: object
+        500:
+          description: В случае ошибки на сервере
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorMessage'
+        401:
+          description: В случае если истек срок действия token'а или token невалиден
+  /wcon/get_mtr:
+    post:
+      tags:
+        - web_consol.exe
+      summary: 'Получить суточные показания по ПУ'
+      description: 'Получить суточные показания по ПУ<br />
+                    Текущая реализация: для ПУ'
+      operationId: get_mtr
+      parameters:
+        - name: token
+          in: header
+          description: Token, полученный при авторизации
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: Массив параметров, по которым запрашивается описание
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/getMtr'
+      responses:
+        200:
+          description: 'Ответ: <br />
+                       {"type":"object","properties":{"success":{"type":"boolean"},"errMsg":{"type":"string"},"result":"array","item":{"item":{"type":"object","properties":{"ID":{"type":"number"},"channelCount":{"type":"string"},"tariffCount":{"type":"number"},"periods":"array","item":{"item":{"type":"object","properties":{"dt":{"type":"date"},"dateValues":"array","item":{"item":{"type":"object","properties":{"channel":{"type":"number"},"channelValues":"array","item":{"item":{"type":"object","properties":{"val0":{"type":"number"},"val1":{"type":"number"},"val2":{"type":"number"},"val3":{"type":"number"},"val4":{"type":"string"}}}}}}}}}}}}}}}<br /><br />
+                       Описание:<br />
+                       "success" - Результат запроса<br />
+                       "errMsg" - Текст ошибки (при наличии)<br />
+                       "result" - Массив ПУ<br />
+                       "ID" - ID ПУ<br />
+                       "channelCount" - Описание каналов ПУ<br />
+                       "tariffCount" - Количество тарифов у ПУ<br />
+                       "periods" - Массив периодов (суток)<br />
+                       "dt" - Дата<br />
+                       "dateValues" - Массив данных по каналам ПУ<br />
+                       "channel" - Канал<br />
+                       "channelValues" - Массив данных по каналу ПУ<br />
+                       "val0" - Показание по суммарному тарифу<br />
+                       "value" - Показание по тарифу 1<br />
+                       "value" - Показание по тарифу 2<br />
+                       "value" - Показание по тарифу 3<br />
+                       "dataType" - Показание по тарифу 4<br />'
+          content:
+            application/json:
+              schema:
+                type: object
+        500:
+          description: В случае ошибки на сервере
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorMessage'
+        401:
+          description: В случае если истек срок действия token'а или token невалиден
+  /wcon/get_sostav_srez:
+    post:
+      tags:
+        - web_consol.exe
+      summary: 'Получить список ПУ, входящих в состав ОУ рекурсивно по дереву ОУ'
+      description: 'Получить список ПУ, входящих в состав ОУ рекурсивно по дереву ОУ'
+      operationId: get_sostav_srez
+      parameters:
+        - name: token
+          in: header
+          description: Token, полученный при авторизации
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: Массив параметров, по которым запрашивается описание
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/getSostavSrez'
+      responses:
+        200:
+          description: 'Ответ: <br />
+                       {"type":"object","properties":{"success":{"type":"boolean"},"errMsg":{"type":"string"},"deviceList":"array","item":{"item":{"type":"object","properties":{"field_name":{"type":"string"}}}}}}<br /><br />
+                       Описание:<br />
+                       "success" - Результат запроса<br />
+                       "errMsg" - Текст ошибки (при наличии)<br />
+                       "deviceList" - Массив ПУ<br />
+                       "field_name" - Строка данных (ключ - значение field_name из объекта item массива метода get_descr_fields)<br />'
+          content:
+            application/json:
+              schema:
+                type: object
+        500:
+          description: В случае ошибки на сервере
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorMessage'
+        401:
+          description: В случае если истек срок действия token'а или token невалиден
+  /wcon/get_descr_fields:
+    post:
+      tags:
+        - web_consol.exe
+      summary: 'Получить описание полей в таблице'
+      description: 'Получить описание полей в таблице'
+      operationId: get_descr_fields
+      parameters:
+        - name: token
+          in: header
+          description: Token, полученный при авторизации
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: Массив параметров, по которым запрашивается описание
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/getDescrFields'
+      responses:
+        200:
+          description: 'Ответ: <br />
+                       {"type":"object","properties":{"success":{"type":"boolean"},"errMsg":{"type":"string"},"fields":"array","item":{"item":{"type":"object","properties":{"field_name":{"type":"string"},"descr":{"type":"string"},"type_value":{"type":"string"}}}}}}<br /><br />
+                       Описание:<br />
+                       "success" - Результат запроса<br />
+                       "errMsg" - Текст ошибки (при наличии)<br />
+                       "fields" - Массив полей<br />
+                       "field_name" - Имя поля в таблице<br />
+                       "descr" - Имя поля в таблице<br />
+                       "type_value" - Массив полей<br />'
+          content:
+            application/json:
+              schema:
+                type: object
+        500:
+          description: В случае ошибки на сервере
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorMessage'
+        401:
+          description: В случае если истек срок действия token'а или token невалиден
+  /wcon/get_schet_data:
+    post:
+      tags:
+        - web_consol.exe
+      summary: 'Получить данные по выбранному ПУ'
+      description: 'Получить данные по выбранному ПУ<br />
+                    * Параметры serialNumber и personalAccount могут присутствовать как отдельно, так и вместе. Если присутствуют вместе, то идентификация производится с операцией “И”'
+      operationId: get_schet_data
+      parameters:
+        - name: token
+          in: header
+          description: Token, полученный при авторизации
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: Массив параметров, по которым запрашивается описание
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/getSchetData'
+      responses:
+        200:
+          description: 'Ответ: <br />
+                       {"type":"object","properties":{"success":{"type":"boolean"},"errMsg":{"type":"string"},"serialNumber":{"type":"string"},"result":"array","item":{"item":{"type":"object","properties":{"dt":{"type":"date"},"rt":{"type":"number"},"val":{"type":"number"},"status":{"type":"number"}}}}}}<br /><br />
+                       Описание:<br />
+                       "success" - Результат запроса<br />
+                       "errMsg" - Текст ошибки (при наличии)<br />
+                       "serialNumber" - Серийный номер ПУ <br />
+                       "result" - Массив данных по объекту<br />
+                       "dt" - Дата-время значения параметра<br />
+                       "rt" - Тип результата (см. справочник)<br />
+                       "val" - Значение параметра<br />
+                       "status" - Статус значения параметра (см. справочник)'
+          content:
+            application/json:
+              schema:
+                type: object
+        500:
+          description: В случае ошибки на сервере
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorMessage'
+        401:
+          description: В случае если истек срок действия token'а или token невалиден
+  /wcon/get_object_data_children:
+    post:
+      tags:
+        - web_consol.exe
+      summary: ''
+      description: ''
+      operationId: get_object_data_children
+      parameters:
+        - name: token
+          in: header
+          description: Token, полученный при авторизации
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: Массив параметров, по которым запрашивается описание
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/getObjectDataChildren'
+      responses:
+        200:
+          description: 'Ответ: <br />
+                       {"type":"object","properties":{"success":{"type":"boolean"},"errMsg":{"type":"string"},"serialNumber":{"type":"string"},"result":"array","item":{"item":{"type":"object","properties":{"objectKey":{"type":"string"},"title":{"type":"string"}}}}}}<br /><br />
+                       Описание:<br />
+                       "success" - Результат запроса<br />
+                       "errMsg" - Текст ошибки (при наличии)<br />
+                       "result" - Массив данных по объекту<br />
+                       "objectKey" - Идентификатор объекта (квартиры)<br />
+                       "title" - Наименование объекта<br />'
+          content:
+            application/json:
+              schema:
+                type: object
+        500:
+          description: В случае ошибки на сервере
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorMessage'
+        401:
+          description: В случае если истек срок действия token'а или token невалиден
+  /wcon/get_object_data:
+    post:
+      tags:
+        - web_consol.exe
+      summary: ''
+      description: ''
+      operationId: get_object_data
+      parameters:
+        - name: token
+          in: header
+          description: Token, полученный при авторизации
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: Массив параметров, по которым запрашивается описание
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/getObjectData'
+      responses:
+        200:
+          description: 'Ответ: <br />
+                       {"type":"object","properties":{"success":{"type":"boolean"},"errMsg":{"type":"string"},"result":{"type":"array","item":{"item":{"type":"object","properties":{"headers":{"type":"array","item":{"item":{"type":"object","properties":{"Header":{"type":"string"},"accessor":{"type":"string"}}}}},"data":{"type":"object","properties":{"resourceId":{"type":"array","item":{"item":{"type":"object","properties":{"title":{"type":"string"},"objectKey":{"type":"string"},"counterID":{"type":"counterID"},"channels":{"type":"array","item":{"item":{"type":"object","properties":{"title":{"type":"string"},"measure":{"type":"string"},"completeness":{"type":"number"},"total":{"type":"number"},"values":{"type":"object","properties":{"date":{"type":"number"}}}}}}}}}}}}}}}}}}}<br /><br />
+                       Описание:<br />
+                       "success" - Результат запроса<br />
+                       "errMsg" - Текст ошибки (при наличии)<br />
+                       "result" - Массив данных по объекту<br />
+                       "headers" - Массив объектов названий и ключей колонок<br />
+                       "item" - Объект заголовка колонки<br />
+                       "Header" - Название колонки<br />
+                       "accessor" - Ключ колонки<br />
+                       "data" - Ключи - одно из следующих значений: a, b, c, d, e<br />
+                       "title" - Наименование счётчика<br />
+                       "objectKey" - Ключ счётчика<br />
+                       "title" - Наименование канала<br />
+                       "measure" - Единица измерений канала<br />
+                       "completeness" - Процент сбора<br />
+                       "total" - Сумма значений канала за выбранный период (если необходимо)<br />
+                       "values" - Объект со значениями канала<br />
+                       "date" - Значение канала; ключ - дата значения<br /><br />
+                       Пример:<br />
+                       {"success":true,"objectKey":"1|null|3692748","result":[{"headers":[{"Header":"Title","accessor":"title"},{"Header":"29.08 00:00","accessor":"29.08.2019 00:00:00"},{"Header":"30.08 00:00","accessor":"30.08.2019 00:00:00"},{"Header":"Total","accessor":"total"}],"data":{"c":[{"title":"Счётчик 1","objectKey":"3%7С67965%7С24147","channels":[{"title":"Активная мощность ф1","total":7632,"measure":"квтч","values":{"29.08 00:00":7503,"30.08 00:00":7632},"completeness":82},{"title":"Активная мощность ф2","total":7251,"measure":"квтч","values":{"29.08 00:00":7098,"30.08 00:00":7251},"completeness":82},{"title":"Активная мощность ф3","total":3575,"measure":"квтч","values":{"29.08 00:00":3496,"30.08 00:00":3575},"completeness":97}]}]}}]}'
+
+          content:
+            application/json:
+              schema:
+                type: object
+        500:
+          description: В случае ошибки на сервере
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorMessage'
+        401:
+          description: В случае если истек срок действия token'а или token невалиден
+  /wcon/get_price_category:
+    post:
+      tags:
+        - web_consol.exe
+      summary: 'Получение расчета по ценовым категориям по объекту'
+      description: 'Получение расчета по ценовым категориям по объекту'
+      operationId: get_price_category
+      parameters:
+        - name: token
+          in: header
+          description: Token, полученный при авторизации
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: Массив параметров, по которым запрашивается описание
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/getPriceCategory'
+      responses:
+        200:
+          description: 'Ответ: <br />
+                       {"type":"object","properties":{"success":{"type":"boolean"},"errMsg":{"type":"string"},"comment":{"type":"string"},"providerName":{"type":"string"},"result":{"type":"array","item":{"item":{"type":"object","properties":{"name":{"type":"string"},"data":{"type":"object","properties":{"item":{"type":"object","properties":{"table":{"type":"array","item":{"item":{"type":"object","properties":{"colname":{"type":"string"},"rows":{"type":"array","item":{"item":{"type":"string"}}}}}}},"footer":{"type":"object","properties":{"title":{"type":"string"},"value":{"type":"string"}}}}}}}}}}}}}<br /><br />
+                       Описание:<br />
+                       "success" - Результат запроса<br />
+                       "errMsg" - Текст ошибки (при наличии)<br />
+                       "comment" - Комментарии, возникшие во время расчета<br />
+                       "providerName" - Наименование провайдера<br />
+                       "result" - Массив таблиц ценовых категорий<br />
+                       "name" - Наименование таблицы<br />
+                       "table" - Массив столбцов<br />
+                       "colname" - Наименование столбца<br />
+                       "rows" - Строки<br />
+                       "footer" - Итог<br />
+                       "title" - Наименование итога<br />
+                       "value" - Значение итога<br />'
+          content:
+            application/json:
+              schema:
+                type: object
+        500:
+          description: В случае ошибки на сервере
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorMessage'
+        401:
+          description: В случае если истек срок действия token'а или token невалиден
+  /wcon/get_schet_hour_meter:
+    post:
+      tags:
+        - web_consol.exe
+      summary: 'Получить часовые показания по выбранному ПУ'
+      description: 'Получить часовые показания по выбранному ПУ<br />
+                    *  Параметры serialNumber и aiis могут присутствовать как отдельно, так и вместе. Если присутствуют вместе, то идентификация производится с операцией “И”'
+      operationId: get_schet_hour_meter
+      parameters:
+        - name: token
+          in: header
+          description: Token, полученный при авторизации
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: Массив параметров, по которым запрашивается описание
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/getSchetHourMeter'
+      responses:
+        200:
+          description: 'Ответ: <br />
+                       {"type":"object","properties":{"success":{"type":"boolean"},"errMsg":{"type":"string"},"serialNumber":{"type":"string"},"deviceName":{"type":"string"},"id_aiis":{"type":"string"},"account_book":{"type":"string"},"account_number":{"type":"string"},"deviceType":{"type":"string"},"result":{"type":"array","item":{"type":"object","properties":{"dt":{"type":"number"},"val0":{"type":"number"},"val1":{"type":"number"},"val2":{"type":"number"}}}}}}<br /><br />
+                       Описание:<br />
+                       "success" - Результат запроса<br />
+                       "errMsg" - Текст ошибки (при наличии)<br />
+                       "serialNumber" - Серийный номер ПУ<br />
+                       "deviceName" - Наименование ПУ<br />
+                       "id_aiis" - Код АИИС<br />
+                       "account_book" - Номер книги<br />
+                       "account_number" - Номер абонента<br />
+                       "deviceType" - Тип ПУ<br />
+                       "dt" - Дата-время значения параметра<br />
+                       "val0" - Значение параметра по Т0<br />
+                       "val1" - Значение параметра по Т1<br />
+                       "val2" - Значение параметра по Т2<br />
+                       "val3" - Значение параметра по Т3<br />'
+          content:
+            application/json:
+              schema:
+                type: object
+        500:
+          description: В случае ошибки на сервере
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorMessage'
+        401:
+          description: В случае если истек срок действия token'а или token невалиден
+  /wcon/generate_xml:
+    post:
+      tags:
+        - web_consol.exe
+      summary: 'Запуск генерации макетов XML'
+      description: 'Запуск генерации макетов XML'
+      operationId: generate_xml
+      parameters:
+        - name: token
+          in: header
+          description: Token, полученный при авторизации
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: Массив параметров, по которым запрашивается описание
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/generateXml'
+      responses:
+        200:
+          description: 'Ответ: <br />
+                       {"type":"object","properties":{"success":{"type":"boolean"},"errMsg":{"type":"string"},"reportKey":{"type":"string"},"result":{"type":"object","properties":{"files":{"type":"array","item":{"item":{"type":"object","properties":{"objectName":{"type":"string"},"maketDt":{"type":"date"},"file":{"type":"string"},"filename":{"type":"string"},"status":{"type":"number"}}}}}}}}}<br /><br />
+                       Описание:<br />
+                       "success" - Результат запроса<br />
+                       "errMsg" - Текст ошибки (при наличии)<br />
+                       "reportKey" - Ключ отчета<br />
+                       "result" - Массив данных по объекту<br />
+                       "files" - Массив объектов описания файлов<br />
+                       "item" - Объект заголовка колонки<br />
+                       "objectName" - Наименование объекта, по которому сформирован макет<br />
+                       "maketDt" - Дата макета<br />
+                       "file" - Полный путь к файлу (*.xml) на дисковом пространстве на сервере<br />
+                       "filename" - Наименование файла (*.xml)<br />
+                       "status " - Статус выполнения отчета (0 - ок, 1 - в процессе формирования отчета произошла ошибка)<br />'
+          content:
+            application/json:
+              schema:
+                type: object
+        500:
+          description: В случае ошибки на сервере
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorMessage'
+        401:
+          description: В случае если истек срок действия token'а или token невалиден
+  /wcon/generate_excel:
+    post:
+      tags:
+        - web_consol.exe
+      summary: 'Запуск генерации макетов Excel'
+      description: 'Запуск генерации макетов Excel'
+      operationId: generate_excel
+      parameters:
+        - name: token
+          in: header
+          description: Token, полученный при авторизации
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: Массив параметров, по которым запрашивается описание
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/generateExcel'
+      responses:
+        200:
+          description: 'Ответ: <br />
+                       {"type":"object","properties":{"success":{"type":"boolean"},"errMsg":{"type":"string"},"reportKey":{"type":"string"},"result":{"type":"object","properties":{"files":{"type":"array","item":{"item":{"type":"object","properties":{"objectName":{"type":"string"},"file":{"type":"string"},"userInteraceFileName":{"type":"string"},"status":{"type":"number"}}}}}}}}}<br /><br />
+                       Описание:<br />
+                       "success" - Результат запроса<br />
+                       "errMsg" - Текст ошибки (при наличии)<br />
+                       "reportKey" - Ключ отчета<br />
+                       "result" - Массив данных по объекту<br />
+                       "files" - Массив объектов описания файлов<br />
+                       "item" - Объект заголовка колонки<br />
+                       "file" - Полный путь к файлу (*.xlsx, *.zip) на дисковом пространстве на сервере<br />
+                       "userInteraceFileName " - Наименование сформированного отчета для отображения в интерфейсе пользователя (*.xlsx, *.zip)<br />
+                       "status " - Статус выполнения отчета (0 - ок, 1 - в процессе формирования отчета произошла ошибка)<br />'
+          content:
+            application/json:
+              schema:
+                type: object
+        500:
+          description: В случае ошибки на сервере
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorMessage'
+        401:
+          description: В случае если истек срок действия token'а или token невалиден
+  /wcon/get_schet_data_with_max_dt:
+    post:
+      tags:
+        - web_consol.exe
+      summary: 'Получение значений указанных параметров по счетчикам с максимальной меткой времени в каждом интервале периода'
+      description: 'Получение значений указанных параметров по счетчикам с максимальной меткой времени в каждом интервале периода'
+      operationId: get_schet_data_with_max_dt
+      parameters:
+        - name: token
+          in: header
+          description: Token, полученный при авторизации
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: Массив параметров, по которым запрашивается описание
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/getSchetDataWithMaxDt'
+      responses:
+        200:
+          description: 'Ответ: <br />
+                       {"type":"object","properties":{"success":{"type":"boolean"},"errMsg":{"type":"string"},"comment":{"type":"string"},"result":{"type":"array","item":{"item":{"type":"object","properties":{"ID":{"type":"number"},"interval":{"type":"array","item":{"item":{"type":"object","properties":{"dt":{"type":"date"},"values":{"type":"array","item":{"type":"object","properties":{"rt":{"type":"number"},"dt":{"type":"date"},"val":{"type":"number"},"status":{"type":"number"},"write_dt":{"type":"date"}}}}}}}}}}}}}}<br /><br />
+                       Описание:<br />
+                       "success" - Результат запроса<br />
+                       "errMsg" - Текст ошибки (при наличии)<br />
+                       "result" - Массив данных по объекту<br />
+                       "ID" - ID ПУ<br />
+                       "dt" - Дата-время интервала<br />
+                       "rt" - Тип результата (см. справочник)<br />
+                       "dt" - Дата-время параметра<br />
+                       "val" - Значение параметра<br />
+                       "status" - Статус значения параметра (см. справочник)<br />
+                       "write_dt" - Дата-время записи параметра в БД<br />'
+          content:
+            application/json:
+              schema:
+                type: object
+        500:
+          description: В случае ошибки на сервере
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorMessage'
+        401:
+          description: В случае если истек срок действия token'а или token невалиден
+  /wcon/get_kwh:
+    post:
+      tags:
+        - web_consol.exe
+      summary: 'Получить расход'
+      description: 'Получить расход<br />
+                    Текущая реализация: для ПУ (для конкретного ПУ, для ПУ, входящих в ОУ, для ПУ, принадлежащих абоненту), method=meter, groupby=m или d<br />
+                    Для groupby=m поиск показаний осуществляется с “плавающими” границами:<br />
+                    -- показания на конец - с максимальной датой, между bdt и edt<br />
+                    -- показания на начало - с максимальной датой, между bdt - 1 мес и bdt'
+      operationId: get_kwh
+      parameters:
+        - name: token
+          in: header
+          description: Token, полученный при авторизации
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: Массив параметров, по которым запрашивается описание
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/getKwh'
+      responses:
+        200:
+          description: 'Ответ: <br />
+                       {"type":"object","properties":{"success":{"type":"boolean"},"errMsg":{"type":"string"},"comment":{"type":"string"},"result":{"type":"array","item":{"item":{"type":"object","properties":{"serialNumber":{"type":"string"},"isSummaryTariff":{"type":"number"},"tariffCount":{"type":"number"},"periods":{"type":"array","item":{"item":{"type":"object","properties":{"bdt":{"type":"date"},"edt":{"type":"date"},"values":{"type":"array","item":{"type":"object","properties":{"channel":{"type":"number"},"tariff":{"type":"number"},"begDT":{"type":"date"},"begVal":{"type":"number"},"endDT":{"type":"date"},"endVal":{"type":"number"},"kwh":{"type":"number"}}}}}}}}}}}}}}<br /><br />
+                       Описание:<br />
+                       "success" - Результат запроса<br />
+                       "errMsg" - Текст ошибки (при наличии)<br />
+                       "result" - Массив данных по объекту<br />
+                       "serialNumber" - Серийный номер ПУ<br />
+                       "isSummaryTariff" - Наличие у ПУ суммарного тарифа (0 - нет, 1 - да)<br />
+                       "tariffCount" - Количество тарифов у ПУ<br />
+                       "bdt" - Начало периода<br />
+                       "edt" - Конец периода<br />
+                       "values" - Массив данных по каналу ПУ<br />
+                       "channel" - Канал<br />
+                       "tariff" - Тариф (для случая “priority” = “meter”)<br />
+                       "begDT" - Дата-время значения параметра на начало периода<br />
+                       "begVal" - Значение параметра на начало периода<br />
+                       "endDT" - Дата-время значения параметра на конец периода<br />
+                       "endVal" - Значение параметра на конец периода<br />
+                       "kwh" - расход за период<br />'
+          content:
+            application/json:
+              schema:
+                type: object
+        500:
+          description: В случае ошибки на сервере
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorMessage'
+        401:
+          description: В случае если истек срок действия token'а или token невалиден
+  /wcon/set_event_read:
+    post:
+      tags:
+        - web_consol.exe
+      summary: 'Пометить событие как прочитанное'
+      description: 'Пометить событие как прочитанное'
+      operationId: set_event_read
+      parameters:
+        - name: token
+          in: header
+          description: Token, полученный при авторизации
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: Массив параметров, по которым запрашивается описание
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/setEventRead'
+      responses:
+        200:
+          description: 'Ответ: <br />
+                       {"type":"object","properties":{"success":{"type":"boolean"},"errMsg":{"type":"string"}}}<br /><br />
+                       Описание:<br />
+                       "success" - Результат запроса<br />
+                       "errMsg" - Текст ошибки (при наличии)<br />'
+          content:
+            application/json:
+              schema:
+                type: object
+        500:
+          description: В случае ошибки на сервере
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorMessage'
+        401:
+          description: В случае если истек срок действия token'а или token невалиден
+  /wcon/set_schet_cmd:
+    post:
+      tags:
+        - web_consol.exe
+      summary: 'Отправить команду в указанный ПУ'
+      description: 'Отправить команду в указанный ПУ'
+      operationId: set_schet_cmd
+      parameters:
+        - name: token
+          in: header
+          description: Token, полученный при авторизации
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: Массив параметров, по которым запрашивается описание
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/setSchetCmd'
+      responses:
+        200:
+          description: 'Ответ: <br />
+                       {"type":"object","properties":{"success":{"type":"boolean"},"errMsg":{"type":"string"},"cmdId":{"type":"number"}}}<br /><br />
+                       Описание:<br />
+                       "success" - Результат запроса<br />
+                       "errMsg" - Текст ошибки (при наличии)<br />
+                       "cmdId" - Идентификатор команды<br />'
+          content:
+            application/json:
+              schema:
+                type: object
+        500:
+          description: В случае ошибки на сервере
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorMessage'
+        401:
+          description: В случае если истек срок действия token'а или token невалиден
+  /wcon/get_schet_cmd_status:
+    post:
+      tags:
+        - web_consol.exe
+      summary: 'Отправить команду в указанный ПУ'
+      description: 'Отправить команду в указанный ПУ'
+      operationId: get_schet_cmd_status
+      parameters:
+        - name: token
+          in: header
+          description: Token, полученный при авторизации
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: Массив параметров, по которым запрашивается описание
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/getSchetCmdStatus'
+      responses:
+        200:
+          description: 'Ответ: <br />
+                       {"type":"object","properties":{"success":{"type":"boolean"},"errMsg":{"type":"string"},"comment":{"type":"string"},"result":{"type":"array","item":{"item":{"type":"object","properties":{"cmdId":{"type":"number"},"serialNumber":{"type":"string"},"cmdType":{"type":"number"},"params":{"type":"string"},"cmdStatus":{"type":"number"},"createDt":{"type":"date"},"sendDt":{"type":"date"},"resultDt":{"type":"date"},"resultStatus":{"type":"number"},"result":{"type":"string"}}}}}}}<br /><br />
+                       Описание:<br />
+                       "success" - Результат запроса<br />
+                       "errMsg" - Текст ошибки (при наличии)<br />
+                       "cmdId" - Идентификатор команды<br />
+                       "serialNumber" - Серийный номер ПУ<br />
+                       "cmdType" - Тип команды (см. справочник)<br />
+                       "params" - Параметры команды (см. справочник)<br />
+                       "cmdStatus" - Статус команды (см. справочник)<br />
+                       "createDt" - Дата-время создания команды<br />
+                       "sendDt" - Дата-время постановки команды в очередь команд<br />
+                       "resultDt" - Дата-время получения результата выполнения команды<br />
+                       "resultStatus" - Статус выполнения команды<br />
+                       "result" - Описание результата выполнения команды<br />'
+          content:
+            application/json:
+              schema:
+                type: object
+        500:
+          description: В случае ошибки на сервере
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorMessage'
+        401:
+          description: В случае если истек срок действия token'а или token невалиден
+  /wcon/get_report_types:
+    post:
+      tags:
+        - web_consol.exe
+      summary: 'получение списка доступных отчетов'
+      description: 'получение списка доступных отчетов'
+      operationId: get_report_types
+      parameters:
+        - name: token
+          in: header
+          description: Token, полученный при авторизации
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: Массив параметров, по которым запрашивается описание
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/getReportTypes'
+      responses:
+        200:
+          description: '<b>Ответ:</b><br />
+                       {"type":"object","properties":{"success":{"type":"boolean"},"errMsg":{"type":"string"},"comment":{"type":"string"},"result":{"type":"array","item":{"item":{"type":"object","properties":{"title":{"type":"string"},"accessor":{"type":"string"},"typePeriod":{"type":"string"},"params":{"type":"array","item":{"type":"object","properties":{"typeParam":{"type":"number"},"title":{"type":"number"},"typeControl":{"type":"number"},"values":{"type":"array","item":{"type":"object","properties":{"accessor":{"type":"string"},"title":{"type":"string"},"state":{"type":"string"}}}}}}}}}}}}}<br /><br />
+                       <b>Описание:</b><br />
+                       "success" - Результат запроса<br />
+                       "errMsg" - Текст ошибки (при наличии)<br />
+                       "title" - Наименование отчета<br />
+                       "accessor" - Идентификатор типа отчета<br />
+                       "typePeriod" - Тип периода: BEGYEAR - с начала года, BEGMONTH - с начала месяца, DAY - за сутки. Отсутствие параметра - нет ограничение на выбор начальной даты<br />
+                       "params" - Параметры<br />
+                       "typeParam" - Тип параметра<br />
+                       "title" - Наименование<br />
+                       "typeControl" - Тип способа выбора параметра: RadioButtons - выбор только одного значения, CheckButtons - множественный выбор.<br />
+                       "accessor" - идентификатор значения параметра<br />
+                       "title" - Наименование значения<br />
+                       "state" - Статус доступности значения параметра: Selected - выбранное значение, Enabled - доступно для выбора, Disabled - видимое, но недоступное для выбора, Invisibled - невидимое.<br />'
+          content:
+            application/json:
+              schema:
+                type: object
+        500:
+          description: В случае ошибки на сервере
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorMessage'
+        401:
+          description: В случае если истек срок действия token'а или token невалиден
+  /wcon/generate_report:
+    post:
+      tags:
+        - web_consol.exe
+      summary: 'Запуск генерации отчета'
+      description: 'Запуск генерации отчета'
+      operationId: generate_report
+      parameters:
+        - name: token
+          in: header
+          description: Token, полученный при авторизации
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: Массив параметров, по которым запрашивается описание
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/generateReport'
+      responses:
+        200:
+          description: '<b>Ответ:</b><br />
+                       {"type":"object","properties":{"success":{"type":"boolean"},"errMsg":{"type":"string"},"reportKey":{"type":"string"},"result":{"type":"object","properties":{"files":{"type":"array","item":{"item":{"type":"object","properties":{"file":{"type":"string"},"userInteraceFileName":{"type":"string"},"status":{"type":"number"}}}}}}}}}<br /><br />
+                       <b>Описание:</b><br />
+                       "success" - Результат запроса<br />
+                       "errMsg" - Текст ошибки (при наличии)<br />
+                       "reportKey" - Ключ отчета<br />
+                       "result" - Массив данных по объекту<br />
+                       "files" - Массив объектов описания файлов<br />
+                       "item" - Объект заголовка колонки<br />
+                       "file" - Полный путь к файлу (*.json) на дисковом пространстве на сервере<br />
+                       "userInteraceFileName" - Наименование сформированного отчета для отображения в интерфейсе пользователя<br />
+                       "status" - Статус выполнения отчета (0 - ок, 1 - в процессе формирования отчета произошла ошибка)<br />
+          content:
+            application/json:
+              schema:
+                type: object
+        500:
+          description: В случае ошибки на сервере
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorMessage'
+        401:
+          description: В случае если истек срок действия token'а или token невалиден
+  /wcon/get_schet_list:
+    post:
+      tags:
+        - web_consol.exe
+      summary: 'Получение списка ПУ, доступных пользователю'
+      description: 'Получение списка ПУ, доступных пользователю'
+      operationId: get_schet_list
+      parameters:
+        - name: token
+          in: header
+          description: Token, полученный при авторизации
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: '<b>Ответ:</b><br />
+                       {"type":"object","properties":{"success":{"type":"boolean"},"errMsg":{"type":"string"},"comment":{"type":"string"},"deviceList":{"type":"array","item":{"item":{"type":"object","properties":{"serialNumber":{"type":"string"},"name":{"type":"string"},"type":{"type":"string"},"status":{"type":"string"},"id_aiis":{"type":"string"},"account_book":{"type":"string"},"account_number":{"type":"string"}}}}}}}<br /><br />
+                       <b>Описание:</b><br />
+                       "success" - Результат запроса<br />
+                       "errMsg" - Текст ошибки (при наличии)<br />
+                       "deviceList" - Массив ПУ по объекту<br />
+                       "item" - ПУ<br />
+                       "serialNumber" - Серийный номер ПУ<br />
+                       "name" - Наименование ПУ<br />
+                       "type" - Тип ПУ<br />
+                       "status" - Статус ПУ<br />
+                       "id_aiis" - Код АИИС<br />
+                       "account_book" - Номер книги<br />
+                       "account_number" - Номер абонента<br />'
+          content:
+            application/json:
+              schema:
+                type: object
+        500:
+          description: В случае ошибки на сервере
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorMessage'
+        401:
+          description: В случае если истек срок действия token'а или token невалиден
+  /wcon/get_version_info:
+    post:
+      tags:
+        - web_consol.exe
+      summary: 'Получение информации о версиях компонент ПО'
+      description: 'Получение информации о версиях компонент ПО'
+      operationId: get_version_info
+      parameters:
+        - name: token
+          in: header
+          description: Token, полученный при авторизации
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: '<b>Ответ:</b><br />
+                       {"type":"object","properties":{"success":{"type":"boolean"},"errMsg":{"type":"string"},"versionInfo":{"type":"object","properties":{"apiVersion":{"type":"string"},"serviceName":{"type":"string"},"login":{"type":"string"},"bpVersion":{"type":"string"},"bpVersionDate":{"type":"date"},"bpVersionUpdateDate":{"type":"date"}}}}}<br /><br />
+                       <b>Описание:</b><br />
+                       "success" - Результат запроса<br />
+                       "errMsg" - Текст ошибки (при наличии)<br />
+                       "versionInfo" - Массив ПУ по объекту<br />
+                       "apiVersion" - Версия API<br />
+                       "serviceName" - ServiceName БД<br />
+                       "login" - Имя пользователя<br />
+                       "bpVersion" - Версия БП<br />
+                       "bpVersionDate" - Дата версии БП<br />
+                       "bpVersionUpdateDate" - Дата обновления версии БП<br />'
+          content:
+            application/json:
+              schema:
+                type: object
+        500:
+          description: В случае ошибки на сервере
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorMessage'
+        401:
+          description: В случае если истек срок действия token'а или token невалиден
+
+components:
+  schemas:
+    token:
+      type: object
+      properties:
+        token:
+          type: string
+        refreshToken:
+          type: string
+    tokenWithUserType:
+      type: object
+      properties:
+        token:
+          type: string
+        refreshToken:
+          type: string
+        userType:
+          type: object
+          properties:
+            id:
+              example: 1
+              type: integer
+            idname:
+              example: 'Физ. лицо'
+              type: string
+    errorMessage:
+      description: Сообщение об ошибке
+      type: object
+      properties:
+        error:
+          description: Идентификатор ошибки
+          type: string
+        message:
+          description: Сообщение об ошибке
+          type: string
+    rsaOpenKey:
+      description: RSA public key
+      type: object
+      properties:
+        keyUid:
+          description: Уникальный идентификатор RSA public key (в формате Base64 по стандарту X.509)
+          type: string
+        keyPublic:
+          description: RSA public key
+          type: string
+    deviceDescriptionId:
+      description: Массив ID свойств НСИ ПУ, для которых запрашивается описание
+      type: object
+      properties:
+        id:
+          type: array
+          items:
+            type: integer
+    deviceDescription:
+      type: object
+      properties:
+        id:
+          description: Id свайства НСИ ПУ
+          type: integer
+        descr:
+          description: Наименование свойства
+          type: string
+        type_val:
+          description: Тип значения (string, integer, float, boolean)
+          type: string
+          enum:
+            - string
+            - integer
+            - float
+            - boolean
+    devicePropertyValue:
+      type: object
+      properties:
+        id:
+          description: ID свайства НСИ ПУ
+          type: integer
+        value:
+          description: Значение свайства НСИ ПУ
+          type: string
+        type_val:
+          description: Тип значения (string, integer, float, boolean)
+          type: string
+          enum:
+            - string
+            - integer
+            - float
+            - boolean
+    measuredValueDescriptionsId:
+      description: Массив ID типов измеряемых показателей
+      type: object
+      properties:
+        id:
+          type: array
+          items:
+            type: integer
+    measuredValue:
+      description: Массив ID типов измеряемых показателей и периодов, за которые запрашиваются их значения
+      type: array
+      items:
+        properties:
+          id:
+            description: ID измеряемого показателя
+            type: integer
+          dt_begin:
+            description: Дата и время начала запрашиваемого интервала (формат DDMMYYYYHHMM)
+            type: string
+          dt_end:
+            description: Дата и время окончания запрашиваемого интервала (формат DDMMYYYYHHMM)
+            type: string
+    measuredValueDescription:
+      description: Описание измеряемого показателя
+      type: object
+      properties:
+        id:
+          description: ID измеряемого показателя
+          type: integer
+        name:
+          description: Наименование показателя
+          type: string
+        short_name:
+          description: Сокращенное наименование показателя
+          type: string
+        unit:
+          description: Единица измерения
+          type: string
+    measuredValues:
+      description: Значение измеряемого показателя
+      type: object
+      properties:
+        id:
+          description: ID измеряемого показателя
+          type: integer
+        values:
+          description: Значения измеряемого показателя
+          type: array
+          items:
+            properties:
+              dt:
+                description: Временная метка в формате DDMMYYYYHHMM
+                type: string
+              val:
+                description: Значение показателя
+                type: number
+    eventDescriptionId:
+      description: Массив ID типов событий журнала ПУ
+      type: object
+      properties:
+        id:
+          type: array
+          items:
+            type: integer
+    eventDescription:
+      description: Описание типа события журнала ПУ
+      type: object
+      properties:
+          id:
+            description: Числовой идентификатор события
+            type: integer
+          name:
+            description: Описание события
+            type: string
+    eventIdAndPeriods:
+      description: ID типа события журнала ПУ и период для запроса
+      type: object
+      properties:
+        id:
+          type: integer
+        dt_begin:
+          description: Дата и время начала запрашиваемого интервала (формат DDMMYYYYHHMM)
+          type: string
+        dt_end:
+          description: Дата и время окончания запрашиваемого интервала (формат DDMMYYYYHHMM)
+          type: string
+    eventRegistration:
+      description: ID события журнала ПУ и время его регистрации
+      type: object
+      properties:
+        id:
+          description: ID события журнала ПУ
+          type: integer
+        dt:
+          description: Время регистрации события в формате DDMMYYYYHHMMSS
+          type: string
+    objectDocumentIds:
+      description: ID объекта и ID типа объекта для получения списка привязанных документов
+      type: object
+      properties:
+        id:
+          description: ID объекта
+          type: integer
+        idObj:
+          description: ID типа объекта (1 - ПУ, 2 - ОУ, 3 - УСД)
+          type: integer
+          enum:
+            - 1
+            - 2
+            - 3
+    objectDocumentId:
+      description: ID документа
+      type: object
+      properties:
+        id:
+          description: ID документа
+          type: integer
+    objectDocumentItem:
+      description: Описание документа, прикрепленного к объекту
+      type: object
+      properties:
+        id:
+          description: ID документа (глобальный, сквозной для всех хранимых в прикрепленных документов)
+          type: integer
+        name:
+          description: Имя файла документа
+          type: string
+        ext:
+          description: Расширение файла документа
+          type: string
+        dt_change:
+          description: Дата загрузки файла в формате "yyyy-MM-dd HH:mm:ss"
+          type: string
+        type_obj:
+          description: ID типа объекта (1 - ПУ, 2 - ОУ, 3 - УСД)
+          type: integer
+          enum:
+            - 1
+            - 2
+            - 3
+    requisitionStatusTypeIdArray:
+      description: Массив доступных ID типов статусов заявок
+      type: object
+      properties:
+        id:
+          type: array
+          items:
+            type: integer
+    requisitionStatusTypeId:
+      description: ID типа статусов заявок
+      type: object
+      properties:
+        id:
+          type: integer
+    requisitionStatusTypeName:
+      description: Наименование типа статусов заявок
+      type: object
+      properties:
+        name:
+          type: string
+    requisitionStatusList:
+      description: Список статусов заявок (ID и наименование)
+      type: array
+      items:
+        type: object
+        properties:
+          id:
+            type: integer
+          idname:
+            type: string
+    requisitionOperationsList:
+      description: Список с описанием типов заявок
+      type: array
+      items:
+        type: object
+        properties:
+          id:
+            type: integer
+          idname:
+            type: string
+    requisitionOperationTypeId:
+      description: ID типа операции для заявки
+      type: object
+      properties:
+        id:
+          type: integer
+    requisitionOperationType:
+      description: Описание типа операции для заявки
+      type: object
+      properties:
+        id:
+          type: integer
+        idname:
+          type: string
+    paramsMakeRequisitionTicket:
+      description: Параметры создаваемой заявки на параметрирование
+      type: object
+      properties:
+        idOperationType:
+          description: ID типа операции для заявки
+          type: integer
+        deviceId:
+          description: Серийный номер прибора учета
+          type: string
+    requisitionUser:
+      description: Описание пользователя (для заявок на параметрирование)
+      type: object
+      properties:
+        id:
+          description: ID пользователя
+          type: integer
+        user_name:
+          description: LOGIN пользователя
+          type: string
+        fio:
+          description: ФИО пользователя
+          type: string
+        info:
+          description: Дополнительная информация
+          type: string
+        email:
+          description: Email
+          type: string
+        phone:
+          description: Телефон
+          type: string
+    requisitionTicketHistoryId:
+      description: Параметры записи в истории заявки на параметрирование
+      type: object
+      properties:
+        idReqTickets:
+          description: ID заявки на параметрирование
+          type: integer
+        dt:
+          description: Дата и время изменения статуса заявки в формате "yyyy.MM.dd HH:mm:ss"
+          type: string
+          pattern: '^\d{4}.\d{2}.\d{2} \d{2}:\d{2}:\d{2}$'
+        idReqStatus:
+          description: ID статуса заявки
+          type: integer
+    requisitionTicketHistory:
+      description: История изменения статуса заявки на параметрирование
+      type: object
+      properties:
+        id:
+          $ref: '#/components/schemas/requisitionTicketHistoryId'
+        statusString:
+          description: Словестное описание статуса
+          type: string
+        user:
+          $ref: '#/components/schemas/requisitionUser'
+        comment:
+          description: Комментарий
+          type: string
+    requisitionTicketWithHistory:
+      description: Описание заявки на параметрирование (включая историю изменения статуса заявки)
+      type: object
+      properties:
+        histories:
+          description: История изменения статуса заявки
+          type: array
+          items:
+            $ref: '#/components/schemas/requisitionTicketHistory'
+        id:
+          description: Уникальный ID заявки в системе
+          type: integer
+        additionalParam:
+          description: Дополнительный параметр для заявки
+          type: string
+        operationType:
+          $ref: '#/components/schemas/requisitionOperationType'
+        user:
+          $ref: '#/components/schemas/requisitionUser'
+        deviceId:
+          description: Серийный номер прибора учета
+          type: string
+    requisitionTicketList:
+      description: Список заявок на параметрирование
+      type: array
+      items:
+        type: object
+        properties:
+          id:
+            description: Уникальный ID заявки в системе
+            type: integer
+          additionalParam:
+            description: Дополнительный параметр для заявки
+            type: string
+          operationType:
+            $ref: '#/components/schemas/requisitionOperationType'
+          user:
+            $ref: '#/components/schemas/requisitionUser'
+          deviceId:
+            description: Серийный номер прибора учета
+            type: string
+    requisitionTicketId:
+      description: Уникальный ID заявки
+      type: object
+      properties:
+        id:
+          type: integer
+    filterRequisitionTickets:
+      description: Параметры фильтра для запроса списка заявок на параметрирование
+      type: object
+      properties:
+        StatusesID:
+          description: ID статусов заявок (по которым заявки будут включены в список). Пустой массив - в список попадают заявки с любым статусом
+          type: array
+          items:
+            type: integer
+        begin:
+          description: Дата-время начала интервала в формате "yyyy.MM.dd HH:mm:ss"
+          pattern: '^\d{4}.\d{2}.\d{2} \d{2}:\d{2}:\d{2}$'
+          type: string
+        end:
+          description: Дата-время окончания интервала в формате "yyyy.MM.dd HH:mm:ss"
+          pattern: '^\d{4}.\d{2}.\d{2} \d{2}:\d{2}:\d{2}$'
+          type: string
+    requisitionAddStatusParams:
+      description: Параметры для добавления нового статуса в историю изменения статусов заявки
+      type: object
+      properties:
+        idTicket:
+          description: ID заявки
+          type: integer
+        idStatus:
+          description: ID статуса
+          type: integer
+    getNodes:
+      description: Массив параметров для метода "get_nodes"
+      type: object
+      properties:
+        subjectId:
+          description: 'null - получение списка юр.лиц для пользователя <br />
+                       ID - для получения списка объектов'
+          type: number
+        parentId:
+          description: имеет смысл, если subjectId is not null <br />
+            null -  получение списка объектов для subjectId <br />
+            ID - получение списка потомков
+          type: number
+        resources:
+          description: Если true вместе с деревом вернуть значения для фильтра
+          type: boolean
+    getObjectInfo:
+      description: Массив параметров для метода "get_object_info"
+      type: object
+      properties:
+        objectKey:
+          description: '“Тройной” (subjectId, objectId, schetId) идентификатор с разделителем “%7С”. Пример 1%7Cnull%7C3692748>'
+          type: string
+        resource:
+          description: '"a": "электричество",<br />
+                        "b": "тепло",<br />
+                        "c": "газ",<br />
+                        "d": "вода",<br />
+                        "e": “гор.вода”<br />
+                        если null - присылать все'
+          type: string
+        request:
+          description: 'Массив строк, соблюдая очередность передаваемых на сервер:         “info” - (данные НСИ в полях), “odpu” - таблица ОДПУ, “ipu” - таблица ИПУ с фильтрами'
+          type: array
+          items:
+            type: string
+    getObjectJournalSelector:
+      description: Массив параметров для метода "get_object_journal_selector"
+      type: object
+      properties:
+        selector:
+          description: 'Одно из двух значений: counter или event'
+          type: string
+        objectKey:
+          description: '“Тройной” (subjectId, objectId, schetId) идентификатор с разделителем “%7С”. Пример 1%7Cnull%7C3692748>'
+          type: string
+    getObjectJournal:
+      description: Массив параметров для метода "get_object_journal_selector"
+      type: object
+      properties:
+        objectKey:
+          description: '“Тройной” (subjectId, objectId, schetId) идентификатор с разделителем “%7С”. Пример 1%7Cnull%7C3692748>'
+          type: string
+        meteringType:
+          description: 'Тип учета: Указывается через запятую <br />
+                        для ОДПУ: = 1<br />
+                        для ИПУ: =2,3<br />
+                        1 - Технический учет (ОДПУ)<br />
+                        2 - Юр. лицо (офисы, магазины и т.д.)<br />
+                        3 - Физ. лицо (квартиры, частные дома)<br />
+                        Для всех - параметр не указывается'
+          type: string
+        resourceType:
+          description: Тип ресурса. Указывается через запятую. Для всех - параметр не указывается
+          type: string
+        counterType:
+          description: Тип ПУ. Указывается через запятую. Для всех - параметр не указывается
+          type: string
+        eventGroup:
+          description: Группа событий. Указывается через запятую. Для всех - параметр не указывается
+          type: string
+        periodFrom:
+          description: начало периода (на 00:00:00). Формат YYYY-MM-DD
+          type: string
+        periodTo:
+          description: окончание периода (на 24:00:00). Формат YYYY-MM-DD
+          type: string
+        timeFrom:
+          description: время начала периода. Формат HH:NN:SS. Отсутствие параметра сответствует времени  00:00:00
+          type: string
+        timeTo:
+          description: время окончания периода. Формат HH:NN:SS. Отсутствие параметра сответствует времени  00:00:00
+          type: string
+        onlyCount:
+          description: '1 - Вернуть только количество событий, удовлетворяющих условиям запроса.<br />
+                        <> 1 или отсутствие параметра - вернуть события' 
+          type: string
+        filters:
+          description:  'Ограничения выборки событий, указываются через запятую <br />
+                        ограничение по периоду <br />
+                        writeDT - выборка осуществляется по дате записи события в БД (bp_ev_log.dt_log) <br />
+                        <br />
+                        фильтр по признаку "событие прочитано" <br />
+                        readNot - только не прочитанные <br />
+                        readYes - только прочитанные <br />
+                        Фильтр не применяется, если указаны оба параметра или не указан ни один
+                        <br /><br />
+                        фильтр по признаку "критичное событие" <br />
+                        criticalNot - только некритичные <br />
+                        criticalYes - только критичные <br />
+                        Фильтр не применяется, если указаны оба параметра или не указан ни один'
+          type: string
+    getObjectBalance:
+      description: Массив параметров для метода "get_object_balance"
+      type: object
+      properties:
+        objectKey:
+          description: '“Тройной” (subjectId, objectId, schetId) идентификатор с разделителем “%7С”. Пример 1%7Cnull%7C3692748>'
+          type: string
+        periodTo:
+          description: окончание периода (на 24:00:00). Формат YYYY-MM-DD
+          type: string
+        periodFrom:
+          description: начало периода (на 00:00:00). Формат YYYY-MM-DD
+          type: string
+        resourceIds:
+          description: Идентификаторы ресурсов через запятую
+          type: string
+    getRport:
+      description: Массив параметров для метода "get_report"
+      type: object
+      properties:
+        reportKey:
+          description: Ключ отчета <br />
+          type: number
+    getGeneratedReports:
+      description: Массив параметров для метода "get_generated_reports"
+      type: object
+      properties:
+        resource:
+          description: '"a": "электричество",<br />
+                        "b": "тепло",<br />
+                        "c": "газ",<br />
+                        "d": "вода",<br />
+                        "e": “гор.вода”<br />
+                        если null - присылать все'
+          type: string
+        periodFrom:
+          description: начало периода (на 00:00:00). Формат YYYY-MM-DD
+          type: string
+        periodTo:
+          description: окончание периода (на 24:00:00). Формат YYYY-MM-DD
+          type: string
+    getMetrology:
+      description: Массив параметров для метода "get_metrology"
+      type: object
+      properties:
+        objectKey:
+          description: '“Тройной” (subjectId, objectId, schetId) идентификатор с разделителем “%7С”. Пример 1%7Cnull%7C3692748>'
+          type: string
+        serialNumber:
+          description: Серийный номер ПУ
+          type: string
+        aiis:
+          description: Код аиис
+          type: string
+        request:
+          description: pu - по ПУ, tt -  по трансформатору тока, tn - по трансформатору напряжения. Если параметр отсутствует, то по всем.
+          type: string
+    getNsi:
+      description: Массив параметров для метода "get_nsi"
+      type: object
+      properties:
+        entity:
+          description: Тип сущности. abonent - абонент
+          type: string
+    getMtr:
+      description: Массив параметров для метода "get_mtr"
+      type: object
+      properties:
+        objectKey:
+          description: '“Тройной” (subjectId, objectId, schetId) идентификатор с разделителем “%7С”.'
+          type: string
+        periodFrom:
+          description: Дата-время начала периода запроса
+          type: string
+        periodTo:
+          description: Дата-время окончания периода запроса (на 00 часов)
+          type: string
+        channel:
+          description: Канал (1 - A+, 2 - A-, 3 - R+, 4 - R-). разделитель для каналов "," в случае если запрашивается не один канал. Если параметр “channel” отсутствует, то данные возвращаются в соответствии с атрибутом schet_fr.channel_cnt
+          type: string
+        tariff:
+          description: Тариф(0 - суммарный, 1,2,3 - соответственно). разделитель для тарифов"," в случае если запрашивается не один тариф. Если параметр “tariff” отсутствует, то данные возвращаются в соответствии с атрибутом schet_fr.tariff_cn
+          type: string
+    getSostavSrez:
+      description: Массив параметров для метода "get_sostav_srez"
+      type: object
+      properties:
+        objectKey:
+          description: '“Тройной” (subjectId, objectId, schetId) идентификатор с разделителем “%7С”.'
+          type: string
+        fields:
+          description: Перечень полей НСИ ПУ, указанных через запятую =all - все поля
+          type: string
+    getDescrFields:
+      description: Массив параметров для метода "get_descr_fields"
+      type: object
+      properties:
+        entity:
+          description: 'Тип сущности ПУ = pu'
+          type: string
+    getSchetData:
+      description: Массив параметров для метода "get_descr_fields"
+      type: object
+      properties:
+        username:
+          description: имя пользователя
+          type: string
+        password:
+          description: пароль
+          type: string
+        serialNumber:
+          description: Серийный номер ПУ
+          type: string
+        personalAccount:
+          description: Номер лицевого счета
+          type: string
+        resultType:
+          description: Тип результата (см. справочник)
+          type: string
+        bdt:
+          description: Дата-время начала периода запроса
+          type: string
+        edt:
+          description: Дата-время окончания периода запроса
+          type: string
+    getObjectDataChildren:
+      description: Массив параметров для метода "get_object_data_children"
+      type: object
+      properties:
+        objectKey:
+          description: '“Тройной” (subjectId, objectId, schetId) идентификатор с разделителем “%7С”.'
+          type: string
+    getObjectData:
+      description: Массив параметров для метода "get_object_data_children"
+      type: object
+      properties:
+        objectKey:
+          description: '“Тройной” (subjectId, objectId, schetId) идентификатор с разделителем “%7С”.'
+          type: string
+        periodTo:
+          description: окончание периода (на 24:00:00). Формат YYYY-MM-DD
+          type: string
+        periodFrom:
+          description: начало периода (на 00:00:00). Формат YYYY-MM-DD
+          type: string
+        interval:
+          description: 'тип интервала интегрирования<br />
+                        0 - мгновенные (текущие) значения<br />
+                        30 - получасовки<br />
+                        60 - часовки<br />
+                        24 - суточные'
+          type: integer
+        meteringType:
+          description: 'Тип учета: Указывается через запятую.<br />
+                        для ОДПУ: = 1<br />
+                        для ИПУ: =2,3<br />
+                        1 - Технический учет (ОДПУ)<br />
+                        2 - Юр. лицо (офисы, магазины и т.д.)<br />
+                        3 - Физ. лицо (квартиры, частные дома) <br />
+                        Для всех - параметр не указывается'
+          type: string
+        electric:
+          description: 'Перечень каналов по электричеству (EPAR01). 0 - прием, 1 - отдача например, EAR+ (расход, активный, реактивный, прием)'
+          type: string
+        coldwater:
+          description: Перечень каналов по холодной воде  (V)
+          type: string
+        hotwater:
+          description: Перечень каналов по горячей воде  (TV)
+          type: string
+        gas:
+          description: Перечень каналов по газу  (V)
+          type: string
+        heat:
+          description: Перечень каналов по теплу  (TPVMQt)
+          type: string
+        valueType:
+          description: 'Тип параметров: интервальные (расход за интервал), интегральные (нарастающий итог).<br />             интервальные  = interval<br />
+                        интегральные = integral'
+
+          type: string
+    getPriceCategory:
+      description: Массив параметров для метода "get_price_category"
+      type: object
+      properties:
+        objectKey:
+          description: '“Тройной” (subjectId, objectId, schetId) идентификатор с разделителем “%7С”.'
+          type: string
+        period:
+          description: Дата-время периода расчета (должно быть указано 1-е число месяца)
+          type: string
+        devPercent:
+          description: Процент отклонения при расчете 5 и 6 ЦК
+          type: number
+    getSchetHourMeter:
+      description: Массив параметров для метода "get_schet_hour_meter"
+      type: object
+      properties:
+        serialNumber:
+          description: Серийный номер ПУ
+          type: string
+        aiis:
+          description: Код аиис
+          type: string
+        channel:
+          description: Канал (121 - A+, 122 - A-, 123 - R+, 124 - R-)
+          type: number
+        bdt:
+          description: Дата-время начала периода запроса
+          type: string
+        edt:
+          description: Дата-время окончания периода запроса
+          type: string
+    generateXml:
+      description: Массив параметров для метода "generate_xml"
+      type: object
+      properties:
+        accessor:
+          description: Идентификатор типа отчета (80020)
+          type: string
+        objectKey:
+          description: '“Тройной” (subjectId, objectId, schetId) идентификатор с разделителем “%7С”'
+          type: string
+        reportKey:
+          description: Ключ отчета
+          type: string
+        typeReport:
+          description: 'Тип отчета: xml'
+          type: string
+        periodFrom:
+          description: начало периода (на 00:00:00). Формат YYYY-MM-DD
+          type: string
+        periodTo:
+          description: окончание периода (на 24:00:00). Формат YYYY-MM-DD
+          type: string
+    generateExcel:
+      description: Массив параметров для метода "generate_excel"
+      type: object
+      properties:
+        accessor:
+          description: Идентификатор типа отчета (80020)
+          type: string
+        objectKey:
+          description: '“Тройной” (subjectId, objectId, schetId) идентификатор с разделителем “%7С”'
+          type: string
+        reportKey:
+          description: Ключ отчета
+          type: string
+        typeReport:
+          description: 'Тип отчета: xls'
+          type: string
+        periodFrom:
+          description: начало периода (на 00:00:00). Формат YYYY-MM-DD
+          type: string
+        periodTo:
+          description: окончание периода (на 24:00:00). Формат YYYY-MM-DD
+          type: string
+    getSchetDataWithMaxDt:
+      description: Массив параметров для метода "get_schet_data_with_max_dt"
+      type: object
+      properties:
+        periodFrom:
+          description: Дата-время начала периода
+          type: string
+        periodTo:
+          description: Дата-время окончания периода
+          type: string
+        interval:
+          description: интервал в минутах (0, 3, 30, 60, 1440)
+          type: number
+        ids:
+          description: ID счетчиков (через запятую, не больше 1000)
+          type: string
+        rts:
+          description: ID_RT параметров (через запятую)
+          type: string
+    getKwh:
+      description: Массив параметров для метода "get_kwh"
+      type: object
+      properties:
+        objectKey:
+          description: '“Тройной” (subjectId, objectId, schetId) идентификатор с разделителем “%7С”'
+          type: string
+        periodFrom:
+          description: Дата-время начала периода запроса
+          type: string
+        periodTo:
+          description: Дата-время окончания периода запроса (на 00 часов)
+          type: number
+        channel:
+          description: 'Канал (1 - A+, 2 - A-, 3 - R+, 4 - R-).<br />
+                        разделитель для каналов "," в случае если запрашивается не один канал.<br />
+                        Если метод вызывается для ПУ и параметр “channel” отсутствует, то данные возвращаются в соответствии с атрибутом schet_fr.channel_cnt'
+          type: string
+        tariff:
+          description: 'Тариф(0 - суммарный, 1,2,3 - соответственно). разделитель для тарифов"," в случае если запрашивается не один тариф.<br />
+            Если метод вызывается для ПУ и параметр “tariff” отсутствует, то данные возвращаются в соответствии с атрибутом schet_fr.tariff_cnt'
+          type: string
+        groupby:
+          description: 'Группировка по интервалу<br />
+                        hh - 30 мин<br />
+                        h - 60 мин<br />
+                        d - сутки<br />
+                        m - месяц<br />
+                        y - год<br />
+                        whole- за весь период'
+
+          type: string
+        method:
+          description: 'приоритет получения данных<br />
+                        kwh - по профилю<br />
+                        meter - по разности показаний<br />
+                        Если параметр “priority” отсутствует, то по умолчанию он равен “meter”'
+          type: string
+    setEventRead:
+      description: Массив параметров для метода "set_event_read"
+      type: object
+      properties:
+        objectKey:
+          description: '“Тройной” (subjectId, objectId, schetId) идентификатор с разделителем “%7С”'
+          type: string
+        idEvent:
+          description: ID типа события
+          type: string
+        dtEvent:
+          description: Дата события в формате DDMMYYYYHHNNSS
+          type: number
+    setSchetCmd:
+      description: Массив параметров для метода "set_schet_cmd"
+      type: object
+      properties:
+        serialNumber:
+          description: Серийный номер ПУ
+          type: string
+        cmdType:
+          description: Тип команды (см. справочник)
+          type: number
+        params:
+          description: Параметры команды (см. справочник)
+          type: number
+    getSchetCmdStatus:
+      description: Массив параметров для метода "get_schet_cmd_status"
+      type: object
+      properties:
+        serialNumber:
+          description: Серийный номер ПУ (null - все ПУ)
+          type: string
+        cmdId:
+          description: Идентификатор команды. (null - все команды)
+          type: string
+        cmdType:
+          description: Тип команды (см. справочник) (null - все типы)
+          type: number
+        bdt:
+          description: Дата-время начала интервала выборки команд (по времени создания)
+          type: string
+        edt:
+          description: Дата-время окончания интервала выборки команд (по времени создания)
+          type: string
+        params:
+          description: Параметры команды (см. справочник)
+          type: number
+    getReportTypes:
+      description: Массив параметров для метода "get_report_types"
+      type: object
+      properties:
+        resource:
+          description: '"a": "электричество",<br />
+                        "b": "тепло",<br />
+                        "c": "газ",<br />
+                        "d": "вода",<br />
+                        "e": "гор.вода"'
+          type: string
+        selector:
+          description: 'Тип отчета: json - возвращает список доступных отчетов, которые отображаются в интерфейсе приложения, excel - возвращает список доступных excel отчетов, xml - возвращает список доступных макетов XML.'
+          type: string
+    generateReport:
+      description: Массив параметров для метода "generate_report"
+      type: object
+      properties:
+        accessor:
+          description: Идентификатор типа отчета
+          type: string
+        objectKey:
+          description: '“Тройной” (subjectId, objectId, schetId) идентификатор с разделителем “%7С”'
+          type: string
+        reportKey:
+          description: Ключ отчета
+          type: string
+        typeReport:
+          description: 'Тип отчета: json, excel, xml;'
+          type: string
+        periodFrom:
+          description: начало периода (на 00:00:00). Формат YYYY-MM-DD
+          type: string
+        periodTo:
+          description: окончание периода (на 24:00:00). Формат YYYY-MM-DD
+          type: string
+        typeObject:
+          description: Тип объекта (см. get_report_types)
+          type: string
+        channels:
+          description: Каналы (см. get_report_types)
+          type: string
+        tariffs:
+          description: Тарифы (см. get_report_types)
+          type: string
+        resultInterval:
+          description: Тип параметра (см. get_report_types)
+          type: string
+        typeAbonent:
+          description: Тип абонента (см. get_report_types)
+          type: string
+        advParams:
+          description: Доп. параметры (см. get_report_types)
+          type: string
