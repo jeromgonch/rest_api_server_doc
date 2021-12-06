@@ -1,6 +1,6 @@
 {
 	"info": {
-		"_postman_id": "887b53cf-f3d2-4340-b944-6ea8422586d5",
+		"_postman_id": "0459eacd-621e-4225-84de-553010c13a63",
 		"name": "Test REST API Server",
 		"description": "Описание REST API функций для интеграции с ПО Энфорс",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
@@ -708,6 +708,30 @@
 								],
 								"type": "text/javascript"
 							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"let hashPassword = pm.collectionVariables.get(\"password\");\r",
+									"pm.sendRequest(pm.collectionVariables.get(\"baseUrl\")+\"/get_open_key\", (err, res) => {\r",
+									"        let rsaKeys = JSON.parse(res.text());\r",
+									"        pm.collectionVariables.set(\"uidKey\", rsaKeys.keyUid);\r",
+									"        eval(pm.collectionVariables.get('forgeJS'));\r",
+									"        let publicKey = '-----BEGIN PUBLIC KEY-----\\n' +\r",
+									"            rsaKeys.keyPublic +\r",
+									"            '\\n-----END PUBLIC KEY-----';\r",
+									"        publicKey = forge.pki.publicKeyFromPem(publicKey);\r",
+									"        let encryptedText = forge.util.encode64(publicKey.encrypt(hashPassword, 'RSAES-PKCS1-V1_5', {\r",
+									"            md: forge.md.sha256.create(),\r",
+									"            mgf1: { md: forge.md.sha256.create() }\r",
+									"        }));\r",
+									"        pm.collectionVariables.set(\"hashPassword\", encryptedText);\r",
+									"    });\r",
+									""
+								],
+								"type": "text/javascript"
+							}
 						}
 					],
 					"protocolProfileBehavior": {
@@ -728,12 +752,17 @@
 							{
 								"description": "(Required) Старый хеш пароля пользователя",
 								"key": "old_hash_password",
-								"value": "{{password}}"
+								"value": "{{hashPassword}}"
 							},
 							{
 								"description": "(Required) Новый хеш пароля пользователя",
 								"key": "new_hash_password",
-								"value": "{{password}}"
+								"value": "{{hashPassword}}"
+							},
+							{
+								"key": "keyUid",
+								"value": "{{uidKey}}",
+								"type": "text"
 							}
 						],
 						"url": {
