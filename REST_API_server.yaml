@@ -177,6 +177,42 @@ paths:
                 $ref: '#/components/schemas/errorMessage'
         401:
           description: Во случае невалидного ***token***; в случае, если для пользователя установлен разрешенный IP адрес и запрос впроизведен не с него; в случае, если переданный ***old_hash_password*** не совпадает с установленным ранее
+  /login/auto_register_user:
+    post:
+      tags:
+        - login
+      summary: Запрос на добавление нового Web пользователя
+      description: Добавляет заявку на регистрацию нового веб пользователя и возвращает результат добавления заявки (также направляет уведомление на укзанный в параметрах email)
+      operationId: RegisterNewUser
+      parameters:
+        - name: keyUid
+          in: header
+          description: Уникальный UID открытого ключа, полученного в методе /get_open_key
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: Массив ID типов измеряемых показателей
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/newUserTicketAddRequest'
+      responses:
+        200:
+          description: Успешное завершение операции - результат добавления заявки на регистрацию пользователя
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/newUserTicketAddResult'
+        500:
+          description: В случае ошибки на сервере
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorMessage'
+        401:
+          description: Во случае если истек срок действия UID RSA key в параметре keyUid
   /get_open_key:
     get:
       tags:
@@ -2198,6 +2234,50 @@ paths:
                 $ref: '#/components/schemas/errorMessage'
         401:
           description: В случае если истек срок действия token'а или token невалиден
+  /wcon/get_schet_hour_meter_api:
+    post:
+      tags:
+        - web_consol.exe
+      summary: 'Получение списка ПУ, доступных пользователю'
+      description: 'Получение списка ПУ, доступных пользователю'
+      operationId: get_schet_hour_meter_api
+      parameters:
+        - name: token
+          in: header
+          description: Token, полученный при авторизации
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: '<b>Ответ:</b><br />
+                       {"type":"object","properties":{"success":{"type":"boolean"},"errMsg":{"type":"string"},"result":{"type":"array","item":{"type":"object","properties":{"channels":{"type":"array","item":{"type":"object","properties":{"channel":{"type":"integer"},"bdt":{"type":"date"},"edt":{"type":"date"},"values":{"type":"array","item":{"type":"object","properties":{"dt":{"type":"datetime"},"val0":{"type":"float"},"val1":{"type":"float"},"val2":{"type":"float"},"val3":{"type":"float"}}}}}}}}}}}}<br /><br />
+                       <b>Описание:</b><br />
+                       "success" - Результат запроса<br />
+                       "errMsg" - Текст ошибки (при наличии)<br />
+                       "result" - Массив ПУ<br />
+                       "channels" - Массив каналов  ПУ <br />
+                       "channel" - канал ПУ<br />
+                       "bdt" - начало интервала<br />
+                       "edt" - окончание интервала<br />
+                       "values" - массив показаний<br />
+                       "dt" - дата-время показания<br />
+                       "val0" - показание по суммарному тарифу<br />
+                       "val1" - показание по тарифу 1<br />
+                       "val2" - показание по тарифу 2<br />
+                       "val3" - показание по тарифу 3<br />
+          content:
+            application/json:
+              schema:
+                type: object
+        500:
+          description: В случае ошибки на сервере
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetSchetHourMeterAPI'
+        401:
+          description: В случае если истек срок действия token'а или token невалиден
   /wcon/get_version_info:
     post:
       tags:
@@ -2238,7 +2318,42 @@ paths:
                 $ref: '#/components/schemas/errorMessage'
         401:
           description: В случае если истек срок действия token'а или token невалиден
-
+  /wcon/get_black_list:
+    post:
+      tags:
+        - web_consol.exe
+      summary: 'Получение информации о версиях компонент ПО'
+      description: 'Получение информации о версиях компонент ПО'
+      operationId: get_black_list
+      parameters:
+        - name: token
+          in: header
+          description: Token, полученный при авторизации
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: '<b>Ответ:</b><br />
+                       {"type":"object","properties":{"success":{"type":"boolean"},"errMsg":{"type":"string"},"result":{"type":"array","item":{"type":"string"}}}}<br /><br />
+                       <b>Описание:</b><br />
+                       "success" - Результат запроса<br />
+                       "errMsg" - Текст ошибки (при наличии)<br />
+                       "result" - Массив элементов интерфейса<br />
+                       "item" - наименование элемента интерфейса<br />'
+          content:
+            application/json:
+              schema:
+                type: object
+        500:
+          description: В случае ошибки на сервере
+          content:
+            application/json:
+              schema:
+                $ref: ''
+        401:
+          description: В случае если истек срок действия token'а или token невалиден
+          
 components:
   schemas:
     token:
@@ -2273,6 +2388,32 @@ components:
           type: string
         message:
           description: Сообщение об ошибке
+          type: string
+    newUserTicketAddRequest:
+      description: Праметры заявки на регистрацию нового пользователя
+      type: object
+      properties:
+        email:
+          description: Адрес электронной почты
+          type: string
+        phone:
+          description: Номер телефона
+          type: string
+        abonentIdentifier:
+          description: Идентификатор абонента (лицевой счет)
+          type: string
+        pwdHash:
+          description: Закодированый public ключем RSA хеш пароля пользователя
+          type: string
+    newUserTicketAddResult:
+      description: Результат добавления заявки на регистрацию нового Web пользователя
+      type: object
+      properties:
+        isCreated:
+          description: Добавлена ли заявка
+          type: boolean
+        message:
+          description: Сообщение для пользователя
           type: string
     rsaOpenKey:
       description: RSA public key
@@ -3171,4 +3312,20 @@ components:
           type: string
         advParams:
           description: Доп. параметры (см. get_report_types)
+          type: string
+    getSchetHourMeterAPI:
+      description: Массив параметров для метода "get_schet_hour_meter_api"
+      type: object
+      properties:
+        objectKey:
+          description:  “Тройной” (subjectId, objectId, schetId) идентификатор с разделителем “%7С”
+          type: string
+        periodFrom:
+          description: Дата-время начала периода запроса
+          type: string
+        periodTo:
+          description: Дата-время окончания периода запроса
+          type: string
+        channel:
+          description: Каналы ПУ. указыватся через запятую(1,2,3,4). Если параметр не указан, то возвращаются каналы из schet_fr.channel_cnt 
           type: string
