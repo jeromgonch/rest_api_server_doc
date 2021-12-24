@@ -699,17 +699,6 @@
 					"name": "Запрос изменения хеша пароля пользователя",
 					"event": [
 						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"pm.test(\"Status code is 200\", function () {",
-									"    pm.response.to.have.status(202);",
-									"});"
-								],
-								"type": "text/javascript"
-							}
-						},
-						{
 							"listen": "prerequest",
 							"script": {
 								"exec": [
@@ -727,8 +716,24 @@
 									"            mgf1: { md: forge.md.sha256.create() }\r",
 									"        }));\r",
 									"        pm.collectionVariables.set(\"hashPassword\", encryptedText);\r",
+									"        encryptedText = forge.util.encode64(publicKey.encrypt('0000000077', 'RSAES-PKCS1-V1_5', {\r",
+									"            md: forge.md.sha256.create(),\r",
+									"            mgf1: { md: forge.md.sha256.create() }\r",
+									"        }));\r",
+									"        pm.collectionVariables.set(\"newHashPassword\", encryptedText);\r",
 									"    });\r",
 									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 202\", function () {",
+									"    pm.response.to.have.status(202);",
+									"});"
 								],
 								"type": "text/javascript"
 							}
@@ -757,7 +762,7 @@
 							{
 								"description": "(Required) Новый хеш пароля пользователя",
 								"key": "new_hash_password",
-								"value": "{{hashPassword}}"
+								"value": "{{newHashPassword}}"
 							},
 							{
 								"key": "keyUid",
@@ -979,7 +984,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"email\": \"test@email.com\",\n    \"phone\": \"+7 900 999 9999\",\n    \"abonentIdentifier\": \"1234567890\",\n    \"pwdHash\": \"{{newPwdHash}}\"\n}",
+							"raw": "{\n    \"email\": \"test@test.com\",\n    \"phone\": \"+7 900 999 9999\",\n    \"abonentIdentifier\": \"1234567890\",\n    \"pwdHash\": \"{{newPwdHash}}\",\n    \"url\": \"test_url\"\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -1127,6 +1132,88 @@
 							],
 							"cookie": [],
 							"body": "{\n \"error\": \"ad do consectetur eiusmod\",\n \"message\": \"dolore in qui\"\n}"
+						}
+					]
+				},
+				{
+					"name": "Подтверждение email для методов регистрации в сервисе нового пользователя и востановления пароля. Завершает выполнения соответствующей заявки на регистрацию нового пользователя или восстановление пароля пользователя.",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"description": "(Required) UID заявки",
+								"key": "requisitionUid",
+								"value": "214343423423423423"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"hashPassword\": \"34234234324324\",\n    \"keyUid\": \"4234234234234234234\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/login/confirm_requisition",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"login",
+								"confirm_requisition"
+							]
+						},
+						"description": "Завершает выполнение заявки на регистрацию или востановление пароля"
+					},
+					"response": [
+						{
+							"name": "Успешное завершение операции (пользователь зарегистрирован или па)",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"description": "(Required) UID заявки",
+										"key": "uid",
+										"value": "nostrud Duis deserunt sunt sint"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"hashPassword\": \"anim dolore\",\n    \"keyUid\": \"sit nostrud aliqua nulla id\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/login/confirm_requisition",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"login",
+										"confirm_requisition"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "text",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "text/plain"
+								}
+							],
+							"cookie": [],
+							"body": ""
 						}
 					]
 				},
@@ -4775,7 +4862,7 @@
 	"variable": [
 		{
 			"key": "baseUrl",
-			"value": "192.168.0.104:8089"
+			"value": "localhost:8088"
 		},
 		{
 			"key": "password",
@@ -4827,6 +4914,10 @@
 		},
 		{
 			"key": "newPwdHash",
+			"value": ""
+		},
+		{
+			"key": "newHashPassword",
 			"value": ""
 		}
 	]

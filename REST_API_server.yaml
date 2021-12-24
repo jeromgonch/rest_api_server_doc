@@ -217,6 +217,30 @@ paths:
                 $ref: '#/components/schemas/errorMessage'
         401:
           description: Во случае если истек срок действия UID RSA key в параметре keyUid
+  /login/confirm_requisition:
+    post:
+      tags:
+        - login
+      summary: Подтверждение email для методов регистрации в сервисе нового пользователя и востановления пароля. Завершает выполнения соответствующей заявки на регистрацию нового пользователя или восстановление пароля пользователя.
+      description: Завершает выполнение заявки на регистрацию или востановление пароля
+      operationId: confirmRequisition
+      parameters:
+        - name: requisitionUid
+          in: header
+          description: UID заявки
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: Массив ID типов измеряемых показателей
+        required: false
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/confirmPasswordRecovery'
+      responses:
+        200:
+          description: Успешное завершение операции (пользователь зарегистрирован или па)
   /get_open_key:
     get:
       tags:
@@ -2408,6 +2432,19 @@ components:
           type: string
         pwdHash:
           description: Закодированый public ключем RSA хеш пароля пользователя
+          type: string
+        url:
+          description: Префикс url, который будет направлен пользователю в уведомлении. Полный url будет дополнен параметром uid заявки. Например, url = "https://test_server/confirm_email.http", тогда ссылка направленная пользователю в уведомлении будет "https://test_server/confirm_email.http?uid=234898342793298532987"
+          type: string
+    confirmPasswordRecovery:
+      description: Новый пароль пользователя зашифрованый с помощью RSA public key (в формате Base64)
+      type: object
+      properties:
+        hashPassword:
+          description: Зашифрованый пароль пользователя
+          type: string
+        keyUid:
+          description: Уникальный UID открытого ключа, полученного в методе /get_open_key
           type: string
     newUserTicketAddResult:
       description: Результат добавления заявки на регистрацию нового Web пользователя
