@@ -932,11 +932,14 @@
 									"            rsaKeys.keyPublic +\r",
 									"            '\\n-----END PUBLIC KEY-----';\r",
 									"        publicKey = forge.pki.publicKeyFromPem(publicKey);\r",
-									"        let encryptedText = forge.util.encode64(publicKey.encrypt(\"testHashPassword\", 'RSAES-PKCS1-V1_5', {\r",
+									"        let body = JSON.parse(pm.request.body.raw);\r",
+									"        let encryptedText = forge.util.encode64(publicKey.encrypt(body.pwdHash, 'RSAES-PKCS1-V1_5', {\r",
 									"            md: forge.md.sha256.create(),\r",
 									"            mgf1: { md: forge.md.sha256.create() }\r",
 									"        }));\r",
-									"        pm.collectionVariables.set(\"newPwdHash\", encryptedText);\r",
+									"        body.pwdHash = encryptedText;\r",
+									"        pm.collectionVariables.set(\"newPwdHash\", body.pwdHash);\r",
+									"        pm.request.body.raw = body;\r",
 									"    });"
 								],
 								"type": "text/javascript"
@@ -984,7 +987,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"email\": \"test@test.com\",\n    \"phone\": \"+7 900 999 9999\",\n    \"abonentIdentifier\": \"1234567890\",\n    \"pwdHash\": \"{{newPwdHash}}\",\n    \"url\": \"test_url\"\n}",
+							"raw": "{\n    \"email\": \"test@test.com\",\n    \"phone\": \"+7 900 999 9999\",\n    \"abonentIdentifier\": \"1234567890\",\n    \"pwdHash\": \"test_pwd\",\n    \"url\": \"test_url\",\n    \"typeAbonent\": \"individual\"\n}",
 							"options": {
 								"raw": {
 									"language": "json"

@@ -2436,6 +2436,12 @@ components:
         url:
           description: Префикс url, который будет направлен пользователю в уведомлении. Полный url будет дополнен параметром uid заявки. Например, url = "https://test_server/confirm_email.http", тогда ссылка направленная пользователю в уведомлении будет "https://test_server/confirm_email.http?uid=234898342793298532987"
           type: string
+        typeAbonent:
+          description: Тип абонента ("individual" - физ. лицо, "legal_entity" - юр.лицо)
+          type: string
+          enum:
+            - individual
+            - legal_entity
     confirmPasswordRecovery:
       description: Новый пароль пользователя зашифрованый с помощью RSA public key (в формате Base64)
       type: object
