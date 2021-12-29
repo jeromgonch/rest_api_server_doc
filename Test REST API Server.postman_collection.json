@@ -987,7 +987,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"email\": \"test@test.com\",\n    \"phone\": \"+7 900 999 9999\",\n    \"abonentIdentifier\": \"1234567890\",\n    \"pwdHash\": \"test_pwd\",\n    \"url\": \"test_url\",\n    \"typeAbonent\": \"individual\"\n}",
+							"raw": "{\n    \"email\": \"test@test.com\",\n    \"phone\": \"+7 900 999 9999\",\n    \"abonentIdentifier\": \"1092837465\",\n    \"pwdHash\": \"test_pwd\",\n    \"url\": \"test_url\",\n    \"typeAbonent\": \"legal_entity\"\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -1146,7 +1146,7 @@
 							{
 								"description": "(Required) UID заявки",
 								"key": "requisitionUid",
-								"value": "214343423423423423"
+								"value": "5d9d3c90-52dc-4f0a-ad20-ce21d480983d"
 							},
 							{
 								"key": "Content-Type",
@@ -2596,6 +2596,174 @@
 		{
 			"name": "web_consol.exe",
 			"item": [
+				{
+					"name": "/wcon/get_object_info",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"description": "(Required) Token, полученный при авторизации",
+								"key": "token",
+								"value": "{{token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"objectKey\": \"'null'%7С'null'%7С'null'\",\n    \"resource\": \"a\",\n    \"request\": [\n        \"info\",\n        \"odpu\",\n        \"ipu\"\n    ]\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/wcon/get_object_info",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"wcon",
+								"get_object_info"
+							]
+						},
+						"description": "Получить НСИ по выбранному объекту"
+					},
+					"response": [
+						{
+							"name": "Ответ: <br /> {\"type\":\"object\",\"properties\":{\"success\":{\"type\":\"boolean\"},\"errMsg\":{\"type\":\"string\"},\"result\":{\"type\":\"array\",\"item\":{\"title\":{\"type\":\"string\"},\"options\":{\"type\":\"object\",\"properties\":{\"dataFormat\":{\"type\":\"string\"},\"preset\":{\"type\":\"strin",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"description": "(Required) Token, полученный при авторизации",
+										"key": "token",
+										"value": "eiusmod nisi in"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"objectKey\": \"amet aliquip proident\",\n    \"resource\": \"proident\",\n    \"request\": [\n        \"non ea\",\n        \"labore dolore laboris minim\"\n    ]\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/wcon/get_object_info",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"wcon",
+										"get_object_info"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{}"
+						},
+						{
+							"name": "В случае если истек срок действия token'а или token невалиден",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"description": "(Required) Token, полученный при авторизации",
+										"key": "token",
+										"value": "eiusmod nisi in"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"objectKey\": \"amet aliquip proident\",\n    \"resource\": \"proident\",\n    \"request\": [\n        \"non ea\",\n        \"labore dolore laboris minim\"\n    ]\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/wcon/get_object_info",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"wcon",
+										"get_object_info"
+									]
+								}
+							},
+							"status": "Unauthorized",
+							"code": 401,
+							"_postman_previewlanguage": "text",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "text/plain"
+								}
+							],
+							"cookie": [],
+							"body": ""
+						},
+						{
+							"name": "В случае ошибки на сервере",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"description": "(Required) Token, полученный при авторизации",
+										"key": "token",
+										"value": "eiusmod nisi in"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"objectKey\": \"amet aliquip proident\",\n    \"resource\": \"proident\",\n    \"request\": [\n        \"non ea\",\n        \"labore dolore laboris minim\"\n    ]\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/wcon/get_object_info",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"wcon",
+										"get_object_info"
+									]
+								}
+							},
+							"status": "Internal Server Error",
+							"code": 500,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n \"error\": \"cupidatat ea qui nostrud\",\n \"message\": \"dolor Lorem amet\"\n}"
+						}
+					]
+				},
 				{
 					"name": "/wcon/get_nsi",
 					"protocolProfileBehavior": {
