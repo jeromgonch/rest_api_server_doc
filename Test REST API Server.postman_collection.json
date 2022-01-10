@@ -1,6 +1,6 @@
 {
 	"info": {
-		"_postman_id": "0459eacd-621e-4225-84de-553010c13a63",
+		"_postman_id": "f665eba2-32ce-4219-bcdc-5c3806676d7a",
 		"name": "Test REST API Server",
 		"description": "Описание REST API функций для интеграции с ПО Энфорс",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
@@ -194,7 +194,8 @@
 							"listen": "prerequest",
 							"script": {
 								"exec": [
-									"let hashPassword = pm.collectionVariables.get(\"password\");",
+									"eval(pm.collectionVariables.get(\"SHA256\"));",
+									"let hashPassword = SHA256(pm.collectionVariables.get(\"password\"));",
 									"pm.sendRequest(pm.collectionVariables.get(\"baseUrl\")+\"/get_open_key\", (err, res) => {",
 									"        let rsaKeys = JSON.parse(res.text());",
 									"        pm.collectionVariables.set(\"uidKey\", rsaKeys.keyUid);",
@@ -924,6 +925,7 @@
 							"listen": "prerequest",
 							"script": {
 								"exec": [
+									"eval(pm.collectionVariables.get(\"SHA256\"));\r",
 									"pm.sendRequest(pm.collectionVariables.get(\"baseUrl\")+\"/get_open_key\", (err, res) => {\r",
 									"        let rsaKeys = JSON.parse(res.text());\r",
 									"        pm.collectionVariables.set(\"uidKey\", rsaKeys.keyUid);\r",
@@ -933,6 +935,9 @@
 									"            '\\n-----END PUBLIC KEY-----';\r",
 									"        publicKey = forge.pki.publicKeyFromPem(publicKey);\r",
 									"        let body = JSON.parse(pm.request.body.raw);\r",
+									"        // рассчитаем хеш пароля (SHA256)\r",
+									"        body.pwdHash = SHA256(body.pwdHash);\r",
+									"        // закодируем пароль полученным public key\r",
 									"        let encryptedText = forge.util.encode64(publicKey.encrypt(body.pwdHash, 'RSAES-PKCS1-V1_5', {\r",
 									"            md: forge.md.sha256.create(),\r",
 									"            mgf1: { md: forge.md.sha256.create() }\r",
@@ -987,7 +992,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"email\": \"test@test.com\",\n    \"phone\": \"+7 900 999 9999\",\n    \"abonentIdentifier\": \"1092837465\",\n    \"pwdHash\": \"test_pwd\",\n    \"url\": \"test_url\",\n    \"typeAbonent\": \"legal_entity\"\n}",
+							"raw": "{\n    \"email\": \"test@gmail.com\",\n    \"phone\": \"+7 900 999 9999\",\n    \"abonentIdentifier\": \"12345\",\n    \"pwdHash\": \"12345\",\n    \"url\": \"http://test_url/register_user.html\",\n    \"typeAbonent\": \"individual\"\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -1146,7 +1151,7 @@
 							{
 								"description": "(Required) UID заявки",
 								"key": "requisitionUid",
-								"value": "5d9d3c90-52dc-4f0a-ad20-ce21d480983d"
+								"value": "e9bb4418-05a0-44bc-8f53-a4c9ffb8f6f5"
 							},
 							{
 								"key": "Content-Type",
@@ -1155,7 +1160,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"hashPassword\": \"34234234324324\",\n    \"keyUid\": \"4234234234234234234\"\n}",
+							"raw": "",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -1217,6 +1222,322 @@
 							],
 							"cookie": [],
 							"body": ""
+						}
+					]
+				},
+				{
+					"name": "Подать заявку на восстановление пароля пользователя по указанному ранее email",
+					"protocolProfileBehavior": {
+						"disabledSystemHeaders": {
+							"accept": true,
+							"accept-encoding": true,
+							"connection": true
+						}
+					},
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"test@gmail.com\",\n    \"url\": \"http://test.com\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/login/forgot_password",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"login",
+								"forgot_password"
+							]
+						},
+						"description": "Возвращает результат подачи заявки на восстановление пароля пользователя. В случае если заявка будет удовлетворена на указанный email придет электронное письмо со ссылкой на страницу для восстановления пароля"
+					},
+					"response": [
+						{
+							"name": "Результат подачи заявки на восстановление пароля",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"email\": \"in incididunt Ut dolore\",\n    \"url\": \"dolor ut aliquip in\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/login/forgot_password",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"login",
+										"forgot_password"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n \"isCreated\": true,\n \"message\": \"ad\"\n}"
+						},
+						{
+							"name": "В случае ошибки на сервере",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"email\": \"in incididunt Ut dolore\",\n    \"url\": \"dolor ut aliquip in\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/login/forgot_password",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"login",
+										"forgot_password"
+									]
+								}
+							},
+							"status": "Internal Server Error",
+							"code": 500,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n \"error\": \"Excepteur culpa\",\n \"message\": \"culpa incididunt in laboris cupidatat\"\n}"
+						}
+					]
+				},
+				{
+					"name": "Подтверждение email указанного в заявке на восстановление пароля пользователя",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"eval(pm.collectionVariables.get(\"SHA256\"));\r",
+									"let hashPassword = SHA256(pm.collectionVariables.get(\"password\"));\r",
+									"pm.sendRequest(pm.collectionVariables.get(\"baseUrl\")+\"/get_open_key\", (err, res) => {\r",
+									"        let rsaKeys = JSON.parse(res.text());\r",
+									"        pm.collectionVariables.set(\"uidKey\", rsaKeys.keyUid);\r",
+									"        eval(pm.collectionVariables.get('forgeJS'));\r",
+									"        let publicKey = '-----BEGIN PUBLIC KEY-----\\n' +\r",
+									"            rsaKeys.keyPublic +\r",
+									"            '\\n-----END PUBLIC KEY-----';\r",
+									"        publicKey = forge.pki.publicKeyFromPem(publicKey);\r",
+									"        let encryptedText = forge.util.encode64(publicKey.encrypt(hashPassword, 'RSAES-PKCS1-V1_5', {\r",
+									"            md: forge.md.sha256.create(),\r",
+									"            mgf1: { md: forge.md.sha256.create() }\r",
+									"        }));\r",
+									"        pm.collectionVariables.set(\"newUserPassword\", encryptedText);\r",
+									"    });"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disabledSystemHeaders": {
+							"connection": true,
+							"accept-encoding": true,
+							"accept": true
+						}
+					},
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"description": "(Required) uid заявки, переданный через ссылку",
+								"key": "requisitionUid",
+								"value": "21ff5a75-bf6d-4800-810c-0f34513d9e8a"
+							},
+							{
+								"description": "(Required) Уникальный UID открытого ключа, полученного в методе /get_open_key",
+								"key": "keyUid",
+								"value": "{{uidKey}}"
+							},
+							{
+								"description": "(Required) Новый хеш пароля зашифрованный с помощью RSA алгоритма открытым ключом, полученным в методе /get_open_key",
+								"key": "newHashPassword",
+								"value": "{{newUserPassword}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/login/confirm_forgot_password",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"login",
+								"confirm_forgot_password"
+							]
+						},
+						"description": "Подтверждение email указанного в заявке на восстановление пароля пользователя и задание нового пароля для Web пользователя"
+					},
+					"response": [
+						{
+							"name": "RSA public key и UID",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"description": "(Required) uid заявки, переданный через ссылку",
+										"key": "requisitionUid",
+										"value": "dolore ut"
+									},
+									{
+										"description": "(Required) Уникальный UID открытого ключа, полученного в методе /get_open_key",
+										"key": "keyUid",
+										"value": "dolore ut"
+									},
+									{
+										"description": "(Required) Новый хеш пароля зашифрованный с помощью RSA алгоритма открытым ключом, полученным в методе /get_open_key",
+										"key": "newHashPassword",
+										"value": "dolore ut"
+									}
+								],
+								"url": {
+									"raw": "{{baseUrl}}/login/confirm_forgot_password",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"login",
+										"confirm_forgot_password"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n \"isConfirmed\": true,\n \"message\": \"ea\"\n}"
+						},
+						{
+							"name": "Истек срок действия UID открытого ключа, полученного в методе /get_open_key",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"description": "(Required) uid заявки, переданный через ссылку",
+										"key": "requisitionUid",
+										"value": "dolore ut"
+									},
+									{
+										"description": "(Required) Уникальный UID открытого ключа, полученного в методе /get_open_key",
+										"key": "keyUid",
+										"value": "dolore ut"
+									},
+									{
+										"description": "(Required) Новый хеш пароля зашифрованный с помощью RSA алгоритма открытым ключом, полученным в методе /get_open_key",
+										"key": "newHashPassword",
+										"value": "dolore ut"
+									}
+								],
+								"url": {
+									"raw": "{{baseUrl}}/login/confirm_forgot_password",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"login",
+										"confirm_forgot_password"
+									]
+								}
+							},
+							"status": "Unauthorized",
+							"code": 401,
+							"_postman_previewlanguage": "text",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "text/plain"
+								}
+							],
+							"cookie": [],
+							"body": ""
+						},
+						{
+							"name": "В случае ошибки на сервере",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"description": "(Required) uid заявки, переданный через ссылку",
+										"key": "requisitionUid",
+										"value": "dolore ut"
+									},
+									{
+										"description": "(Required) Уникальный UID открытого ключа, полученного в методе /get_open_key",
+										"key": "keyUid",
+										"value": "dolore ut"
+									},
+									{
+										"description": "(Required) Новый хеш пароля зашифрованный с помощью RSA алгоритма открытым ключом, полученным в методе /get_open_key",
+										"key": "newHashPassword",
+										"value": "dolore ut"
+									}
+								],
+								"url": {
+									"raw": "{{baseUrl}}/login/confirm_forgot_password",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"login",
+										"confirm_forgot_password"
+									]
+								}
+							},
+							"status": "Internal Server Error",
+							"code": 500,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n \"error\": \"Excepteur culpa\",\n \"message\": \"culpa incididunt in laboris cupidatat\"\n}"
 						}
 					]
 				},
@@ -5037,11 +5358,11 @@
 		},
 		{
 			"key": "password",
-			"value": "0000000088"
+			"value": "12345"
 		},
 		{
 			"key": "login",
-			"value": "test33"
+			"value": "12345"
 		},
 		{
 			"key": "hashPassword",
@@ -5090,6 +5411,14 @@
 		{
 			"key": "newHashPassword",
 			"value": ""
+		},
+		{
+			"key": "SHA256",
+			"value": "function SHA256(s){\n    var chrsz = 8;\n    var hexcase = 0;\n\n    function safe_add (x, y) {\n        var lsw = (x & 0xFFFF) + (y & 0xFFFF);\n        var msw = (x >> 16) + (y >> 16) + (lsw >> 16);\n        return (msw << 16) | (lsw & 0xFFFF);\n    }\n\n    function S (X, n) { return ( X >>> n ) | (X << (32 - n)); }\n    function R (X, n) { return ( X >>> n ); }\n    function Ch(x, y, z) { return ((x & y) ^ ((~x) & z)); }\n    function Maj(x, y, z) { return ((x & y) ^ (x & z) ^ (y & z)); }\n    function Sigma0256(x) { return (S(x, 2) ^ S(x, 13) ^ S(x, 22)); }\n    function Sigma1256(x) { return (S(x, 6) ^ S(x, 11) ^ S(x, 25)); }\n    function Gamma0256(x) { return (S(x, 7) ^ S(x, 18) ^ R(x, 3)); }\n    function Gamma1256(x) { return (S(x, 17) ^ S(x, 19) ^ R(x, 10)); }\n\n    function core_sha256 (m, l) {\n        var K = new Array(0x428A2F98, 0x71374491, 0xB5C0FBCF, 0xE9B5DBA5, 0x3956C25B, 0x59F111F1, 0x923F82A4, 0xAB1C5ED5, 0xD807AA98, 0x12835B01, 0x243185BE, 0x550C7DC3, 0x72BE5D74, 0x80DEB1FE, 0x9BDC06A7, 0xC19BF174, 0xE49B69C1, 0xEFBE4786, 0xFC19DC6, 0x240CA1CC, 0x2DE92C6F, 0x4A7484AA, 0x5CB0A9DC, 0x76F988DA, 0x983E5152, 0xA831C66D, 0xB00327C8, 0xBF597FC7, 0xC6E00BF3, 0xD5A79147, 0x6CA6351, 0x14292967, 0x27B70A85, 0x2E1B2138, 0x4D2C6DFC, 0x53380D13, 0x650A7354, 0x766A0ABB, 0x81C2C92E, 0x92722C85, 0xA2BFE8A1, 0xA81A664B, 0xC24B8B70, 0xC76C51A3, 0xD192E819, 0xD6990624, 0xF40E3585, 0x106AA070, 0x19A4C116, 0x1E376C08, 0x2748774C, 0x34B0BCB5, 0x391C0CB3, 0x4ED8AA4A, 0x5B9CCA4F, 0x682E6FF3, 0x748F82EE, 0x78A5636F, 0x84C87814, 0x8CC70208, 0x90BEFFFA, 0xA4506CEB, 0xBEF9A3F7, 0xC67178F2);\n        var HASH = new Array(0x6A09E667, 0xBB67AE85, 0x3C6EF372, 0xA54FF53A, 0x510E527F, 0x9B05688C, 0x1F83D9AB, 0x5BE0CD19);\n        var W = new Array(64);\n        var a, b, c, d, e, f, g, h, i, j;\n        var T1, T2;\n\n        m[l >> 5] |= 0x80 << (24 - l % 32);\n        m[((l + 64 >> 9) << 4) + 15] = l;\n\n        for ( var i = 0; i<m.length; i+=16 ) {\n            a = HASH[0];\n            b = HASH[1];\n            c = HASH[2];\n            d = HASH[3];\n            e = HASH[4];\n            f = HASH[5];\n            g = HASH[6];\n            h = HASH[7];\n\n            for ( var j = 0; j<64; j++) {\n                if (j < 16) W[j] = m[j + i];\n                else W[j] = safe_add(safe_add(safe_add(Gamma1256(W[j - 2]), W[j - 7]), Gamma0256(W[j - 15])), W[j - 16]);\n\n                T1 = safe_add(safe_add(safe_add(safe_add(h, Sigma1256(e)), Ch(e, f, g)), K[j]), W[j]);\n                T2 = safe_add(Sigma0256(a), Maj(a, b, c));\n\n                h = g;\n                g = f;\n                f = e;\n                e = safe_add(d, T1);\n                d = c;\n                c = b;\n                b = a;\n                a = safe_add(T1, T2);\n            }\n\n            HASH[0] = safe_add(a, HASH[0]);\n            HASH[1] = safe_add(b, HASH[1]);\n            HASH[2] = safe_add(c, HASH[2]);\n            HASH[3] = safe_add(d, HASH[3]);\n            HASH[4] = safe_add(e, HASH[4]);\n            HASH[5] = safe_add(f, HASH[5]);\n            HASH[6] = safe_add(g, HASH[6]);\n            HASH[7] = safe_add(h, HASH[7]);\n        }\n        return HASH;\n    }\n\n    function str2binb (str) {\n        var bin = Array();\n        var mask = (1 << chrsz) - 1;\n        for(var i = 0; i < str.length * chrsz; i += chrsz) {\n            bin[i>>5] |= (str.charCodeAt(i / chrsz) & mask) << (24 - i % 32);\n        }\n        return bin;\n    }\n\n    function Utf8Encode(string) {\n        string = string.replace(/\\r\\n/g,'\\n');\n        var utftext = '';\n\n        for (var n = 0; n < string.length; n++) {\n\n            var c = string.charCodeAt(n);\n\n            if (c < 128) {\n                utftext += String.fromCharCode(c);\n            }\n            else if((c > 127) && (c < 2048)) {\n                utftext += String.fromCharCode((c >> 6) | 192);\n                utftext += String.fromCharCode((c & 63) | 128);\n            }\n            else {\n                utftext += String.fromCharCode((c >> 12) | 224);\n                utftext += String.fromCharCode(((c >> 6) & 63) | 128);\n                utftext += String.fromCharCode((c & 63) | 128);\n            }\n\n        }\n\n        return utftext;\n    }\n\n    function binb2hex (binarray) {\n        var hex_tab = hexcase ? '0123456789ABCDEF' : '0123456789abcdef';\n        var str = '';\n        for(var i = 0; i < binarray.length * 4; i++) {\n            str += hex_tab.charAt((binarray[i>>2] >> ((3 - i % 4)*8+4)) & 0xF) +\n                hex_tab.charAt((binarray[i>>2] >> ((3 - i % 4)*8 )) & 0xF);\n        }\n        return str;\n    }\n\n    s = Utf8Encode(s);\n    return binb2hex(core_sha256(str2binb(s), s.length * chrsz));\n}"
+		},
+		{
+			"key": "newUserPassword",
+			"value": "12345"
 		}
 	]
 }

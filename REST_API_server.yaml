@@ -208,7 +208,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/newUserTicketAddResult'
+                $ref: '#/components/schemas/newUserTicketResult'
         500:
           description: В случае ошибки на сервере
           content:
@@ -231,16 +231,87 @@ paths:
           required: true
           schema:
             type: string
-      requestBody:
-        description: Массив ID типов измеряемых показателей
-        required: false
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/confirmPasswordRecovery'
       responses:
         200:
           description: Успешное завершение операции (пользователь зарегистрирован или па)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/newUserTicketConfirmResult'
+        500:
+          description: В случае ошибки на сервере
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorMessage'
+  /login/forgot_password:
+    post:
+      tags:
+        - login
+      summary: Подать заявку на восстановление пароля пользователя по указанному ранее email
+      description: Возвращает результат подачи заявки на восстановление пароля пользователя. В случае если заявка будет удовлетворена на указанный email придет электронное письмо со ссылкой на страницу для восстановления пароля
+      operationId: forgotPassword
+      requestBody:
+        description: Параметры запроса на восстановление пароля пользователя
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/forgotUserPasswordParams'
+      responses:
+        200:
+          description: Результат подачи заявки на восстановление пароля
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/forgotUserPasswordResult'
+        500:
+          description: В случае ошибки на сервере
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorMessage'
+  /login/confirm_forgot_password:
+    post:
+      tags:
+        - login
+      summary: Подтверждение email указанного в заявке на восстановление пароля пользователя
+      description: Подтверждение email указанного в заявке на восстановление пароля пользователя и задание нового пароля для Web пользователя
+      operationId: confirmRequisitionForgotPassword
+      parameters:
+        - name: requisitionUid
+          in: header
+          description: uid заявки, переданный через ссылку
+          required: true
+          schema:
+            type: string
+        - name: keyUid
+          in: header
+          description: Уникальный UID открытого ключа, полученного в методе /get_open_key
+          required: true
+          schema:
+            type: string
+        - name: newHashPassword
+          in: header
+          description: Новый хеш пароля зашифрованный с помощью RSA алгоритма открытым ключом, полученным в методе /get_open_key
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: RSA public key и UID
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/confirmForgotPasswordResult'
+        401:
+          description: Истек срок действия UID открытого ключа, полученного в методе /get_open_key
+        500:
+          description: В случае ошибки на сервере
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorMessage'
   /get_open_key:
     get:
       tags:
@@ -607,7 +678,6 @@ paths:
                 $ref: '#/components/schemas/errorMessage'
         401:
           description: В случае если истек срок действия token'а или token невалиден
-
   /requisitions/status_types:
     post:
       tags:
@@ -2442,18 +2512,8 @@ components:
           enum:
             - individual
             - legal_entity
-    confirmPasswordRecovery:
-      description: Новый пароль пользователя зашифрованый с помощью RSA public key (в формате Base64)
-      type: object
-      properties:
-        hashPassword:
-          description: Зашифрованый пароль пользователя
-          type: string
-        keyUid:
-          description: Уникальный UID открытого ключа, полученного в методе /get_open_key
-          type: string
-    newUserTicketAddResult:
-      description: Результат добавления заявки на регистрацию нового Web пользователя
+    newUserTicketResult:
+      description: Результат подачи заявки на регистрацию нового Web пользователя
       type: object
       properties:
         isCreated:
@@ -2461,6 +2521,40 @@ components:
           type: boolean
         message:
           description: Сообщение для пользователя
+          type: string
+    newUserTicketConfirmResult:
+      description: Результат подтверждения email и выполнения заявки на создание нового пользователя
+      type: object
+      properties:
+        isConfirmed:
+          type: boolean
+        message:
+          type: string
+    forgotUserPasswordParams:
+      description: Параметры заявки на восстановление пароля пользователя
+      type: object
+      properties:
+        email:
+          description: Адрес электронной почты, заданный при регистрации пользователя
+          type: string
+        url:
+          description: Префикс url, который будет направлен пользователю в уведомлении. Полный url будет дополнен параметром uid заявки. Например, url = "https://test_server/confirm_email.http", тогда ссылка направленная пользователю в уведомлении будет "https://test_server/confirm_email.http?uid=234898342793298532987"
+          type: string
+    forgotUserPasswordResult:
+      description: Результат подачи заявки на восстановление пароля
+      type: object
+      properties:
+        isCreated:
+          type: boolean
+        message:
+          type: string
+    confirmForgotPasswordResult:
+      description: Результат подтверждения email и выполнения заявки на изменение пароля
+      type: object
+      properties:
+        isConfirmed:
+          type: boolean
+        message:
           type: string
     rsaOpenKey:
       description: RSA public key
