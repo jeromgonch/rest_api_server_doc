@@ -2819,6 +2819,8 @@ components:
       properties:
         deleteResult:
           type: boolean
+        message:
+          type: string
     userManagementAcceptResult:
       description: Результат иницирования процесса применения заявки
       type: object
