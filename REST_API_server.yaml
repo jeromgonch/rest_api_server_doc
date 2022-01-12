@@ -334,6 +334,175 @@ paths:
                 $ref: '#/components/schemas/errorMessage'
         401:
           description: В случае, если для IP, с которого пришел запрос запрещено получения RSA public key
+  /login/get_user_management_ticket_list:
+    post:
+      tags:
+        - admin
+      summary: Получить список заявок по управлению пользователями. Функция доступна только для пользователей с правами администратора
+      description: Передает список заявок по управлению пользователями ограниченный фильтрами для поиска (временной период, тип пользователей, тип заявок)
+      operationId: getUserManagementTicketList
+      parameters:
+        - name: token
+          in: header
+          description: Token, полученный при авторизации
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: Массив ID запрашиваемых свойств НСИ ПУ
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/userManagementTicketListFilter'
+      responses:
+        200:
+          description: Сформирован список заявок
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/userManagementTicketList'
+        401:
+          description: В случае если истек срок действия token'а или token невалиден
+        500:
+          description: В случае ошибки на сервере
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorMessage'
+  /login/delete_user_management_ticket:
+    post:
+      tags:
+        - admin
+      summary: Удалить заявку на управление пользователем (доступна только для администраторов системы)
+      description: Удалить заявку на управление пользователем по UID завки
+      operationId: deleteTicketByUid
+      parameters:
+        - name: token
+          in: header
+          description: Token, полученный при авторизации
+          required: true
+          schema:
+            type: string
+        - name: uid
+          in: header
+          description: UID заявки на управление пользователями
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: Результат удаления
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/deleteResult'
+        401:
+          description: В случае если истек срок действия token'а или token невалиден
+        500:
+          description: В случае ошибки на сервере
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorMessage'
+  /login/accept_user_management_ticket:
+    post:
+      tags:
+        - admin
+      summary: Инициирует процесс выполнения заявки
+      description: Инициирует процесс выполнения заявки. Отправляет пользователю уведомление со ссылкой на страницу подтверждения email для завершения заявки
+      operationId: acceptTicketByUid
+      parameters:
+        - name: token
+          in: header
+          description: Token, полученный при авторизации
+          required: true
+          schema:
+            type: string
+        - name: uid
+          in: header
+          description: UID заявки на управление пользователями
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: Результат удаления
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/userManagementAcceptResult'
+        401:
+          description: В случае если истек срок действия token'а или token невалиден
+        500:
+          description: В случае ошибки на сервере
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorMessage'
+  /login/get_user_list:
+    post:
+      tags:
+        - admin
+      summary: Получить список всех пользователей в системе (доступна только для администраторов системы)
+      description: Передает списосок всех зарегистрированных пользоватей в системе (функция доступна только для пользователей с правами администратора)
+      operationId: getAllUserList
+      parameters:
+        - name: token
+          in: header
+          description: Token, полученный при авторизации
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: Список пользователей
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/userManagementUserList'
+        401:
+          description: В случае если истек срок действия token'а или token невалиден
+        500:
+          description: В случае ошибки на сервере
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorMessage'
+  /login/delete_user:
+    post:
+      tags:
+        - admin
+      summary: Удаление пользователя (доступна только для администраторов системы)
+      description: Удаление пользователя по его логину. Функция доступна только для администраторов системы
+      operationId: deleteUserById
+      parameters:
+        - name: token
+          in: header
+          description: Token, полученный при авторизации
+          required: true
+          schema:
+            type: string
+        - name: login
+          in: header
+          description: login пользователя
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: Результат удаления
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/deleteResult'
+        401:
+          description: В случае если истек срок действия token'а или token невалиден
+        500:
+          description: В случае ошибки на сервере
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorMessage'
   /device:
     post:
       tags:
@@ -2566,6 +2735,127 @@ components:
         keyPublic:
           description: RSA public key
           type: string
+    userManagementTicketListFilter:
+      description: Описание фильтров для получения списка заявок на управление пользователями
+      type: object
+      properties:
+        beginDate:
+          description: Дата начала запрашиваемого периода в формате "yyyy.MM.dd HH:mm" (null - нет ограничения)
+          type: string
+        endDate:
+          description: Дата окончания запрашиваемого периода в формате "yyyy.MM.dd HH:mm" (null - нет ограничения)
+          type: string
+        userTypes:
+          description: Перечисление типов пользователей, для которых ищутся заявки
+          type: array
+          items:
+            description: individual - Физ. лицо; legal_entity - Юр. лицо
+            type: string
+            enum:
+              - individual
+              - legal_entity
+        ticketTypes:
+          description: Перечисление типов заявок, которые нужно найти
+          type: array
+          items:
+            description: 1 - Регистрация нового пользователя; 2 - Восстановление пароля
+            type: integer
+            enum:
+              - 1
+              - 2
+    userManagementTicketList:
+      description: Список активных заявок по управлению пользователями
+      type: object
+      properties:
+        tickets:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: integer
+              userType:
+                type: string
+                description: individual - Физ. лицо; legal_entity - Юр. лицо; integration - Пользователь для интеграции со сторонними системами
+                enum:
+                  - individual
+                  - legal_entity
+                  - integration
+              dtCreate:
+                type: string
+                description: Дата создания заявки в формате "yyyy.MM.dd HH:mm" (null - нет ограничения)
+              dtExecution:
+                type: string
+                description: Дата выполнения заявки в формате "yyyy.MM.dd HH:mm" (null - нет ограничения)
+              email:
+                type: string
+              phone:
+                type: string
+              abonentIdentifier:
+                type: string
+                description: Идентификатор абонента (логин, лицевой счет)
+              ticketType:
+                type: integer
+                description: Тип заявки (1 - Регистрация нового пользователя; 2 - Восстановление пароля)
+                enum:
+                  - 1
+                  - 2
+              ticketState:
+                type: integer
+                description: Состояние заявки (1 - Создана, 2 - Выполнена, Отказано в выполнении)
+                enum:
+                  - 1
+                  - 2
+                  - 3
+              pwdHash:
+                type: string
+              ticketUid:
+                type: string
+              url:
+                type: string
+    deleteResult:
+      description: Результат операции удаления
+      type: object
+      properties:
+        deleteResult:
+          type: boolean
+    userManagementAcceptResult:
+      description: Результат иницирования процесса применения заявки
+      type: object
+      properties:
+        isAccepted:
+          description: Результат операции
+          type: boolean
+        message:
+          description: Сообщение пользователю (пояснение результата операции)
+          type: string
+        ticketTypeName:
+          description: Наименование типа заявки
+          type: string
+    userManagementUserList:
+      description: Список пользователей
+      type: array
+      items:
+        type: object
+        properties:
+          login:
+            type: string
+          userType:
+            type: string
+            enum:
+              - individual
+              - legal_entity
+              - integration
+          accUserId:
+            description: Список ID связанных пользователей BPAdmin
+            type: array
+            items:
+              type: integer
+          abonentId:
+            description: Список ID связанных абонентов
+            type: array
+            items:
+              type: integer
     deviceDescriptionId:
       description: Массив ID свойств НСИ ПУ, для которых запрашивается описание
       type: object
