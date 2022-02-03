@@ -350,6 +350,7 @@ paths:
             type: string
       requestBody:
         description: Массив ID запрашиваемых свойств НСИ ПУ
+        required: true
         content:
           application/json:
             schema:
@@ -1085,6 +1086,42 @@ paths:
                 $ref: '#/components/schemas/errorMessage'
         401:
           description: В случае если истек срок действия token'а или token невалиден
+  /requisitions/make_ticket_admin:
+    post:
+      tags:
+        - requisitions
+      summary: Создать заявку на параметрирование
+      description: Создает заявку на параметрирование оператором (вариант метода для desktop)
+      operationId: makeRequisitionTicketAdmin
+      parameters:
+        - name: token
+          in: header
+          description: Token, полученный при авторизации
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: Параметры заявки на параметрирование
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/paramsMakeRequisitionTicketAdmin'
+      responses:
+        200:
+          description: Описание созданной заявки на параметрирование включая историю изменения статусов
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/requisitionTicketWithHistory'
+        500:
+          description: В случае какой-либо ошибки
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorMessage'
+        401:
+          description: В случае если истек срок действия token'а или token невалиден
   /requisitions/get_ticket:
     post:
       tags:
@@ -1157,6 +1194,114 @@ paths:
                 $ref: '#/components/schemas/errorMessage'
         401:
           description: В случае если истек срок действия token'а или token невалиден
+  /requisitions/filter_tickets_admin:
+    post:
+      tags:
+        - requisitions
+      summary: Получить список заявок на параметрирование отфильтрованный по параметрам (вариант метода для desktop)
+      description: Возвращает список заявок на параметрирование отфильтрованный по параметрам (типы статусов, пользователи, временной период)
+      operationId: filterRequisitionTicketAdmin
+      parameters:
+        - name: token
+          in: header
+          description: Token, полученный при авторизации
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: Описание фильтра формирования списка заявок
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/filterRequisitionTicketsAdmin'
+      responses:
+        200:
+          description: Список заявок, сформированный по параметрам фильтра
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/requisitionTicketListAdmin'
+        500:
+          description: В случае какой-либо ошибки
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorMessage'
+        401:
+          description: В случае если истек срок действия token'а или token невалиден
+  /requisitions/filter_tickets_with_history_admin:
+    post:
+      tags:
+        - requisitions
+      summary: Получить список заявок на параметрирование включая историю изменения статусов отфильтрованный по параметрам (вариант метода для desktop)
+      description: Возвращает список заявок на параметрирование включая историю изменения статусов отфильтрованный по параметрам (типы статусов, пользователи, временной период)
+      operationId: filterRequisitionTicketWithHistoryAdmin
+      parameters:
+        - name: token
+          in: header
+          description: Token, полученный при авторизации
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: Описание фильтра формирования списка заявок
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/filterRequisitionTicketsAdmin'
+      responses:
+        200:
+          description: Список заявок, сформированный по параметрам фильтра
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/requisitionTicketListWithHistoryAdmin'
+        500:
+          description: В случае какой-либо ошибки
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorMessage'
+        401:
+          description: В случае если истек срок действия token'а или token невалиден
+
+  /requisitions/mark_ticket_deleted:
+    post:
+      tags:
+        - requisitions
+      summary: Пометить заявку как удаленную (только для Desktop пользователей)
+      description: Пометить заявку как удаленную (только для Desktop пользователей). Сама заявка и ее история не удаляются, при этом в методах запроса списка заявок заявка больше выдаваться не будет
+      operationId: markRequisitionTicketDeleted
+      parameters:
+        - name: token
+          in: header
+          description: Token, полученный при авторизации
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: Объект, содержащий id заявки
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                id:
+                  type: integer
+      responses:
+        200:
+          description: Заявка помечена как удаленная
+        500:
+          description: В случае какой-либо ошибки
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorMessage'
+        401:
+          description: В случае если истек срок действия token'а или token невалиден
   /requisitions/add_ticket_status:
     post:
       tags:
@@ -1185,6 +1330,35 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/requisitionTicketWithHistory'
+        500:
+          description: В случае какой-либо ошибки
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorMessage'
+        401:
+          description: В случае если истек срок действия token'а или token невалиден
+  /requisitions/get_user_list:
+    post:
+      tags:
+        - requisitions
+      summary: Получить список пользователей (клиентов) для которых создаются заявки
+      description: Возвращает список пользователей (клиентов) для которых создаются заявки
+      operationId: getRequisitionUserList
+      parameters:
+        - name: token
+          in: header
+          description: Token, полученный при авторизации
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: Описание заявки на параметрирование включая историю изменения статусов
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/requisitionUserList'
         500:
           description: В случае какой-либо ошибки
           content:
@@ -2515,6 +2689,13 @@ paths:
           required: true
           schema:
             type: string
+      requestBody:
+        description: Массив параметров, по которым запрашивается описание
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/getSchetHourMeterAPI'
       responses:
         200:
           description: '<b>Ответ:</b><br />
@@ -2532,7 +2713,7 @@ paths:
                        "val0" - показание по суммарному тарифу<br />
                        "val1" - показание по тарифу 1<br />
                        "val2" - показание по тарифу 2<br />
-                       "val3" - показание по тарифу 3<br />
+                       "val3" - показание по тарифу 3<br />'
           content:
             application/json:
               schema:
@@ -2542,7 +2723,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/GetSchetHourMeterAPI'
+                $ref: '#/components/schemas/errorMessage'
         401:
           description: В случае если истек срок действия token'а или token невалиден
   /wcon/get_version_info:
@@ -2617,7 +2798,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: ''
+                $ref: '#/components/schemas/errorMessage'
         401:
           description: В случае если истек срок действия token'а или token невалиден
           
@@ -3104,6 +3285,19 @@ components:
         deviceId:
           description: Серийный номер прибора учета
           type: string
+    paramsMakeRequisitionTicketAdmin:
+      description: Параметры создаваемой заявки на параметрирование
+      type: object
+      properties:
+        idUser:
+          description: ID пользователя (клиента) для которого создается заявка
+          type: integer
+        idOperationType:
+          description: ID типа операции для заявки
+          type: integer
+        deviceId:
+          description: Серийный номер прибора учета
+          type: string
     requisitionUser:
       description: Описание пользователя (для заявок на параметрирование)
       type: object
@@ -3154,6 +3348,30 @@ components:
         comment:
           description: Комментарий
           type: string
+    requisitionUserList:
+      description: Список пользователей, для которых создаются заявки
+      type: array
+      items:
+        type: object
+        properties:
+          id:
+            type: integer
+            description: ID пользователя (для фильтра списка пользователей)
+          userName:
+            type: string
+            description: Login пользователя (лицевой счет)
+          fio:
+            type: string
+            description: ФИО
+          typeId:
+            description: Тип пользователя (1 - физ. лицо, 2 - юр. лицо)
+            type: integer
+            enum:
+              - 1
+              - 2
+          typeName:
+            description: Наименование типа пользователя
+            type: string
     requisitionTicketWithHistory:
       description: Описание заявки на параметрирование (включая историю изменения статуса заявки)
       type: object
@@ -3176,6 +3394,164 @@ components:
         deviceId:
           description: Серийный номер прибора учета
           type: string
+    requisitionTicketListAdmin:
+      description: Список заявок на параметрирование (вариант для Desktop)
+      type: array
+      items:
+        type: object
+        properties:
+          id:
+            description: Уникальный ID заявки в системе
+            type: integer
+          deviceId:
+            description: Серийный номер ПУ
+            type: string
+          additionalParam:
+            description: Дополнительный параметр для заявки
+            type: string
+          idOperationType:
+            description: ID типа операции для заявки
+            type: integer
+          nameOperationType:
+            description: Наименование типа операции
+            type: string
+          idCurrentStatus:
+            description: ID текущего статуса заявки
+            type: integer
+          nameCurrentStatus:
+            description: Наименование текущего статуса
+            type: string
+          beginDt:
+            description: Дата-время создания заявки в формате "yyyy.MM.dd HH:mm:ss"
+            pattern: '^\d{4}.\d{2}.\d{2} \d{2}:\d{2}:\d{2}$'
+            type: string
+          endDt:
+            description: Дата-время последнего изменения статуса заявки в формате "yyyy.MM.dd HH:mm:ss"
+            pattern: '^\d{4}.\d{2}.\d{2} \d{2}:\d{2}:\d{2}$'
+            type: string
+          idUser:
+            description: ID пользователя, для которого создана заявка
+            type: integer
+          nameUser:
+            description: Логин (лицевой счет) пользователя
+            type: string
+          fioUser:
+            description: ФИО пользователя
+            type: string
+          info:
+            description: Дополнительная информация о пользователе
+            type: string
+          email:
+            description: Email пользователя
+            type: string
+          phone:
+            description: Телефон пользователя
+            type: string
+          createTicketUserRole:
+            description: Роль пользователя, кем создана заявка
+            type: string
+            enum:
+              - Administrator
+              - Desktop user
+              - Web user
+          objectLocation:
+            description: Адрес, ult расположен ПУ
+            type: string
+    requisitionTicketListWithHistoryAdmin:
+      description: Список заявок на параметрирование (вариант для Desktop)
+      type: array
+      items:
+        type: object
+        properties:
+          id:
+            description: Уникальный ID заявки в системе
+            type: integer
+          deviceId:
+            description: Серийный номер ПУ
+            type: string
+          additionalParam:
+            description: Дополнительный параметр для заявки
+            type: string
+          idOperationType:
+            description: ID типа операции для заявки
+            type: integer
+          nameOperationType:
+            description: Наименование типа операции
+            type: string
+          idCurrentStatus:
+            description: ID текущего статуса заявки
+            type: integer
+          nameCurrentStatus:
+            description: Наименование текущего статуса
+            type: string
+          beginDt:
+            description: Дата-время создания заявки в формате "yyyy.MM.dd HH:mm:ss"
+            pattern: '^\d{4}.\d{2}.\d{2} \d{2}:\d{2}:\d{2}$'
+            type: string
+          endDt:
+            description: Дата-время последнего изменения статуса заявки в формате "yyyy.MM.dd HH:mm:ss"
+            pattern: '^\d{4}.\d{2}.\d{2} \d{2}:\d{2}:\d{2}$'
+            type: string
+          idUser:
+            description: ID пользователя, для которого создана заявка
+            type: integer
+          nameUser:
+            description: Логин (лицевой счет) пользователя
+            type: string
+          fioUser:
+            description: ФИО пользователя
+            type: string
+          info:
+            description: Дополнительная информация о пользователе
+            type: string
+          email:
+            description: Email пользователя
+            type: string
+          phone:
+            description: Телефон пользователя
+            type: string
+          createTicketUserRole:
+            description: Роль пользователя, кем создана заявка
+            type: string
+            enum:
+              - Administrator
+              - Desktop user
+              - Web user
+          objectLocation:
+            description: Адрес, ult расположен ПУ
+            type: string
+          history:
+            description: История изменения статуса заявки
+            type: array
+            items:
+              type: object
+              properties:
+                dt:
+                  description: Дата и время установки статуса заявки в формате "yyyy.MM.dd HH:mm:ss"
+                  pattern: '^\d{4}.\d{2}.\d{2} \d{2}:\d{2}:\d{2}$'
+                  type: string
+                idStatus:
+                  description: ID статуса заявки
+                  type: integer
+                nameStatus:
+                  description: Наименование статуса заявки
+                  type: string
+                comment:
+                  description: Комментарий к статусу заявки
+                  type: string
+                userId:
+                  description: ID пользователя, который установил статус заявки
+                  type: integer
+                userName:
+                  description: Логин пользователя, который установил статус заявки
+                  type: string
+                userRole:
+                  description: Роль пользователя в системе (Administrator, Desktop user, Web user)
+                  type: string
+                  enum:
+                    - Administrator
+                    - Desktop user
+                    - Web user
     requisitionTicketList:
       description: Список заявок на параметрирование
       type: array
@@ -3205,6 +3581,28 @@ components:
       description: Параметры фильтра для запроса списка заявок на параметрирование
       type: object
       properties:
+        StatusesID:
+          description: ID статусов заявок (по которым заявки будут включены в список). Пустой массив - в список попадают заявки с любым статусом
+          type: array
+          items:
+            type: integer
+        begin:
+          description: Дата-время начала интервала в формате "yyyy.MM.dd HH:mm:ss"
+          pattern: '^\d{4}.\d{2}.\d{2} \d{2}:\d{2}:\d{2}$'
+          type: string
+        end:
+          description: Дата-время окончания интервала в формате "yyyy.MM.dd HH:mm:ss"
+          pattern: '^\d{4}.\d{2}.\d{2} \d{2}:\d{2}:\d{2}$'
+          type: string
+    filterRequisitionTicketsAdmin:
+      description: Параметры фильтра для запроса списка заявок на параметрирование
+      type: object
+      properties:
+        UsersID:
+          description: ID пользователей (по которым заявки будут включены в список). Пустой массив - в список попадают заявки всех пользователей
+          type: array
+          items:
+            type: integer
         StatusesID:
           description: ID статусов заявок (по которым заявки будут включены в список). Пустой массив - в список попадают заявки с любым статусом
           type: array
