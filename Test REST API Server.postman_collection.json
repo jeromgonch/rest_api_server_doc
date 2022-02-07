@@ -389,6 +389,207 @@
 					]
 				},
 				{
+					"name": "Авторизоваться на сервере из мобильного приложения по имени пользователя и хешу пароля.",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"eval(pm.collectionVariables.get(\"SHA256\"));",
+									"let hashPassword = SHA256(pm.collectionVariables.get(\"password\"));",
+									"pm.sendRequest(pm.collectionVariables.get(\"baseUrl\")+\"/get_open_key\", (err, res) => {",
+									"        let rsaKeys = JSON.parse(res.text());",
+									"        pm.collectionVariables.set(\"uidKey\", rsaKeys.keyUid);",
+									"        eval(pm.collectionVariables.get('forgeJS'));",
+									"        let publicKey = '-----BEGIN PUBLIC KEY-----\\n' +",
+									"            rsaKeys.keyPublic +",
+									"            '\\n-----END PUBLIC KEY-----';",
+									"        publicKey = forge.pki.publicKeyFromPem(publicKey);",
+									"        let encryptedText = forge.util.encode64(publicKey.encrypt(hashPassword, 'RSAES-PKCS1-V1_5', {",
+									"            md: forge.md.sha256.create(),",
+									"            mgf1: { md: forge.md.sha256.create() }",
+									"        }));",
+									"        pm.collectionVariables.set(\"hashPassword\", encryptedText);",
+									"    });",
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"    var jsonData = pm.response.json();",
+									"    pm.collectionVariables.set(\"token\", jsonData.token);",
+									"    pm.collectionVariables.set(\"refreshToken\", jsonData.refreshToken);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disabledSystemHeaders": {
+							"connection": true,
+							"accept-encoding": true,
+							"accept": true
+						}
+					},
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"description": "(Required) Имя пользователя",
+								"key": "user",
+								"value": "{{login_mobile}}"
+							},
+							{
+								"description": "(Required) Закодированное значение hashPassword",
+								"key": "hashPassword",
+								"value": "{{hashPassword}}"
+							},
+							{
+								"key": "keyUid",
+								"value": "{{uidKey}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/login/user_mobile",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"login",
+								"user_mobile"
+							]
+						},
+						"description": "Авторизация на сервере по имени пользователя и хешу пароля. Для авторизации на сервера хеш пароля кодируется с добавлением текущего времени. Для передачи на сервер к хешу пароля подмешивается значение текущего времени, при этом конечное значение ***heshPassword*** зависит от времени авторизации, чтобы исключить возможность повторного использования перехваченного ***hashPassword*** злоумышленниками. Расчитанная последовательность символов ***hashPassword***'я действителена в течении 10 секунд. В связи с чем требуется синхронизация времени сервера и клиента. IP адрес клиента не проверяется. В ответ передаются сгенерированные на стороне сервиса два ***token***'а. Первый используется для идентификации при вызове всех остальных функций. Время жизни даннго ***token***'а отграничена 10 минутами, по истечению которых необходимо запросить новый ***token***. Второй ***refreshToken*** используется для получения новой пары ***token*** и ***refreshToken***, время его жизни ограничено 1 часом. При получении новой пары ***token*** и ***refreshToken*** старые токены становятся недействительными."
+					},
+					"response": [
+						{
+							"name": "Успешная авторизация",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"description": "(Required) Имя пользователя",
+										"key": "user",
+										"value": "fugiat ex"
+									},
+									{
+										"description": "(Required) Закодированное значение hashPassword",
+										"key": "hashPassword",
+										"value": "fugiat ex"
+									}
+								],
+								"url": {
+									"raw": "{{baseUrl}}/login/user",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"login",
+										"user"
+									]
+								}
+							},
+							"status": "Accepted",
+							"code": 202,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n \"token\": \"tempor labor\",\n \"refreshToken\": \"Lorem sit ea esse\"\n}"
+						},
+						{
+							"name": "Во случае невалидной пары user и hashPassword",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"description": "(Required) Имя пользователя",
+										"key": "user",
+										"value": "fugiat ex"
+									},
+									{
+										"description": "(Required) Закодированное значение hashPassword",
+										"key": "hashPassword",
+										"value": "fugiat ex"
+									}
+								],
+								"url": {
+									"raw": "{{baseUrl}}/login/user",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"login",
+										"user"
+									]
+								}
+							},
+							"status": "Unauthorized",
+							"code": 401,
+							"_postman_previewlanguage": "text",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "text/plain"
+								}
+							],
+							"cookie": [],
+							"body": ""
+						},
+						{
+							"name": "В случае ошибки на сервере",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"description": "(Required) Имя пользователя",
+										"key": "user",
+										"value": "fugiat ex"
+									},
+									{
+										"description": "(Required) Закодированное значение hashPassword",
+										"key": "hashPassword",
+										"value": "fugiat ex"
+									}
+								],
+								"url": {
+									"raw": "{{baseUrl}}/login/user",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"login",
+										"user"
+									]
+								}
+							},
+							"status": "Internal Server Error",
+							"code": 500,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n \"error\": \"in magna dolor\",\n \"message\": \"non ex sed eu\"\n}"
+						}
+					]
+				},
+				{
 					"name": "Запросить обновление token'а.",
 					"event": [
 						{
@@ -2934,7 +3135,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"objectKey\": \"'null'%7С'null'%7С'null'\",\n    \"resource\": \"a\",\n    \"request\": [\n        \"info\",\n        \"odpu\",\n        \"ipu\"\n    ]\n}",
+							"raw": "{\n    \"request\":\"odpu,ipu\",\n    \"resource\":\"null\",\n    \"objectKey\":\"300|68340|null\"\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -5362,7 +5563,7 @@
 		},
 		{
 			"key": "login",
-			"value": "12345"
+			"value": "32132432342"
 		},
 		{
 			"key": "hashPassword",
@@ -5419,6 +5620,10 @@
 		{
 			"key": "newUserPassword",
 			"value": "12345"
+		},
+		{
+			"key": "login_mobile",
+			"value": "mobile_use"
 		}
 	]
 }

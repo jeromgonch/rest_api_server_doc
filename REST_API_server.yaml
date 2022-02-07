@@ -84,6 +84,49 @@ paths:
                 $ref: '#/components/schemas/errorMessage'
         401:
           description: Во случае невалидной пары user и hashPassword
+  /login/user_mobile:
+    post:
+      tags:
+        - login
+      summary: Авторизоваться на сервере из мобильного приложения по имени пользователя и хешу пароля.
+      description: Авторизация на сервере из мобильного приложения по имени пользователя и хешу пароля. Для пользователя должна быть задана "роль" - "Mobile User". Хеш пароля для передачи в функцию должен быть закодирован с использованием открытокго ключа, полученного методом /get_open_key, по алгоритму RSA (RSAES-PKCS1-V1_5 в формате Base64). В ответ передаются сгенерированные на стороне сервиса два token'а. Первый используется для идентификации при вызове все остальных функций. Время жизни даннго token'а отграничена 10 минутами, по истечению которых необходимо запросить новый token. Второй refreshToken используется для получения новой пары token и refreshToken, время его жизни ограничено 1 часом. Отличие данного метода от метода "/login/user" в дополнительной проверке, выдана ли пользователю "роль" - "Mobile user".
+      operationId: loginUserMobile
+      parameters:
+        - name: user
+          in: header
+          description: Имя пользователя
+          required: true
+          schema:
+            type: string
+        - name: keyUid
+          in: header
+          description: Уникальный UID открытого ключа, полученного в методе /get_open_key
+          required: true
+          schema:
+            type: string
+        - name: hashPassword
+          in: header
+          description: Закодированное значение hashPassword
+          required: true
+          schema:
+            type: string
+      responses:
+        202:
+          description: Успешная авторизация
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: '#/components/schemas/token'
+                  - $ref: '#/components/schemas/tokenWithUserType'
+        500:
+          description: В случае ошибки на сервере
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorMessage'
+        401:
+          description: Во случае невалидной пары user и hashPassword
   /login/refresh:
     post:
       tags:
