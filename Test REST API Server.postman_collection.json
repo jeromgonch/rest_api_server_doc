@@ -5530,6 +5530,1323 @@
 					]
 				}
 			]
+		},
+		{
+			"name": "mobile inspector",
+			"item": [
+				{
+					"name": "Получить справочник должностей сотрудников",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"description": "(Required) Token, полученный при авторизации",
+								"key": "token",
+								"value": "{{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/mobile_inspector/employee_positions_directory",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"mobile_inspector",
+								"employee_positions_directory"
+							]
+						},
+						"description": "Возвращает справочник должностей сотрудников"
+					},
+					"response": [
+						{
+							"name": "Массив описания должностей сотрудников",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"description": "(Required) Token, полученный при авторизации",
+										"key": "token",
+										"value": "{{token}}"
+									}
+								],
+								"url": {
+									"raw": "{{baseUrl}}/mobile_inspector/employee_positions_directory",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"mobile_inspector",
+										"employee_positions_directory"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "[\n {\n  \"id\": 23831988,\n  \"name\": \"sed et cillum enim\"\n },\n {\n  \"id\": 57261330,\n  \"name\": \"est magna occaecat\"\n }\n]"
+						},
+						{
+							"name": "В случае если истек срок действия token'а или token невалиден",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"description": "(Required) Token, полученный при авторизации",
+										"key": "token",
+										"value": "qui ipsum ullamco ea"
+									}
+								],
+								"url": {
+									"raw": "{{baseUrl}}/mobile_inspector/employee_positions_directory",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"mobile_inspector",
+										"employee_positions_directory"
+									]
+								}
+							},
+							"status": "Unauthorized",
+							"code": 401,
+							"_postman_previewlanguage": "text",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "text/plain"
+								}
+							],
+							"cookie": [],
+							"body": ""
+						},
+						{
+							"name": "В случае какой-либо ошибки",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"description": "(Required) Token, полученный при авторизации",
+										"key": "token",
+										"value": "qui ipsum ullamco ea"
+									}
+								],
+								"url": {
+									"raw": "{{baseUrl}}/mobile_inspector/employee_positions_directory",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"mobile_inspector",
+										"employee_positions_directory"
+									]
+								}
+							},
+							"status": "Internal Server Error",
+							"code": 500,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n \"error\": \"in sed fugiat aliquip\",\n \"message\": \"Lorem in magna consequat\"\n}"
+						}
+					]
+				},
+				{
+					"name": "Получить справочник типов инструментов",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"description": "(Required) Token, полученный при авторизации",
+								"key": "token",
+								"value": "{{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/mobile_inspector/type_instrument_directory",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"mobile_inspector",
+								"type_instrument_directory"
+							]
+						},
+						"description": "Возвращает справочник типов инструментов"
+					},
+					"response": [
+						{
+							"name": "Массив описания типов инструментов",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"description": "(Required) Token, полученный при авторизации",
+										"key": "token",
+										"value": "qui ipsum ullamco ea"
+									}
+								],
+								"url": {
+									"raw": "{{baseUrl}}/mobile_inspector/type_instrument_directory",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"mobile_inspector",
+										"type_instrument_directory"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "[\n {\n  \"id\": -43595984,\n  \"name\": \"Duis in exercit\"\n },\n {\n  \"id\": -85729834,\n  \"name\": \"ipsum exercitati\"\n }\n]"
+						},
+						{
+							"name": "В случае если истек срок действия token'а или token невалиден",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"description": "(Required) Token, полученный при авторизации",
+										"key": "token",
+										"value": "qui ipsum ullamco ea"
+									}
+								],
+								"url": {
+									"raw": "{{baseUrl}}/mobile_inspector/type_instrument_directory",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"mobile_inspector",
+										"type_instrument_directory"
+									]
+								}
+							},
+							"status": "Unauthorized",
+							"code": 401,
+							"_postman_previewlanguage": "text",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "text/plain"
+								}
+							],
+							"cookie": [],
+							"body": ""
+						},
+						{
+							"name": "В случае какой-либо ошибки",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"description": "(Required) Token, полученный при авторизации",
+										"key": "token",
+										"value": "qui ipsum ullamco ea"
+									}
+								],
+								"url": {
+									"raw": "{{baseUrl}}/mobile_inspector/type_instrument_directory",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"mobile_inspector",
+										"type_instrument_directory"
+									]
+								}
+							},
+							"status": "Internal Server Error",
+							"code": 500,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n \"error\": \"in sed fugiat aliquip\",\n \"message\": \"Lorem in magna consequat\"\n}"
+						}
+					]
+				},
+				{
+					"name": "Получить описание инструмента",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"description": "(Required) Token, полученный при авторизации",
+								"key": "token",
+								"value": "{{token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"id\": 2\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/mobile_inspector/get_instrument",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"mobile_inspector",
+								"get_instrument"
+							]
+						},
+						"description": "Возвращает описание инструмента по его ID"
+					},
+					"response": [
+						{
+							"name": "Объект с описанием инструмента",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"description": "(Required) Token, полученный при авторизации",
+										"key": "token",
+										"value": "qui ipsum ullamco ea"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"id\": 27943048\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/mobile_inspector/get_instrument",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"mobile_inspector",
+										"get_instrument"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n \"id\": -99164730,\n \"name\": \"pariatur tempor volup\",\n \"idType\": {\n  \"id\": -93493521,\n  \"name\": \"esse irure in fugiat\"\n },\n \"dtCalibration\": \"2414A43/24\",\n \"model\": \"qui aute in incididunt nisi\",\n \"serialNumber\": \"ullamco irure Ut ut aute\"\n}"
+						},
+						{
+							"name": "В случае если истек срок действия token'а или token невалиден",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"description": "(Required) Token, полученный при авторизации",
+										"key": "token",
+										"value": "qui ipsum ullamco ea"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"id\": 27943048\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/mobile_inspector/get_instrument",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"mobile_inspector",
+										"get_instrument"
+									]
+								}
+							},
+							"status": "Unauthorized",
+							"code": 401,
+							"_postman_previewlanguage": "text",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "text/plain"
+								}
+							],
+							"cookie": [],
+							"body": ""
+						},
+						{
+							"name": "В случае какой-либо ошибки",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"description": "(Required) Token, полученный при авторизации",
+										"key": "token",
+										"value": "qui ipsum ullamco ea"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"id\": 27943048\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/mobile_inspector/get_instrument",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"mobile_inspector",
+										"get_instrument"
+									]
+								}
+							},
+							"status": "Internal Server Error",
+							"code": 500,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n \"error\": \"in sed fugiat aliquip\",\n \"message\": \"Lorem in magna consequat\"\n}"
+						}
+					]
+				},
+				{
+					"name": "Получить список всех инструментов",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"description": "(Required) Token, полученный при авторизации",
+								"key": "token",
+								"value": "{{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/mobile_inspector/get_all_instrument",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"mobile_inspector",
+								"get_all_instrument"
+							]
+						},
+						"description": "Возвращает список обектов с описанием всех инструментов"
+					},
+					"response": [
+						{
+							"name": "Массив описания инструментов",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"description": "(Required) Token, полученный при авторизации",
+										"key": "token",
+										"value": "qui ipsum ullamco ea"
+									}
+								],
+								"url": {
+									"raw": "{{baseUrl}}/mobile_inspector/get_all_instrument",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"mobile_inspector",
+										"get_all_instrument"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "[\n {\n  \"id\": 64379266,\n  \"name\": \"aute est Excepteur non\",\n  \"idType\": {\n   \"id\": 4725174,\n   \"name\": \"Lorem aliquip\"\n  },\n  \"dtCalibration\": \"9910|80V20\",\n  \"model\": \"sunt est eu aute\",\n  \"serialNumber\": \"laborum eu quis exercitation\"\n },\n {\n  \"id\": 42956136,\n  \"name\": \"eu esse Excepteur ut\",\n  \"idType\": {\n   \"id\": 69577807,\n   \"name\": \"aliqua velit eiusmod ut labore\"\n  },\n  \"dtCalibration\": \"9825i17D63\",\n  \"model\": \"ex\",\n  \"serialNumber\": \"consequat consectet\"\n }\n]"
+						},
+						{
+							"name": "В случае если истек срок действия token'а или token невалиден",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"description": "(Required) Token, полученный при авторизации",
+										"key": "token",
+										"value": "qui ipsum ullamco ea"
+									}
+								],
+								"url": {
+									"raw": "{{baseUrl}}/mobile_inspector/get_all_instrument",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"mobile_inspector",
+										"get_all_instrument"
+									]
+								}
+							},
+							"status": "Unauthorized",
+							"code": 401,
+							"_postman_previewlanguage": "text",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "text/plain"
+								}
+							],
+							"cookie": [],
+							"body": ""
+						},
+						{
+							"name": "В случае какой-либо ошибки",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"description": "(Required) Token, полученный при авторизации",
+										"key": "token",
+										"value": "qui ipsum ullamco ea"
+									}
+								],
+								"url": {
+									"raw": "{{baseUrl}}/mobile_inspector/get_all_instrument",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"mobile_inspector",
+										"get_all_instrument"
+									]
+								}
+							},
+							"status": "Internal Server Error",
+							"code": 500,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n \"error\": \"in sed fugiat aliquip\",\n \"message\": \"Lorem in magna consequat\"\n}"
+						}
+					]
+				},
+				{
+					"name": "Получить справочник статусов сотрудников",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"description": "(Required) Token, полученный при авторизации",
+								"key": "token",
+								"value": "{{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/mobile_inspector/employee_status_directory",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"mobile_inspector",
+								"employee_status_directory"
+							]
+						},
+						"description": "Возвращает справочник статусов сотрудников"
+					},
+					"response": [
+						{
+							"name": "Массив статусов сотрудников",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"description": "(Required) Token, полученный при авторизации",
+										"key": "token",
+										"value": "qui ipsum ullamco ea"
+									}
+								],
+								"url": {
+									"raw": "{{baseUrl}}/mobile_inspector/employee_status_directory",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"mobile_inspector",
+										"employee_status_directory"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "[\n {\n  \"id\": -27050953,\n  \"name\": \"dolore Excepteur amet\"\n },\n {\n  \"id\": -22186739,\n  \"name\": \"id sunt\"\n }\n]"
+						},
+						{
+							"name": "В случае если истек срок действия token'а или token невалиден",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"description": "(Required) Token, полученный при авторизации",
+										"key": "token",
+										"value": "qui ipsum ullamco ea"
+									}
+								],
+								"url": {
+									"raw": "{{baseUrl}}/mobile_inspector/employee_status_directory",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"mobile_inspector",
+										"employee_status_directory"
+									]
+								}
+							},
+							"status": "Unauthorized",
+							"code": 401,
+							"_postman_previewlanguage": "text",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "text/plain"
+								}
+							],
+							"cookie": [],
+							"body": ""
+						},
+						{
+							"name": "В случае какой-либо ошибки",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"description": "(Required) Token, полученный при авторизации",
+										"key": "token",
+										"value": "qui ipsum ullamco ea"
+									}
+								],
+								"url": {
+									"raw": "{{baseUrl}}/mobile_inspector/employee_status_directory",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"mobile_inspector",
+										"employee_status_directory"
+									]
+								}
+							},
+							"status": "Internal Server Error",
+							"code": 500,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n \"error\": \"in sed fugiat aliquip\",\n \"message\": \"Lorem in magna consequat\"\n}"
+						}
+					]
+				},
+				{
+					"name": "Получить список всех сотрудников",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"description": "(Required) Token, полученный при авторизации",
+								"key": "token",
+								"value": "{{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/mobile_inspector/get_all_employees",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"mobile_inspector",
+								"get_all_employees"
+							]
+						},
+						"description": "Возвращает список сотрудников"
+					},
+					"response": [
+						{
+							"name": "Массив с описанием сотрудников",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"description": "(Required) Token, полученный при авторизации",
+										"key": "token",
+										"value": "qui ipsum ullamco ea"
+									}
+								],
+								"url": {
+									"raw": "{{baseUrl}}/mobile_inspector/get_all_employees",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"mobile_inspector",
+										"get_all_employees"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "[\n {\n  \"id\": -16869623,\n  \"fio\": \"amet laborum reprehenderit proident irure\",\n  \"idPosition\": {\n   \"id\": -30509975,\n   \"name\": \"et labore culpa\"\n  },\n  \"status\": {\n   \"id\": -36283531,\n   \"name\": \"eiusmod\"\n  }\n },\n {\n  \"id\": -81966519,\n  \"fio\": \"irure amet officia incididunt\",\n  \"idPosition\": {\n   \"id\": 37804643,\n   \"name\": \"Lorem ut\"\n  },\n  \"status\": {\n   \"id\": -19290931,\n   \"name\": \"est Lorem sunt\"\n  }\n }\n]"
+						},
+						{
+							"name": "В случае если истек срок действия token'а или token невалиден",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"description": "(Required) Token, полученный при авторизации",
+										"key": "token",
+										"value": "qui ipsum ullamco ea"
+									}
+								],
+								"url": {
+									"raw": "{{baseUrl}}/mobile_inspector/get_all_employees",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"mobile_inspector",
+										"get_all_employees"
+									]
+								}
+							},
+							"status": "Unauthorized",
+							"code": 401,
+							"_postman_previewlanguage": "text",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "text/plain"
+								}
+							],
+							"cookie": [],
+							"body": ""
+						},
+						{
+							"name": "В случае какой-либо ошибки",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"description": "(Required) Token, полученный при авторизации",
+										"key": "token",
+										"value": "qui ipsum ullamco ea"
+									}
+								],
+								"url": {
+									"raw": "{{baseUrl}}/mobile_inspector/get_all_employees",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"mobile_inspector",
+										"get_all_employees"
+									]
+								}
+							},
+							"status": "Internal Server Error",
+							"code": 500,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n \"error\": \"in sed fugiat aliquip\",\n \"message\": \"Lorem in magna consequat\"\n}"
+						}
+					]
+				},
+				{
+					"name": "Получить описание сотрудника по ID",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"description": "(Required) Token, полученный при авторизации",
+								"key": "token",
+								"value": "{{token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"id\": 2\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/mobile_inspector/get_employee",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"mobile_inspector",
+								"get_employee"
+							]
+						},
+						"description": "Возвращает описание сотрудника по ID"
+					},
+					"response": [
+						{
+							"name": "Описание сотрудника",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"description": "(Required) Token, полученный при авторизации",
+										"key": "token",
+										"value": "qui ipsum ullamco ea"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"id\": 27943048\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/mobile_inspector/get_employee",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"mobile_inspector",
+										"get_employee"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n \"id\": -93480706,\n \"fio\": \"ea sunt aliquip\",\n \"idPosition\": {\n  \"id\": 60738831,\n  \"name\": \"do qui deserunt\"\n },\n \"status\": {\n  \"id\": -69696926,\n  \"name\": \"cupidatat sit consectetur exercitation culpa\"\n }\n}"
+						},
+						{
+							"name": "В случае если истек срок действия token'а или token невалиден",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"description": "(Required) Token, полученный при авторизации",
+										"key": "token",
+										"value": "qui ipsum ullamco ea"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"id\": 27943048\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/mobile_inspector/get_employee",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"mobile_inspector",
+										"get_employee"
+									]
+								}
+							},
+							"status": "Unauthorized",
+							"code": 401,
+							"_postman_previewlanguage": "text",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "text/plain"
+								}
+							],
+							"cookie": [],
+							"body": ""
+						},
+						{
+							"name": "В случае какой-либо ошибки",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"description": "(Required) Token, полученный при авторизации",
+										"key": "token",
+										"value": "qui ipsum ullamco ea"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"id\": 27943048\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/mobile_inspector/get_employee",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"mobile_inspector",
+										"get_employee"
+									]
+								}
+							},
+							"status": "Internal Server Error",
+							"code": 500,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n \"error\": \"in sed fugiat aliquip\",\n \"message\": \"Lorem in magna consequat\"\n}"
+						}
+					]
+				},
+				{
+					"name": "Поиск сотрудников по шаблону",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"description": "(Required) Token, полученный при авторизации",
+								"key": "token",
+								"value": "{{token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"fio\": \"%ва%\",\n    \"positions\": [\n        1,\n        2,\n        3,\n        4,\n        5\n    ],\n    \"employeeStatuses\": [\n        1,\n        2,\n        3,\n        4,\n        5\n    ]\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/mobile_inspector/find_employee",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"mobile_inspector",
+								"find_employee"
+							]
+						},
+						"description": "Возвращает список сотрудников отвечающих параметрам шаблона"
+					},
+					"response": [
+						{
+							"name": "Массив с описанием сотрудников",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"description": "(Required) Token, полученный при авторизации",
+										"key": "token",
+										"value": "qui ipsum ullamco ea"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"fio\": \"et dolore adipisicing labore id\",\n    \"positions\": [\n        -29509734,\n        61711135\n    ],\n    \"employeeStatuses\": [\n        20534410,\n        -42872725\n    ]\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/mobile_inspector/find_employee",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"mobile_inspector",
+										"find_employee"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "[\n {\n  \"id\": -46834892,\n  \"fio\": \"adipisicing dolore\",\n  \"idPosition\": {\n   \"id\": 58451986,\n   \"name\": \"ea eu pariatur exercitation\"\n  },\n  \"status\": {\n   \"id\": 64706718,\n   \"name\": \"Duis incididunt proident dolore\"\n  }\n },\n {\n  \"id\": -11373077,\n  \"fio\": \"amet deserunt aliquip\",\n  \"idPosition\": {\n   \"id\": -72217636,\n   \"name\": \"non ea cupidatat enim\"\n  },\n  \"status\": {\n   \"id\": -69349092,\n   \"name\": \"Lorem Excepteur adipisicing labore id\"\n  }\n }\n]"
+						},
+						{
+							"name": "В случае если истек срок действия token'а или token невалиден",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"description": "(Required) Token, полученный при авторизации",
+										"key": "token",
+										"value": "qui ipsum ullamco ea"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"fio\": \"et dolore adipisicing labore id\",\n    \"positions\": [\n        -29509734,\n        61711135\n    ],\n    \"employeeStatuses\": [\n        20534410,\n        -42872725\n    ]\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/mobile_inspector/find_employee",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"mobile_inspector",
+										"find_employee"
+									]
+								}
+							},
+							"status": "Unauthorized",
+							"code": 401,
+							"_postman_previewlanguage": "text",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "text/plain"
+								}
+							],
+							"cookie": [],
+							"body": ""
+						},
+						{
+							"name": "В случае какой-либо ошибки",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"description": "(Required) Token, полученный при авторизации",
+										"key": "token",
+										"value": "qui ipsum ullamco ea"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"fio\": \"et dolore adipisicing labore id\",\n    \"positions\": [\n        -29509734,\n        61711135\n    ],\n    \"employeeStatuses\": [\n        20534410,\n        -42872725\n    ]\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/mobile_inspector/find_employee",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"mobile_inspector",
+										"find_employee"
+									]
+								}
+							},
+							"status": "Internal Server Error",
+							"code": 500,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n \"error\": \"in sed fugiat aliquip\",\n \"message\": \"Lorem in magna consequat\"\n}"
+						}
+					]
+				},
+				{
+					"name": "Получение списка активных заданий",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"description": "(Required) Token, полученный при авторизации",
+								"key": "token",
+								"value": "{{token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"begin\": \"2020.01.01\",\n    \"end\": \"2022.03.01\",\n    \"taskStatusTypes\": [\n        1, 2, 3, 4, 5, 6\n    ],\n    \"taskTypes\": [\n        1, 2, 3, 4, 5, 6\n    ],\n    \"employeesId\": [\n        1, 2, 3, 4, 5, 6\n    ],\n    \"addressFilter\": \"\",\n    \"deviceIdFilter\": \"\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/mobile_inspector/get_tasks",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"mobile_inspector",
+								"get_tasks"
+							]
+						},
+						"description": "Возвращает список активных заданий отвечающих параметрам шаблона"
+					},
+					"response": [
+						{
+							"name": "Массив с описанием пар задание-сотрудник",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"description": "(Required) Token, полученный при авторизации",
+										"key": "token",
+										"value": "qui ipsum ullamco ea"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"begin\": \"1056Z70116\",\n    \"end\": \"8748p83K54\",\n    \"taskStatusTypes\": [\n        -70309439,\n        -19728984\n    ],\n    \"taskTypes\": [\n        -49624132,\n        14907806\n    ],\n    \"employeesId\": [\n        -10349669,\n        -23578456\n    ],\n    \"addressFilter\": \"esse pariatur\",\n    \"deviceIdFilter\": \"proident incididunt\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/mobile_inspector/get_tasks",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"mobile_inspector",
+										"get_tasks"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "[\n {\n  \"employeeTask\": {\n   \"task\": {\n    \"id\": -32776882,\n    \"name\": \"culpa\",\n    \"typeTask\": {\n     \"id\": -76409548,\n     \"name\": \"sed\"\n    },\n    \"dt\": \"9178P36U15\",\n    \"typeDevice\": 2,\n    \"schetFr\": {\n     \"id\": -43266766,\n     \"deviceId\": \"deserunt e\",\n     \"objectLocation\": \"ipsum ut voluptate nostrud\"\n    },\n    \"begDt\": \"4807g71.95\",\n    \"endDt\": \"7784(72a05\",\n    \"isTemplate\": false,\n    \"daysShift\": -8351128,\n    \"daysLength\": -49641010,\n    \"employeesRef\": \"est consequat commodo\"\n   },\n   \"user\": {\n    \"id\": 20608352,\n    \"fio\": \"elit sint non\",\n    \"idPosition\": {\n     \"id\": 87066858,\n     \"name\": \"quis aliquip pariatur\"\n    },\n    \"status\": {\n     \"id\": -94426363,\n     \"name\": \"sint adipisicing\"\n    }\n   }\n  },\n  \"comm\": \"in proident\"\n },\n {\n  \"employeeTask\": {\n   \"task\": {\n    \"id\": -13555196,\n    \"name\": \"eiusmod qui dolore velit Duis\",\n    \"typeTask\": {\n     \"id\": 5359715,\n     \"name\": \"Duis enim proident\"\n    },\n    \"dt\": \"6528u98I73\",\n    \"typeDevice\": 1,\n    \"schetFr\": {\n     \"id\": 82759567,\n     \"deviceId\": \"dolor consectetur deserunt et\",\n     \"objectLocation\": \"aute proident Duis sint magna\"\n    },\n    \"begDt\": \"8378G41561\",\n    \"endDt\": \"9473643Y33\",\n    \"isTemplate\": false,\n    \"daysShift\": 60590174,\n    \"daysLength\": 45232851,\n    \"employeesRef\": \"culpa enim dolor elit\"\n   },\n   \"user\": {\n    \"id\": -53815533,\n    \"fio\": \"nulla reprehenderit dolor qui\",\n    \"idPosition\": {\n     \"id\": -87741462,\n     \"name\": \"veniam\"\n    },\n    \"status\": {\n     \"id\": -48535802,\n     \"name\": \"laborum \"\n    }\n   }\n  },\n  \"comm\": \"officia deserunt\"\n }\n]"
+						},
+						{
+							"name": "В случае если истек срок действия token'а или token невалиден",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"description": "(Required) Token, полученный при авторизации",
+										"key": "token",
+										"value": "qui ipsum ullamco ea"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"begin\": \"1056Z70116\",\n    \"end\": \"8748p83K54\",\n    \"taskStatusTypes\": [\n        -70309439,\n        -19728984\n    ],\n    \"taskTypes\": [\n        -49624132,\n        14907806\n    ],\n    \"employeesId\": [\n        -10349669,\n        -23578456\n    ],\n    \"addressFilter\": \"esse pariatur\",\n    \"deviceIdFilter\": \"proident incididunt\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/mobile_inspector/get_tasks",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"mobile_inspector",
+										"get_tasks"
+									]
+								}
+							},
+							"status": "Unauthorized",
+							"code": 401,
+							"_postman_previewlanguage": "text",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "text/plain"
+								}
+							],
+							"cookie": [],
+							"body": ""
+						},
+						{
+							"name": "В случае какой-либо ошибки",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"description": "(Required) Token, полученный при авторизации",
+										"key": "token",
+										"value": "qui ipsum ullamco ea"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"begin\": \"1056Z70116\",\n    \"end\": \"8748p83K54\",\n    \"taskStatusTypes\": [\n        -70309439,\n        -19728984\n    ],\n    \"taskTypes\": [\n        -49624132,\n        14907806\n    ],\n    \"employeesId\": [\n        -10349669,\n        -23578456\n    ],\n    \"addressFilter\": \"esse pariatur\",\n    \"deviceIdFilter\": \"proident incididunt\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/mobile_inspector/get_tasks",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"mobile_inspector",
+										"get_tasks"
+									]
+								}
+							},
+							"status": "Internal Server Error",
+							"code": 500,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n \"error\": \"in sed fugiat aliquip\",\n \"message\": \"Lorem in magna consequat\"\n}"
+						}
+					]
+				}
+			]
 		}
 	],
 	"event": [

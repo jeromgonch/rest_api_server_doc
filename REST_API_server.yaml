@@ -1309,7 +1309,6 @@ paths:
                 $ref: '#/components/schemas/errorMessage'
         401:
           description: В случае если истек срок действия token'а или token невалиден
-
   /requisitions/mark_ticket_deleted:
     post:
       tags:
@@ -1402,6 +1401,295 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/requisitionUserList'
+        500:
+          description: В случае какой-либо ошибки
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorMessage'
+        401:
+          description: В случае если истек срок действия token'а или token невалиден
+  /mobile_inspector/employee_positions_directory:
+    post:
+      tags:
+        - mobile_inspector
+      summary: Получить справочник должностей сотрудников
+      description: Возвращает справочник должностей сотрудников
+      operationId: getMobileInspectorAllEmployeePosition
+      parameters:
+        - name: token
+          in: header
+          description: Token, полученный при авторизации
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: Массив описания должностей сотрудников
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/mobileInspectorEmployeePositionList'
+        500:
+          description: В случае какой-либо ошибки
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorMessage'
+        401:
+          description: В случае если истек срок действия token'а или token невалиден
+  /mobile_inspector/type_instrument_directory:
+    post:
+      tags:
+        - mobile_inspector
+      summary: Получить справочник типов инструментов
+      description: Возвращает справочник типов инструментов
+      operationId: getMobileInspectorAllTypeInstrument
+      parameters:
+        - name: token
+          in: header
+          description: Token, полученный при авторизации
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: Массив описания типов инструментов
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/mobileInspectorTypeInstrumentsArray'
+        500:
+          description: В случае какой-либо ошибки
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorMessage'
+        401:
+          description: В случае если истек срок действия token'а или token невалиден
+  /mobile_inspector/get_instrument:
+    post:
+      tags:
+        - mobile_inspector
+      summary: Получить описание инструмента
+      description: Возвращает описание инструмента по его ID
+      operationId: getMobileInspectorInstrument
+      parameters:
+        - name: token
+          in: header
+          description: Token, полученный при авторизации
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: ID инструмента
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/paramId'
+      responses:
+        200:
+          description: Объект с описанием инструмента
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/mobileInspectorInstrument'
+        500:
+          description: В случае какой-либо ошибки
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorMessage'
+        401:
+          description: В случае если истек срок действия token'а или token невалиден
+  /mobile_inspector/get_all_instrument:
+    post:
+      tags:
+        - mobile_inspector
+      summary: Получить список всех инструментов
+      description: Возвращает список обектов с описанием всех инструментов
+      operationId: getMobileInspectorAllInstrument
+      parameters:
+        - name: token
+          in: header
+          description: Token, полученный при авторизации
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: Массив описания инструментов
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/mobileInspectorInstrumentList'
+        500:
+          description: В случае какой-либо ошибки
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorMessage'
+        401:
+          description: В случае если истек срок действия token'а или token невалиден
+  /mobile_inspector/employee_status_directory:
+    post:
+      tags:
+        - mobile_inspector
+      summary: Получить справочник статусов сотрудников
+      description: Возвращает справочник статусов сотрудников
+      operationId: getMobileInspectorAllEmployeeStatuses
+      parameters:
+        - name: token
+          in: header
+          description: Token, полученный при авторизации
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: Массив статусов сотрудников
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/mobileInspectorEmployeeStatusList'
+        500:
+          description: В случае какой-либо ошибки
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorMessage'
+        401:
+          description: В случае если истек срок действия token'а или token невалиден
+  /mobile_inspector/get_all_employees:
+    post:
+      tags:
+        - mobile_inspector
+      summary: Получить список всех сотрудников
+      description: Возвращает список сотрудников
+      operationId: getMobileInspectorAllEmployees
+      parameters:
+        - name: token
+          in: header
+          description: Token, полученный при авторизации
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: Массив с описанием сотрудников
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/mobileInspectorEmployeeList'
+        500:
+          description: В случае какой-либо ошибки
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorMessage'
+        401:
+          description: В случае если истек срок действия token'а или token невалиден
+  /mobile_inspector/get_employee:
+    post:
+      tags:
+        - mobile_inspector
+      summary: Получить описание сотрудника по ID
+      description: Возвращает описание сотрудника по ID
+      operationId: getMobileInspectorEmployee
+      parameters:
+        - name: token
+          in: header
+          description: Token, полученный при авторизации
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: ID сотрудника
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/paramId'
+      responses:
+        200:
+          description: Описание сотрудника
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/mobileInspectorEmployee'
+        500:
+          description: В случае какой-либо ошибки
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorMessage'
+        401:
+          description: В случае если истек срок действия token'а или token невалиден
+  /mobile_inspector/find_employee:
+    post:
+      tags:
+        - mobile_inspector
+      summary: Поиск сотрудников по шаблону
+      description: Возвращает список сотрудников отвечающих параметрам шаблона
+      operationId: findMobileInspectorEmployee
+      parameters:
+        - name: token
+          in: header
+          description: Token, полученный при авторизации
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: Параметры для поиска сотрудника
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/findEmployeeParam'
+      responses:
+        200:
+          description: Массив с описанием сотрудников
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/mobileInspectorEmployeeList'
+        500:
+          description: В случае какой-либо ошибки
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorMessage'
+        401:
+          description: В случае если истек срок действия token'а или token невалиден
+  /mobile_inspector/get_tasks:
+    post:
+      tags:
+        - mobile_inspector
+      summary: Получение списка активных заданий
+      description: Возвращает список активных заданий отвечающих параметрам шаблона
+      operationId: getMobileInspectorTasks
+      parameters:
+        - name: token
+          in: header
+          description: Token, полученный при авторизации
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: Параметры для поиска заданий
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/getMobileInspectorTasksParams'
+      responses:
+        200:
+          description: Массив с описанием пар задание-сотрудник
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/mobileInspectorTaskEmployeeList'
         500:
           description: В случае какой-либо ошибки
           content:
@@ -4203,3 +4491,222 @@ components:
         channel:
           description: Каналы ПУ. указыватся через запятую(1,2,3,4). Если параметр не указан, то возвращаются каналы из schet_fr.channel_cnt 
           type: string
+    mobileInspectorEmployeePosition:
+      description: Описание должности сотрудника
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+    mobileInspectorEmployeePositionList:
+      description: Массив с описанием должностей сотрудников
+      type: array
+      items:
+        $ref: '#/components/schemas/mobileInspectorEmployeePosition'
+    mobileInspectorTypeInstruments:
+      description: Описание типа инструмента
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+    mobileInspectorTypeInstrumentsArray:
+      description: Массив с описанием типов инструментов
+      type: array
+      items:
+        $ref: '#/components/schemas/mobileInspectorTypeInstruments'
+    paramId:
+      type: object
+      properties:
+        id:
+          type: integer
+    mobileInspectorInstrument:
+      nullable: true
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          description: Наименование инструмента
+          type: string
+        idType:
+          $ref: '#/components/schemas/mobileInspectorTypeInstruments'
+        dtCalibration:
+          description: Дата калибровки в формате "yyyy.MM.dd"
+          type: string
+          pattern: '^\d{4}.\d{2}.\d{2}$'
+        model:
+          description: Название модели
+          type: string
+        serialNumber:
+          description: Серийный номер
+          type: string
+    mobileInspectorInstrumentList:
+      type: array
+      items:
+        $ref: '#/components/schemas/mobileInspectorInstrument'
+    mobileInspectorEmployeeStatus:
+      description: Статус сотрудника
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+    mobileInspectorEmployeeStatusList:
+      description: Массив статусов сотрудника
+      type: array
+      items:
+        $ref: '#/components/schemas/mobileInspectorEmployeeStatus'
+    mobileInspectorEmployee:
+      nullable: true
+      description: Описание сотрудника
+      type: object
+      properties:
+        id:
+          type: integer
+        fio:
+          description: Фамилия Имя Отчетство сотрудника
+          type: string
+        idPosition:
+          $ref: '#/components/schemas/mobileInspectorEmployeePosition'
+        status:
+          $ref: '#/components/schemas/mobileInspectorEmployeeStatus'
+    mobileInspectorEmployeeList:
+      description: Список сотрудников
+      type: array
+      items:
+        $ref: '#/components/schemas/mobileInspectorEmployee'
+    findEmployeeParam:
+      description: Параметры поиска сотрудника
+      type: object
+      properties:
+        fio:
+          type: string
+          description: Строка для поиска по фамилии
+        positions:
+          description: Массив ID должностей (фильтр поиска, пустой массив - любая должность)
+          type: array
+          items:
+            type: integer
+        employeeStatuses:
+          description: Массив ID статусов сотрудника (фильтр поиска, пустой массив - любой статус)
+          type: array
+          items:
+            type: integer
+    getMobileInspectorTasksParams:
+      description: Параметры поиска задания
+      type: object
+      properties:
+        begin:
+          description: Дата начала периода в формате "yyyy.MM.dd"
+          type: string
+          pattern: '^\d{4}.\d{2}.\d{2}$'
+        end:
+          description: Дата начала периода в формате "yyyy.MM.dd"
+          type: string
+          pattern: '^\d{4}.\d{2}.\d{2}$'
+        taskStatusTypes:
+          description: Массив ID типов статусов заданий (фильтр поиска, пустой массив - любой статус)
+          type: array
+          items:
+            type: integer
+        taskTypes:
+          description: Массив ID статусов заданий (фильтр поиска, пустой массив - любой статус)
+          type: array
+          items:
+            type: integer
+        employeesId:
+          description: Массив ID сотрудников (фильтр поиска, пустой массив - любой статус)
+          type: array
+          items:
+            type: integer
+        addressFilter:
+          type: string
+          description: Строка для поиска по адресу объекта
+        deviceIdFilter:
+          type: string
+          description: Строка для поиска по серийному номеру прибора
+    mobileInspectorTaskType:
+      type: object
+      description: Описание типа задачи
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+    mobileInspectorSchetFr:
+      type: object
+      description: Описание прибора учета
+      properties:
+        id:
+          type: integer
+        deviceId:
+          description: Серийный номер
+          type: string
+        objectLocation:
+          description: Адресс установки прибора
+          type: string
+    mobileInspectorTask:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        typeTask:
+          $ref: '#/components/schemas/mobileInspectorTaskType'
+        dt:
+          description: Дата постановки задачи в формате "yyyy.MM.dd"
+          type: string
+          pattern: '^\d{4}.\d{2}.\d{2}$'
+        typeDevice:
+          description: Тип устройства (0 - приборприбор учета, 1 - УСД, 2 - трансформатор)
+          type: integer
+          enum:
+            - 0
+            - 1
+            - 2
+        schetFr:
+          $ref: '#/components/schemas/mobileInspectorSchetFr'
+        begDt:
+          description: Дата начала выполнения задачи в формате "yyyy.MM.dd"
+          type: string
+          pattern: '^\d{4}.\d{2}.\d{2}$'
+        endDt:
+          description: Дата окончания выполнения задачи в формате "yyyy.MM.dd"
+          type: string
+          pattern: '^\d{4}.\d{2}.\d{2}$'
+        isTemplate:
+          description: Признак - является ли задача шаблоном
+          type: boolean
+        daysShift:
+          description: Для шаблона - сдвиг начала задания от даты постановки
+          type: integer
+        daysLength:
+          description: Для шаблона - продолжительность выполнения задания
+          type: integer
+        employeesRef:
+          description: Исполнители
+          type: string
+    mobileInspectorTaskEmployee:
+      type: object
+      properties:
+        task:
+          $ref: '#/components/schemas/mobileInspectorTask'
+        user:
+          $ref: '#/components/schemas/mobileInspectorEmployee'
+    mobileInspectorTaskEmployeeWrap:
+      type: object
+      properties:
+        employeeTask:
+          $ref: '#/components/schemas/mobileInspectorTaskEmployee'
+        comm:
+          description: Комментарий
+          type: string
+    mobileInspectorTaskEmployeeList:
+      type: array
+      items:
+        $ref: '#/components/schemas/mobileInspectorTaskEmployeeWrap'
