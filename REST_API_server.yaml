@@ -1698,6 +1698,42 @@ paths:
                 $ref: '#/components/schemas/errorMessage'
         401:
           description: В случае если истек срок действия token'а или token невалиден
+  /mobile_inspector/get_task_history:
+    post:
+      tags:
+        - mobile_inspector
+      summary: Получение истории статусов задания
+      description: Возвращает историю изменения статусов задания по ID задания
+      operationId: getMobileInspectorTaskHistory
+      parameters:
+        - name: token
+          in: header
+          description: Token, полученный при авторизации
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: ID задания
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/paramId'
+      responses:
+        200:
+          description: Массив с описанием истории изменения статуса задания
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/mobileInspectorTaskHistoryList'
+        500:
+          description: В случае какой-либо ошибки
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorMessage'
+        401:
+          description: В случае если истек срок действия token'а или token невалиден
   /wcon/get_nodes:
     post:
       tags:
@@ -4601,13 +4637,13 @@ components:
       type: object
       properties:
         begin:
-          description: Дата начала периода в формате "yyyy.MM.dd"
+          description: Дата начала периода в формате "yyyy.MM.dd HH:mm:ss"
           type: string
-          pattern: '^\d{4}.\d{2}.\d{2}$'
+          pattern: '^\d{4}.\d{2}.\d{2} \d{2}:\d{2}:\d{2}$'
         end:
-          description: Дата начала периода в формате "yyyy.MM.dd"
+          description: Дата начала периода в формате "yyyy.MM.dd HH:mm:ss"
           type: string
-          pattern: '^\d{4}.\d{2}.\d{2}$'
+          pattern: '^\d{4}.\d{2}.\d{2} \d{2}:\d{2}:\d{2}$'
         taskStatusTypes:
           description: Массив ID типов статусов заданий (фильтр поиска, пустой массив - любой статус)
           type: array
@@ -4710,3 +4746,36 @@ components:
       type: array
       items:
         $ref: '#/components/schemas/mobileInspectorTaskEmployeeWrap'
+    mobileInspectorTaskStatus:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+    mobileInspectorTaskHistory:
+      type: object
+      properties:
+        id:
+          type: integer
+        idTask:
+          description: ID задания
+          type: integer
+        dt:
+          description: Дата-время изменения статуса в формате "yyyy.MM.dd HH:mm:ss"
+          type: string
+          pattern: '^\d{4}.\d{2}.\d{2} \d{2}:\d{2}:\d{2}$'
+        idTypeStatus:
+          $ref: '#/components/schemas/mobileInspectorTaskStatus'
+        idUser:
+          $ref: '#/components/schemas/mobileInspectorEmployee'
+        comm:
+          description: Комментарий
+          type: string
+        actual:
+          type: boolean
+          description: Актуальность статуса
+    mobileInspectorTaskHistoryList:
+      type: array
+      items:
+        $ref: '#/components/schemas/mobileInspectorTaskHistory'

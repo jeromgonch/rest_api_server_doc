@@ -6845,6 +6845,178 @@
 							"body": "{\n \"error\": \"in sed fugiat aliquip\",\n \"message\": \"Lorem in magna consequat\"\n}"
 						}
 					]
+				},
+				{
+					"name": "Получение истории статусов задания",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"description": "(Required) Token, полученный при авторизации",
+								"key": "token",
+								"value": "{{token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"id\": 1\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/mobile_inspector/get_task_history",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"mobile_inspector",
+								"get_task_history"
+							]
+						},
+						"description": "Возвращает историю изменения статусов задания по ID задания"
+					},
+					"response": [
+						{
+							"name": "Массив с описанием истории изменения статуса задания",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"description": "(Required) Token, полученный при авторизации",
+										"key": "token",
+										"value": "proident incididunt Duis"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"id\": 96091388\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/mobile_inspector/get_task_history",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"mobile_inspector",
+										"get_task_history"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "[\n  {\n    \"id\": -32244693,\n    \"idTask\": 61976847,\n    \"dt\": \"0938v20w06 80:47:04\",\n    \"idTypeStatus\": {\n      \"id\": -95933497,\n      \"name\": \"laborum\"\n    },\n    \"idUser\": {\n      \"id\": -86069108,\n      \"fio\": \"do amet\",\n      \"idPosition\": {\n        \"id\": -23607916,\n        \"name\": \"sint mollit\"\n      },\n      \"status\": {\n        \"id\": -8042932,\n        \"name\": \"labore consectetur\"\n      }\n    },\n    \"comm\": \"ea esse nisi Excepteur\",\n    \"actual\": false\n  },\n  {\n    \"id\": 20336664,\n    \"idTask\": -39359913,\n    \"dt\": \"3035!33Q80 91:75:59\",\n    \"idTypeStatus\": {\n      \"id\": 48064332,\n      \"name\": \"aliquip\"\n    },\n    \"idUser\": {\n      \"id\": 72078911,\n      \"fio\": \"qui ut dolor\",\n      \"idPosition\": {\n        \"id\": -3503025,\n        \"name\": \"amet ipsum\"\n      },\n      \"status\": {\n        \"id\": -51471987,\n        \"name\": \"tempor mollit laboris\"\n      }\n    },\n    \"comm\": \"sunt anim\",\n    \"actual\": false\n  }\n]"
+						},
+						{
+							"name": "В случае если истек срок действия token'а или token невалиден",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"description": "(Required) Token, полученный при авторизации",
+										"key": "token",
+										"value": "proident incididunt Duis"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"id\": 96091388\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/mobile_inspector/get_task_history",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"mobile_inspector",
+										"get_task_history"
+									]
+								}
+							},
+							"status": "Unauthorized",
+							"code": 401,
+							"_postman_previewlanguage": "text",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "text/plain"
+								}
+							],
+							"cookie": [],
+							"body": ""
+						},
+						{
+							"name": "В случае какой-либо ошибки",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"description": "(Required) Token, полученный при авторизации",
+										"key": "token",
+										"value": "proident incididunt Duis"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"id\": 96091388\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/mobile_inspector/get_task_history",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"mobile_inspector",
+										"get_task_history"
+									]
+								}
+							},
+							"status": "Internal Server Error",
+							"code": 500,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n  \"error\": \"eiusmod adipisicing\",\n  \"message\": \"in vo\"\n}"
+						}
+					]
 				}
 			]
 		}
