@@ -1734,6 +1734,40 @@ paths:
                 $ref: '#/components/schemas/errorMessage'
         401:
           description: В случае если истек срок действия token'а или token невалиден
+  /mobile_inspector/set_task_status:
+    post:
+      tags:
+        - mobile_inspector
+      summary: Установить новое значение статуса задания
+      description: Устанавливает новое значение статуса задания (дополняет историю изменения статусов)
+      operationId: setMobileInspectorTaskStatus
+      parameters:
+        - name: token
+          in: header
+          description: Token, полученный при авторизации
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: Параметры нового статуса задания
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/paramNewTaskStatus'
+      responses:
+        200:
+          description: Новый статус задания успешно установлен
+        500:
+          description: В случае какой-либо ошибки
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorMessage'
+        401:
+          description: В случае если истек срок действия token'а или token невалиден
+
+
   /wcon/get_nodes:
     post:
       tags:
@@ -4779,3 +4813,18 @@ components:
       type: array
       items:
         $ref: '#/components/schemas/mobileInspectorTaskHistory'
+    paramNewTaskStatus:
+      type: object
+      properties:
+        idTask:
+          description: ID задания
+          type: integer
+        idNewStatus:
+          description: ID статуса
+          type: integer
+        idEmployee:
+          description: ID сотрудника
+          type: integer
+        comment:
+          description: Комментарий
+          type: string

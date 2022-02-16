@@ -7017,6 +7017,178 @@
 							"body": "{\n  \"error\": \"eiusmod adipisicing\",\n  \"message\": \"in vo\"\n}"
 						}
 					]
+				},
+				{
+					"name": "Установить новое значение статуса задания",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"description": "(Required) Token, полученный при авторизации",
+								"key": "token",
+								"value": "{{token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"idTask\": 1,\n  \"idNewStatus\": 4,\n  \"idEmployee\": 1,\n  \"comment\": \"тестовый статус\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/mobile_inspector/set_task_status",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"mobile_inspector",
+								"set_task_status"
+							]
+						},
+						"description": "Устанавливает новое значение статуса задания (дополняет историю изменения статусов)"
+					},
+					"response": [
+						{
+							"name": "Новый статус задания успешно установлен",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"description": "(Required) Token, полученный при авторизации",
+										"key": "token",
+										"value": "eiusmod"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"idTask\": -44336666,\n  \"idNewStatus\": -94617596,\n  \"idEmployee\": 47445072,\n  \"comment\": \"aute est Lorem\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/mobile_inspector/set_task_status",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"mobile_inspector",
+										"set_task_status"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "text",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "text/plain"
+								}
+							],
+							"cookie": [],
+							"body": ""
+						},
+						{
+							"name": "В случае если истек срок действия token'а или token невалиден",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"description": "(Required) Token, полученный при авторизации",
+										"key": "token",
+										"value": "eiusmod"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"idTask\": -44336666,\n  \"idNewStatus\": -94617596,\n  \"idEmployee\": 47445072,\n  \"comment\": \"aute est Lorem\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/mobile_inspector/set_task_status",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"mobile_inspector",
+										"set_task_status"
+									]
+								}
+							},
+							"status": "Unauthorized",
+							"code": 401,
+							"_postman_previewlanguage": "text",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "text/plain"
+								}
+							],
+							"cookie": [],
+							"body": ""
+						},
+						{
+							"name": "В случае какой-либо ошибки",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"description": "(Required) Token, полученный при авторизации",
+										"key": "token",
+										"value": "eiusmod"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"idTask\": -44336666,\n  \"idNewStatus\": -94617596,\n  \"idEmployee\": 47445072,\n  \"comment\": \"aute est Lorem\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/mobile_inspector/set_task_status",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"mobile_inspector",
+										"set_task_status"
+									]
+								}
+							},
+							"status": "Internal Server Error",
+							"code": 500,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n  \"error\": \"reprehenderit dolor officia ullamco\",\n  \"message\": \"in eu cillum\"\n}"
+						}
+					]
 				}
 			]
 		}
