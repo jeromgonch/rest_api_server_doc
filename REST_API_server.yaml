@@ -1806,7 +1806,7 @@ paths:
     post:
       tags:
         - mobile_inspector
-      summary: Прочитать иторию изменения значения поля акта задания
+      summary: Прочитать историю изменения значения поля акта задания
       description: Получает описание в формате JSON иторию изменения значения поля акта задания
       operationId: getMobileInspectorTaskActFieldValues
       parameters:
@@ -1843,7 +1843,7 @@ paths:
       tags:
         - mobile_inspector
       summary: Добавить новое значение в иторию изменения значений поля акта задания
-      description: Добавляет новое значение в иторию изменения значений поля акта задания
+      description: Добавляет новое значение в иторию изменения значений поля акта задания. Также осуществляет валидацию нового значения в соответствии с описанием поля акта.
       operationId: addMobileInspectorValueForActField
       parameters:
         - name: token
