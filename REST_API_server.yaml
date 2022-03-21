@@ -1766,7 +1766,142 @@ paths:
                 $ref: '#/components/schemas/errorMessage'
         401:
           description: В случае если истек срок действия token'а или token невалиден
-
+  /mobile_inspector/get_task_acts_description:
+    post:
+      tags:
+        - mobile_inspector
+      summary: Прочитать описание полей всех актов задания по его ID
+      description: Получает описание в формате JSON всех полей всех актов привязанных к заданию по ID этого задания
+      operationId: getMobileInspectorTaskActs
+      parameters:
+        - name: token
+          in: header
+          description: Token, полученный при авторизации
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: ID задания
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/paramGetActFieldsDescription'
+      responses:
+        200:
+          description: Описание всех полей всех актов привязанных к заданию
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/actsFieldsDescription'
+        500:
+          description: В случае какой-либо ошибки
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorMessage'
+        401:
+          description: В случае если истек срок действия token'а или token невалиден
+  /mobile_inspector/get_task_act_field_values:
+    post:
+      tags:
+        - mobile_inspector
+      summary: Прочитать иторию изменения значения поля акта задания
+      description: Получает описание в формате JSON иторию изменения значения поля акта задания
+      operationId: getMobileInspectorTaskActFieldValues
+      parameters:
+        - name: token
+          in: header
+          description: Token, полученный при авторизации
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: ID задания и ID связи акт-поле
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/paramsGetTaskActFieldValues'
+      responses:
+        200:
+          description: История изменения значения поля акта
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/historyValuesOfActField'
+        500:
+          description: В случае какой-либо ошибки
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorMessage'
+        401:
+          description: В случае если истек срок действия token'а или token невалиден
+  /mobile_inspector/add_value_task_act_field:
+    post:
+      tags:
+        - mobile_inspector
+      summary: Добавить новое значение в иторию изменения значений поля акта задания
+      description: Добавляет новое значение в иторию изменения значений поля акта задания
+      operationId: addMobileInspectorValueForActField
+      parameters:
+        - name: token
+          in: header
+          description: Token, полученный при авторизации
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: ID задания и ID связи акт-поле
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/paramsAddTaskActFieldValues'
+      responses:
+        200:
+          description: В случае успешного добавления
+        500:
+          description: В случае какой-либо ошибки
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorMessage'
+        401:
+          description: В случае если истек срок действия token'а или token невалиден
+  /mobile_inspector/del_value_task_act_field:
+    post:
+      tags:
+        - mobile_inspector
+      summary: Удалить значение из истории изменения значений поля акта задания
+      description: Удаляет значение из истории изменения значений поля акта задания
+      operationId: delMobileInspectorValueForActField
+      parameters:
+        - name: token
+          in: header
+          description: Token, полученный при авторизации
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: ID задания и ID связи акт-поле
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/paramsDelTaskActFieldValues'
+      responses:
+        200:
+          description: В случае успешного удаления
+        500:
+          description: В случае какой-либо ошибки
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorMessage'
+        401:
+          description: В случае если истек срок действия token'а или token невалиден
 
   /wcon/get_nodes:
     post:
@@ -4827,4 +4962,196 @@ components:
           type: integer
         comment:
           description: Комментарий
+          type: string
+    paramGetActFieldsDescription:
+      type: object
+      properties:
+        idTask:
+          description: ID задания
+          type: integer
+    actsFieldsDescription:
+      description: Описание формата полей актов, привязанных к заданию
+      type: object
+      properties:
+        act_groups:
+          type: array
+          items:
+            $ref: '#/components/schemas/actsFieldsDescriptionActsGroups'
+    actsFieldsDescriptionActsGroups:
+      description: Группы актов
+      type: object
+      properties:
+        id_group:
+          description: ID группы актов
+          type: integer
+        name_group:
+          description: Наименование группы актов
+          type: string
+        acts:
+          description: Список актов
+          type: array
+          items:
+            $ref: '#/components/schemas/actsFieldsDescriptionActsList'
+    actsFieldsDescriptionActsList:
+      description: Список актов
+      type: object
+      properties:
+        id_act:
+          description: ID акта
+          type: integer
+        name_act:
+          description: Наименование акта
+          type: string
+        field_groups:
+          description: Список групп полей актов
+          type: array
+          items:
+            $ref: '#/components/schemas/actsFieldsDescriptionFieldsGroupList'
+    actsFieldsDescriptionFieldsGroupList:
+      description: Описание группы полей актов
+      type: object
+      properties:
+        id_group:
+          description: ID группы полей актов
+          type: integer
+        name_group:
+          description: Наименование группы полей актов
+          type: string
+        fields:
+          description: Список полей (описаний формата полей)
+          items:
+            $ref: '#/components/schemas/actsFieldsDescriptionFieldsList'
+    actsFieldsDescriptionFieldsList:
+      description: Описание поля акта
+      type: object
+      properties:
+        id_bind:
+          description: ID связки поля акта и акта
+          type: integer
+        field_format:
+          $ref: '#/components/schemas/actsFieldsDescriptionFieldFormat'
+    actsFieldsDescriptionFieldFormat:
+      description: Описание формата поля акта
+      type: object
+      required:
+        - caption
+        - name
+        - is_edit
+      properties:
+        caption:
+          description: Отображаемое пользователю наименование поля
+          nullable: false
+          type: string
+        name:
+          description: Внутренний идентификатор поля акта (bp_mi_act_filds.idname)
+          nullable: false
+          type: string
+        is_edit:
+          description: Разрешено ли редактировать поле
+          nullable: false
+          type: boolean
+        type:
+          $ref: '#/components/schemas/actsFieldsDescriptionFieldTypeDescription'
+    actsFieldsDescriptionFieldTypeDescription:
+      description: Описание типа поля акта
+      type: object
+      required:
+        - name
+        - pattern
+        - min
+        - max
+        - enum_variants
+      properties:
+        name:
+          description: Наименование типа значения поля. boolean - возможные значения true, false. integer - целое число. float - число с плавающей точкой. string - строка. date - дата в формате "yyyy.MM.dd". time - время в формате "HH:mm". datetime - дата и время в формате "yyyy.MM.dd HH:mm". enum - набор строковых значений, перечисленный в поле enum_variants.
+          nullable: false
+          type: string
+          enum:
+            - boolean
+            - integer
+            - float
+            - string
+            - date
+            - time
+            - datetime
+            - enum
+        pattern:
+          description: Cтрока с регулярным выражением для валидации введенного пользователем значения (актуально для типов integer, float, string) (регулярные выражения из стандартной библиотеки JDK)
+          nullable: true
+          type: string
+        min:
+          description: Строка, значение которой интерпретируется как минимальное возможное значение вводимое пользователем (актуально для типов integer, float, date, time, datetime)
+          nullable: true
+          type: string
+        max:
+          description: Строка, значение которой интерпретируется как максимальное возможное значение вводимое пользователем (актуально для типов integer, float, date, time, datetime)
+          nullable: true
+          type: string
+        enum_variants:
+          description: Массив возможных значений поля (актуально для типа enum)
+          nullable: true
+          type: array
+          items:
+            type: string
+    paramsGetTaskActFieldValues:
+      description: Параметры запроса для получения итории изменения значения поля акта задания
+      type: object
+      properties:
+        idTask:
+          description: ID задания
+          nullable: false
+          type: integer
+        idActField:
+          description: ID связи акт-поле
+          nullable: false
+          type: integer
+    historyValuesOfActField:
+      description: История изменения значения поля акта
+      type: array
+      items:
+        type: object
+        properties:
+          dt:
+            description: Временная метка (дата и время в формате "yyyy.MM.dd HH:mm:ss")
+            nullable: false
+            type: string
+          idUser:
+            description: ID пользователя, который добавил значение
+            nullable: false
+            type: integer
+          val:
+            description: Значение поля
+            nullable: false
+            type: string
+    paramsAddTaskActFieldValues:
+      description: Параметры запроса для добавления нового значения в иторию изменения значений поля акта задания
+      type: object
+      properties:
+        idTask:
+          description: ID задания
+          nullable: false
+          type: integer
+        idActField:
+          description: ID связи акт-поле
+          nullable: false
+          type: integer
+        value:
+          description: Новое значение поля
+          nullable: false
+          type: string
+    paramsDelTaskActFieldValues:
+      description: Параметры запроса удаления значения из итории изменения значений поля акта задания
+      type: object
+      properties:
+        idTask:
+          description: ID задания
+          nullable: false
+          type: integer
+        idActField:
+          description: ID связи акт-поле
+          nullable: false
+          type: integer
+        dt:
+          description: Временная метка в формате "yyyy.MM.dd HH:mm:ss"
+          nullable: false
           type: string
