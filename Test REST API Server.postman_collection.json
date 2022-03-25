@@ -1193,7 +1193,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"email\": \"test@gmail.com\",\n    \"phone\": \"+7 900 999 9999\",\n    \"abonentIdentifier\": \"12345\",\n    \"pwdHash\": \"12345\",\n    \"url\": \"http://test_url/register_user.html\",\n    \"typeAbonent\": \"individual\"\n}",
+							"raw": "{\n    \"email\": \"test@gmail.com\",\n    \"phone\": \"+7 900 999 9999\",\n    \"abonentIdentifier\": \"12345\",\n    \"serial\": \"1234567890\",\n    \"pwdHash\": \"12345\",\n    \"url\": \"http://test_url/register_user.html\",\n    \"typeAbonent\": \"individual\"\n}",
 							"options": {
 								"raw": {
 									"language": "json"
