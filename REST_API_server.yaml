@@ -1902,6 +1902,110 @@ paths:
                 $ref: '#/components/schemas/errorMessage'
         401:
           description: В случае если истек срок действия token'а или token невалиден
+  /mobile_inspector/upload:
+    post:
+      tags:
+        - mobile_inspector
+      summary: Загрузить файл
+      description: Передает файл в хранилище файлов, при этом возврщается UID файла в хранилище
+      operationId: uploadFile
+      parameters:
+        - name: token
+          in: header
+          description: Token, полученный при авторизации
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+      responses:
+        200:
+          description: В случае успешной передачи файла
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  uid:
+                    type: string
+        500:
+          description: В случае какой-либо ошибки
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorMessage'
+        401:
+          description: В случае если истек срок действия token'а или token невалиден
+  /mobile_inspector/file/{file_uid}:
+    get:
+      tags:
+        - mobile_inspector
+      summary: Получить ранее загруженный в хранилище файл
+      description: Отдает файл из хранилища файлов по его UID
+      operationId: getFile
+      parameters:
+        - name: token
+          in: header
+          description: Token, полученный при авторизации
+          required: true
+          schema:
+            type: string
+        - name: file_uid
+          in: path
+          description: UID файла в хранилище
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: Содержимое файла
+        500:
+          description: В случае какой-либо ошибки
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorMessage'
+        401:
+          description: В случае если истек срок действия token'а или token невалиден
+  /mobile_inspector/delete/{file_uid}:
+    get:
+      tags:
+        - mobile_inspector
+      summary: Удалить ранее загруженный в хранилище файл
+      description: Удаляет файл из хранилища файлов по его UID
+      operationId: deleteFile
+      parameters:
+        - name: token
+          in: header
+          description: Token, полученный при авторизации
+          required: true
+          schema:
+            type: string
+        - name: file_uid
+          in: path
+          description: UID файла в хранилище
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: В случае успешного удаления файла
+        500:
+          description: В случае какой-либо ошибки
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorMessage'
+        401:
+          description: В случае если истек срок действия token'а или token невалиден
 
   /wcon/get_nodes:
     post:

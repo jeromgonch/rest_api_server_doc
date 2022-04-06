@@ -6695,7 +6695,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"begin\": \"2020.01.01\",\n    \"end\": \"2022.03.01\",\n    \"taskStatusTypes\": [\n        1, 2, 3, 4, 5, 6\n    ],\n    \"taskTypes\": [\n        1, 2, 3, 4, 5, 6\n    ],\n    \"employeesId\": [\n        1, 2, 3, 4, 5, 6\n    ],\n    \"addressFilter\": \"\",\n    \"deviceIdFilter\": \"\"\n}",
+							"raw": "{\n    \"begin\": \"2020.01.01 00:00:00\",\n    \"end\": \"2023.03.01 00:00:00\",\n    \"taskStatusTypes\": [\n        \n    ],\n    \"taskTypes\": [\n        \n    ],\n    \"employeesId\": [\n        \n    ],\n    \"addressFilter\": \"\",\n    \"deviceIdFilter\": \"\"\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -7877,6 +7877,242 @@
 							"body": "{\n  \"error\": \"reprehenderit dolor officia ullamco\",\n  \"message\": \"in eu cillum\"\n}"
 						}
 					]
+				},
+				{
+					"name": "Загрузить файл на сервер Copy",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"    var jsonData = pm.response.json();\r",
+									"    pm.collectionVariables.set(\"fileUid\", jsonData.uid);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disabledSystemHeaders": {
+							"accept-encoding": true,
+							"user-agent": true
+						}
+					},
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "token",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "file",
+									"type": "file",
+									"src": "/D:/Download/istockphoto-94323250-170667a.jpg"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{baseUrl}}/mobile_inspector/upload",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"mobile_inspector",
+								"upload"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Получить файл по его UID",
+					"protocolProfileBehavior": {
+						"disabledSystemHeaders": {
+							"accept-encoding": true,
+							"user-agent": true
+						}
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "token",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/mobile_inspector/file/{{fileUid}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"mobile_inspector",
+								"file",
+								"{{fileUid}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Удалить файл по его UID",
+					"protocolProfileBehavior": {
+						"disabledSystemHeaders": {
+							"accept-encoding": true,
+							"user-agent": true
+						}
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "token",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/mobile_inspector/delete/{{fileUid}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"mobile_inspector",
+								"delete",
+								"{{fileUid}}"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "FileServer",
+			"item": [
+				{
+					"name": "Загрузить файл на сервер",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"    var jsonData = pm.response.json();\r",
+									"    pm.collectionVariables.set(\"fileUid\", jsonData.uid);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disabledSystemHeaders": {
+							"accept-encoding": true,
+							"user-agent": true
+						}
+					},
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "token",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "file",
+									"type": "file",
+									"src": "/D:/Download/istockphoto-94323250-170667a.jpg"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{baseUrlFileServer}}/upload",
+							"host": [
+								"{{baseUrlFileServer}}"
+							],
+							"path": [
+								"upload"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Удалить файл по его UID",
+					"protocolProfileBehavior": {
+						"disabledSystemHeaders": {
+							"accept-encoding": true,
+							"user-agent": true
+						}
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "token",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrlFileServer}}/delete/{{fileUid}}",
+							"host": [
+								"{{baseUrlFileServer}}"
+							],
+							"path": [
+								"delete",
+								"{{fileUid}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Получить файл по его UID Copy",
+					"protocolProfileBehavior": {
+						"disabledSystemHeaders": {
+							"accept-encoding": true,
+							"user-agent": true
+						}
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "token",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrlFileServer}}/file/{{fileUid}}",
+							"host": [
+								"{{baseUrlFileServer}}"
+							],
+							"path": [
+								"file",
+								"{{fileUid}}"
+							]
+						}
+					},
+					"response": []
 				}
 			]
 		}
@@ -7905,6 +8141,10 @@
 		{
 			"key": "baseUrl",
 			"value": "localhost:8088"
+		},
+		{
+			"key": "baseUrlFileServer",
+			"value": "localhost:8077"
 		},
 		{
 			"key": "password",
@@ -7973,6 +8213,10 @@
 		{
 			"key": "login_mobile",
 			"value": "mobile_use"
+		},
+		{
+			"key": "fileUid",
+			"value": ""
 		}
 	]
 }
