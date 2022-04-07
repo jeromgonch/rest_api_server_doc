@@ -1942,6 +1942,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/errorMessage'
+        501:
+          description: В случае если размер файла превышает установленный лимит
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorMessage'
         401:
           description: В случае если истек срок действия token'а или token невалиден
   /mobile_inspector/file/{file_uid}:
