@@ -797,6 +797,44 @@ paths:
                 $ref: '#/components/schemas/errorMessage'
         401:
           description: В случае если истек срок действия token'а или token невалиден
+  /integrations/get_object_profile:
+    post:
+      tags:
+        - integrations
+      summary: Посчитать часовой профиль для объекта учета
+      description: Расчитывает часовой профиль для объекта учета и передает его в потоковом режиме в формате json за заданный промежуток времени
+      operationId: getHourProfileOfObject
+      parameters:
+        - name: token
+          in: header
+          description: Token, полученный при авторизации
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: Параметры для расчета часового профиля для объекта учета
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/getHourProfileOfObjectParams'
+      responses:
+        200:
+          description: Расчитанный профиль для объекта учета
+          content:
+            application/x-ndjson:
+              schema:
+                $ref: '#/components/schemas/getHourProfileOfObjectResult'
+        503:
+          description: В случае ошибки на сервере
+        500:
+          description: В случае ошибки на сервере
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorMessage'
+        401:
+          description: В случае если истек срок действия token'а или token невалиден
   /documents/list:
     post:
       tags:
@@ -1770,8 +1808,8 @@ paths:
     post:
       tags:
         - mobile_inspector
-      summary: Прочитать описание полей всех актов задания по его ID
-      description: Получает описание в формате JSON всех полей всех актов привязанных к заданию по ID этого задания
+      summary: Прочитать описание всех полей акта задания по его ID
+      description: Получает описание в формате JSON всех полей акта привязанных к заданию по ID этого задания
       operationId: getMobileInspectorTaskActs
       parameters:
         - name: token
@@ -3447,7 +3485,7 @@ paths:
                 $ref: '#/components/schemas/errorMessage'
         401:
           description: В случае если истек срок действия token'а или token невалиден
-          
+
 components:
   schemas:
     token:
@@ -3798,12 +3836,12 @@ components:
       description: Описание типа события журнала ПУ
       type: object
       properties:
-          id:
-            description: Числовой идентификатор события
-            type: integer
-          name:
-            description: Описание события
-            type: string
+        id:
+          description: Числовой идентификатор события
+          type: integer
+        name:
+          description: Описание события
+          type: string
     eventIdAndPeriods:
       description: ID типа события журнала ПУ и период для запроса
       type: object
@@ -4360,7 +4398,7 @@ components:
           type: string
         onlyCount:
           description: '1 - Вернуть только количество событий, удовлетворяющих условиям запроса.<br />
-                        <> 1 или отсутствие параметра - вернуть события' 
+                        <> 1 или отсутствие параметра - вернуть события'
           type: string
         filters:
           description:  'Ограничения выборки событий, указываются через запятую <br />
@@ -4807,7 +4845,7 @@ components:
           description: Дата-время окончания периода запроса
           type: string
         channel:
-          description: Каналы ПУ. указыватся через запятую(1,2,3,4). Если параметр не указан, то возвращаются каналы из schet_fr.channel_cnt 
+          description: Каналы ПУ. указыватся через запятую(1,2,3,4). Если параметр не указан, то возвращаются каналы из schet_fr.channel_cnt
           type: string
     mobileInspectorEmployeePosition:
       description: Описание должности сотрудника
@@ -5086,37 +5124,7 @@ components:
       description: Описание формата полей актов, привязанных к заданию
       type: object
       properties:
-        act_groups:
-          type: array
-          items:
-            $ref: '#/components/schemas/actsFieldsDescriptionActsGroups'
-    actsFieldsDescriptionActsGroups:
-      description: Группы актов
-      type: object
-      properties:
-        id_group:
-          description: ID группы актов
-          type: integer
-        name_group:
-          description: Наименование группы актов
-          type: string
-        acts:
-          description: Список актов
-          type: array
-          items:
-            $ref: '#/components/schemas/actsFieldsDescriptionActsList'
-    actsFieldsDescriptionActsList:
-      description: Список актов
-      type: object
-      properties:
-        id_act:
-          description: ID акта
-          type: integer
-        name_act:
-          description: Наименование акта
-          type: string
         field_groups:
-          description: Список групп полей актов
           type: array
           items:
             $ref: '#/components/schemas/actsFieldsDescriptionFieldsGroupList'
@@ -5138,8 +5146,8 @@ components:
       description: Описание поля акта
       type: object
       properties:
-        id_bind:
-          description: ID связки поля акта и акта
+        field_id:
+          description: ID поля
           type: integer
         field_format:
           $ref: '#/components/schemas/actsFieldsDescriptionFieldFormat'
@@ -5151,6 +5159,10 @@ components:
         - name
         - is_edit
       properties:
+        subgroup:
+          description: Наименование подгруппы полей (для группировки при отображении)
+          nullable: true
+          type: string
         caption:
           description: Отображаемое пользователю наименование поля
           nullable: false
@@ -5159,6 +5171,10 @@ components:
           description: Внутренний идентификатор поля акта (bp_mi_act_filds.idname)
           nullable: false
           type: string
+        is_necessary:
+          description: Признак того, что поле должно быть обязательно заполнено
+          nullable: true
+          type: boolean
         is_edit:
           description: Разрешено ли редактировать поле
           nullable: false
@@ -5253,7 +5269,7 @@ components:
           nullable: false
           type: string
     paramsDelTaskActFieldValues:
-      description: Параметры запроса удаления значения из итории изменения значений поля акта задания
+      description: Параметры запроса удаления значения из иcтории изменения значений поля акта задания
       type: object
       properties:
         idTask:
@@ -5268,3 +5284,127 @@ components:
           description: Временная метка в формате "yyyy.MM.dd HH:mm:ss"
           nullable: false
           type: string
+    getHourProfileOfObjectParams:
+      description: Параметры для расчета часового профиля для объекта учета
+      type: object
+      properties:
+        typeId:
+          description: Тип идентификатора объекта учета ("dogNumber" поле SREZ.DOG_N, "name" поле SREZ.IDNAME, "idAiis" поле SREZ.ID_AIIS, "cfoNumber" поле SREZ.CFO)
+          nullable: false
+          type: string
+          enum:
+            - dogNumber
+            - name
+            - idAiis
+            - cfoNumber
+        id:
+          description: Значение идентификатора объекта учета
+          nullable: false
+          type: string
+        beginDateTime:
+          description: Начала периода в формате "yyyy.MM.dd HH:mm"
+          nullable: false
+          type: string
+        endDateTime:
+          description: Начала периода в формате "yyyy.MM.dd HH:mm"
+          nullable: false
+          type: string
+        energyType:
+          description: Типы запрашиваемых часовых профилей
+          type: array
+          items:
+            type: string
+            enum:
+              - A+
+              - A-
+              - A
+              - R+
+              - R-
+              - R
+        znak:
+          description: Учет знака (0 - без учета знака, 1 с учетом знака)
+          type: integer
+          enum:
+            - 0
+            - 1
+    getHourProfileOfObjectResult:
+      description: Профиль, расчитанный для объекта учета
+      type: array
+      items:
+        type: object
+        properties:
+          name:
+            description: Наименование объекта учета
+            type: string
+          dateInsert:
+            description: Дата и время расчета профиля в формате "yyyy.MM.dd HH:mm:ss"
+            type: string
+          result:
+            description: Массив профиля
+            type: array
+            items:
+              type: object
+              properties:
+                dt:
+                  description: Часовая метка времени в формате "yyyy.MM.dd HH:mm:ss"
+                  type: string
+                ap:
+                  description: Значение A+
+                  type: number
+                apc:
+                  description: Полнота данных, на основе которых расчитан профиль (1 - полный опрос; 2 - частичный опрос; 3 - отсутствие данных)
+                  type: integer
+                  enum:
+                    - 1
+                    - 2
+                    - 3
+                am:
+                  description: Значение A-
+                  type: number
+                amc:
+                  description: Полнота данных, на основе которых расчитан профиль (1 - полный опрос; 2 - частичный опрос; 3 - отсутствие данных)
+                  type: integer
+                  enum:
+                    - 1
+                    - 2
+                    - 3
+                a:
+                  description: Значение A+ - A-
+                  type: number
+                ac:
+                  description: Полнота данных, на основе которых расчитан профиль (1 - полный опрос; 2 - частичный опрос; 3 - отсутствие данных)
+                  type: integer
+                  enum:
+                    - 1
+                    - 2
+                    - 3
+                rp:
+                  description: Значение A+
+                  type: number
+                rpc:
+                  description: Полнота данных, на основе которых расчитан профиль (1 - полный опрос; 2 - частичный опрос; 3 - отсутствие данных)
+                  type: integer
+                  enum:
+                    - 1
+                    - 2
+                    - 3
+                rm:
+                  description: Значение A-
+                  type: number
+                rmc:
+                  description: Полнота данных, на основе которых расчитан профиль (1 - полный опрос; 2 - частичный опрос; 3 - отсутствие данных)
+                  type: integer
+                  enum:
+                    - 1
+                    - 2
+                    - 3
+                r:
+                  description: Значение R+ - R-
+                  type: number
+                rc:
+                  description: Полнота данных, на основе которых расчитан профиль (1 - полный опрос; 2 - частичный опрос; 3 - отсутствие данных)
+                  type: integer
+                  enum:
+                    - 1
+                    - 2
+                    - 3
