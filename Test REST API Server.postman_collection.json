@@ -4005,7 +4005,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"id\": 1\n}",
+							"raw": "{\n    \"id\": 2\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -5844,7 +5844,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"id\": 2\n}",
+							"raw": "{\n    \"id\": 21\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -6396,7 +6396,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"id\": 2\n}",
+							"raw": "{\n    \"id\": 3\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -7076,7 +7076,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n  \"idTask\": 1,\n  \"idNewStatus\": 4,\n  \"idEmployee\": 1,\n  \"comment\": \"тестовый статус\"\n}",
+							"raw": "{\n  \"idTask\": 1,\n  \"idNewStatus\": 10,\n  \"idEmployee\": 1,\n  \"comment\": \"тестовый статус\"\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -7228,7 +7228,7 @@
 					]
 				},
 				{
-					"name": "Прочитать описание полей всех актов задания по его ID",
+					"name": "Прочитать описание всех полей акта задания по его ID",
 					"request": {
 						"method": "POST",
 						"header": [
@@ -7420,7 +7420,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n  \"idTask\": 1,\n  \"idActField\": 1\n}",
+							"raw": "{\n  \"idTask\": 1,\n  \"idActField\": 18\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -7592,7 +7592,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n  \"idTask\": 1,\n  \"idActField\": 1,\n  \"value\": \"тестовое значение 3\"\n}",
+							"raw": "{\n  \"idTask\": 1,\n  \"idActField\": 18,\n  \"value\": \"комментарий дополнен 3\"\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -7764,7 +7764,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n  \"idTask\": 1,\n  \"idActField\": 1,\n  \"dt\": \"2022.03.18 18:04:25\"\n}",
+							"raw": "{\n  \"idTask\": 1,\n  \"idActField\": 18,\n  \"dt\": \"2022.05.26 13:55:48\"\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -7953,7 +7953,7 @@
 								{
 									"key": "file",
 									"type": "file",
-									"src": "/D:/Download/idea64_zjd5mThIrD.png"
+									"src": "/C:/Projects/Java/rest_api_general/rest_api_enforce/readme.md"
 								}
 							]
 						},
@@ -9467,7 +9467,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"typeId\": \"dogNumber\",\r\n    \"id\": \"32132432342\",\r\n    \"beginDateTime\": \"2020.05.01 00:00\",\r\n    \"endDateTime\": \"2020.05.11 00:00\",\r\n    \"energyType\": [\"A+\", \"A-\", \"A\", \"R+\", \"R-\", \"R\"],\r\n    \"znak\": 1\r\n}",
+							"raw": "{\r\n    \"typeId\": \"dogNumber\",\r\n    \"id\": \"32132432342\",\r\n    \"beginDateTime\": \"2020.05.01 00:00\",\r\n    \"endDateTime\": \"2020.05.03 00:00\",\r\n    \"energyType\": [\"A+\", \"A-\", \"A\", \"R+\", \"R-\", \"R\"],\r\n    \"znak\": 1\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -9513,7 +9513,7 @@
 	"variable": [
 		{
 			"key": "baseUrl",
-			"value": "localhost:8088"
+			"value": "192.168.0.104:8088"
 		},
 		{
 			"key": "baseUrlFileServer",
@@ -9521,11 +9521,11 @@
 		},
 		{
 			"key": "password",
-			"value": "12345"
+			"value": "enforce"
 		},
 		{
 			"key": "login",
-			"value": "32132432342"
+			"value": "enforce_dba"
 		},
 		{
 			"key": "hashPassword",
