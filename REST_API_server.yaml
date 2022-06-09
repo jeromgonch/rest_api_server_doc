@@ -377,6 +377,35 @@ paths:
                 $ref: '#/components/schemas/errorMessage'
         401:
           description: В случае, если для IP, с которого пришел запрос запрещено получения RSA public key
+  /login/session_info:
+    post:
+      tags:
+        - login
+      summary: Запрос получение информации о текущей сесии пользователя
+      description: Возвращает информацию о текущей сесии пользователя (login, роли, тип пользователя, тип и наименование БД)
+      operationId: getSessionInfo
+      parameters:
+        - name: token
+          in: header
+          description: Token, полученный при авторизации
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: Описание текущей сессии пользователя
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/userSessionInfo'
+        401:
+          description: В случае если истек срок действия token'а или token невалиден
+        500:
+          description: В случае ошибки на сервере
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorMessage'
   /login/get_user_management_ticket_list:
     post:
       tags:
@@ -827,6 +856,136 @@ paths:
                 $ref: '#/components/schemas/getHourProfileOfObjectResult'
         503:
           description: В случае ошибки на сервере
+        500:
+          description: В случае ошибки на сервере
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorMessage'
+        401:
+          description: В случае если истек срок действия token'а или token невалиден
+  /view/get_object_types:
+    post:
+      tags:
+        - view
+      summary: Справочник типов объектов для дерева объектов учета
+      description: Возвращает массив с описаниями типов объектов для дерева объектов учета
+      operationId: treeViewGetObjectTypes
+      parameters:
+        - name: token
+          in: header
+          description: Token, полученный при авторизации
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: Массив с описаниями типов объектов для дерева объектов учета
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/treeObjectTypes'
+        500:
+          description: В случае ошибки на сервере
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorMessage'
+        401:
+          description: В случае если истек срок действия token'а или token невалиден
+  /view/get_types_devices:
+    post:
+      tags:
+        - view
+      summary: Справочник типов приборов (электричество, тепло, вода и т.п.)
+      description: Возвращает массив с описаниями типов приборов учета
+      operationId: treeViewGetTypeDevice
+      parameters:
+        - name: token
+          in: header
+          description: Token, полученный при авторизации
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: Массив с описанием с описаниями типов приборов учета
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/treeObjectDeviceTypes'
+        500:
+          description: В случае ошибки на сервере
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorMessage'
+        401:
+          description: В случае если истек срок действия token'а или token невалиден
+  /view/get_tree_objects:
+    post:
+      tags:
+        - view
+      summary: Список подчиненных объектов учета для дерева
+      description: Возвращает массив объектов для дерева заданного типа
+      operationId: treeViewGetObject
+      parameters:
+        - name: token
+          in: header
+          description: Token, полученный при авторизации
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: Параметры запроса (тип дерева и ID родительского объекта)
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/treeObjectsParams'
+      responses:
+        200:
+          description: Масссив с описанием дочерних нод дерева
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/treeNodesList'
+        500:
+          description: В случае ошибки на сервере
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorMessage'
+        401:
+          description: В случае если истек срок действия token'а или token невалиден
+  /view/get_tree_devices:
+    post:
+      tags:
+        - view
+      summary: Получить список подчиненных устройств
+      description: Возвращает массив с описанием устройств, входящих в ноду дерева
+      operationId: treeViewGetDevice
+      parameters:
+        - name: token
+          in: header
+          description: Token, полученный при авторизации
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: ID объекта и ID типа объекта
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/treeObjectsParamsForDeviceList'
+      responses:
+        200:
+          description: Масссив с описанием дочерних нод дерева
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/treeNodesDeviceList'
         500:
           description: В случае ошибки на сервере
           content:
@@ -5408,3 +5567,138 @@ components:
                     - 1
                     - 2
                     - 3
+    treeObjectTypes:
+      description: Справочник типов объектов для дерева объектов учета
+      type: array
+      items:
+        type: object
+        properties:
+          id:
+            description: ID
+            type: integer
+          idname:
+            description: Наименование
+            type: string
+          isUse:
+            description: Признак использования
+            type: boolean
+    treeObjectsParams:
+      description: Параметры запроса дочерних объектов для дерева
+      type: object
+      properties:
+        id:
+          description: ID объекта, когда равен null, то запрашивается список корневых узлов
+          type: string
+        typ:
+          description: Тип дерева, для которого производиться запрос (obj - дерево объектов учета, prop - дерево по свойствам, usd - дерево УСПД, energy - дерево энергии плюс)
+          type: string
+          enum:
+            - obj
+            - prop
+            - usd
+            - energy
+    treeObjectsParamsForDeviceList:
+      description: Параметры запроса дочерних устройств для дерева
+      type: object
+      properties:
+        id:
+          description: ID объекта
+          nullable: false
+          type: string
+        typ:
+          description: Тип дерева, для которого производиться запрос (obj - дерево объектов учета, prop - дерево по свойствам, usd - дерево УСПД, energy - дерево энергии плюс)
+          type: string
+          enum:
+            - obj
+            - prop
+            - usd
+            - energy
+    treeNodesList:
+      description: Список подчиненных объектов для дерева
+      type: array
+      items:
+        type: object
+        properties:
+          id:
+            description: ID объекта
+            type: string
+          name:
+            description: Наименование объекта
+            type: string
+          nNodes:
+            description: Количество дочерних объектов учета в элементе дерева
+            type: integer
+          nDevs:
+            description: Количество устройств, входящих в элемент дерева
+            type: integer
+          idSp:
+            description: ID типа объекта (справочник типов объектов дерева)
+            type: integer
+    treeNodesDeviceList:
+      description: Список подчиненных устройств для дерева
+      type: array
+      items:
+        type: object
+        properties:
+          id:
+            description: ID объекта
+            type: string
+          name:
+            description: Наименование объекта
+            type: string
+          typ:
+            description: ID типа прибора (запрос справочника /view/get_types_devices)
+            type: integer
+          idTypMp:
+            description: ID модели устройства
+            type: string
+          mpName:
+            description: Наименование модели устройства
+            type: string
+    treeObjectDeviceTypes:
+      description: Список типов устройств (электричество, газ, вода и т.п.)
+      type: array
+      items:
+        type: object
+        properties:
+          id:
+            description: ID типа устройства
+            type: string
+          name:
+            description: Наименование типа устройства
+            type: string
+    userSessionInfo:
+      description: Описание текущей сессии пользователя
+      type: object
+      properties:
+        userName:
+          description: Имя пользователя (login или Л/С)
+          type: string
+        userType:
+          description: Тип пользователя
+          type: object
+          properties:
+            id:
+              example: 1
+              type: integer
+            idname:
+              example: 'Физ. лицо'
+              type: string
+        userRoles:
+          description: Список ролей, назначенных пользователю
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                description: ID роли пользователя
+                type: string
+              name:
+                description: Наименование роли пользователя
+                type: string
+        bdName:
+          description: Название БД, к которой подключен пользователь
+          type: string
+        bdType:
+          description: Название типа БД, к которой подключен пользователь (Oracle, PostgresSQL)
+          type: string
