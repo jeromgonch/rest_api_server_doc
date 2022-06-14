@@ -5133,11 +5133,6 @@ components:
           type: array
           items:
             type: integer
-        employeesId:
-          description: Массив ID сотрудников (фильтр поиска, пустой массив - любой статус)
-          type: array
-          items:
-            type: integer
         addressFilter:
           type: string
           description: Строка для поиска по адресу объекта
