@@ -127,6 +127,56 @@ paths:
                 $ref: '#/components/schemas/errorMessage'
         401:
           description: Во случае невалидной пары user и hashPassword
+  /login/user_desktop:
+    post:
+      tags:
+        - login
+      summary: Авторизоваться на сервере из декстопного приложения по имени пользователя и хешу пароля.
+      description: Авторизация на сервере из декстопного приложения по имени пользователя и хешу пароля. Для пользователя должна быть задана "роль" - "Desktop User". Хеш пароля для передачи в функцию должен быть закодирован с использованием открытокго ключа, полученного методом /get_open_key, по алгоритму RSA (RSAES-PKCS1-V1_5 в формате Base64). В ответ передаются сгенерированные на стороне сервиса два token'а. Первый используется для идентификации при вызове все остальных функций. Время жизни даннго token'а отграничена 10 минутами, по истечению которых необходимо запросить новый token. Второй refreshToken используется для получения новой пары token и refreshToken, время его жизни ограничено 1 часом. Отличие данного метода от метода "/login/user" в дополнительной проверке, выдана ли пользователю "роль" - "Desktop user".
+      operationId: loginUserDesktop
+      parameters:
+        - name: user
+          in: header
+          description: Имя пользователя
+          required: true
+          schema:
+            type: string
+        - name: keyUid
+          in: header
+          description: Уникальный UID открытого ключа, полученного в методе /get_open_key
+          required: true
+          schema:
+            type: string
+        - name: hashPassword
+          in: header
+          description: Закодированное значение hashPassword
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: Информация о пользователе
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/userInfoList'
+      responses:
+        202:
+          description: Успешная авторизация
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: '#/components/schemas/token'
+                  - $ref: '#/components/schemas/tokenWithUserType'
+        500:
+          description: В случае ошибки на сервере
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorMessage'
+        401:
+          description: Во случае невалидной пары user и hashPassword
   /login/refresh:
     post:
       tags:
@@ -760,7 +810,7 @@ paths:
             type: string
         - name: guid
           in: header
-          description: Униварсальный GUID прибора учета
+          description: Универсальный GUID прибора учета
           required: true
           schema:
             type: string
@@ -856,6 +906,155 @@ paths:
                 $ref: '#/components/schemas/getHourProfileOfObjectResult'
         503:
           description: В случае ошибки на сервере
+        500:
+          description: В случае ошибки на сервере
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorMessage'
+        401:
+          description: В случае если истек срок действия token'а или token невалиден
+  /view/entities_types:
+    post:
+      tags:
+        - view
+      summary: Справочник типов основных сущностей
+      description: Возвращает список основных сущностей, которые используются в программе (ПУ, ОУ, УСД)
+      operationId: viewGetEntityTypes
+      parameters:
+        - name: token
+          in: header
+          description: Token, полученный при авторизации
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: Массив с описаниями основных сущностей
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/mainEntityTypes'
+        500:
+          description: В случае ошибки на сервере
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorMessage'
+        401:
+          description: В случае если истек срок действия token'а или token невалиден
+  /view/get_all_fields_by_entity:
+    post:
+      tags:
+        - view
+      summary: Получить список всех полей сущности
+      description: Возвращает массив с описаниями всех полей сущности
+      operationId: viewGetAllFieldsByEntity
+      parameters:
+        - name: token
+          in: header
+          description: Token, полученный при авторизации
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: ID сущности
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                id:
+                  type: string
+      responses:
+        200:
+          description: В случае успешного выполнения
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/allFieldsDescrByEntity'
+        500:
+          description: В случае ошибки на сервере
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorMessage'
+        401:
+          description: В случае если истек срок действия token'а или token невалиден
+  /view/get_fields_used_for_search:
+    post:
+      tags:
+        - view
+      summary: Получить список полей сущности для использования в поиске
+      description: Возвращает массив с описаниями всех полей сущности, которые могут быть использованы в запросе поиска для элементов сущности
+      operationId: viewGetFieldsUsedForSearch
+      parameters:
+        - name: token
+          in: header
+          description: Token, полученный при авторизации
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: ID сущности
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                id:
+                  type: string
+      responses:
+        200:
+          description: В случае успешного выполнения
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/allFieldsDescrByEntity'
+        500:
+          description: В случае ошибки на сервере
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorMessage'
+        401:
+          description: В случае если истек срок действия token'а или token невалиден
+  /view/do_search_query:
+    post:
+      tags:
+        - view
+      summary: Выполнить запрос поиска элементов для сущности
+      description: Возвращает массив с описаниями всех полей сущности, которые могут быть использованы в запросе поиска для элементов сущности
+      operationId: viewDoSearchQuery
+      parameters:
+        - name: token
+          in: header
+          description: Token, полученный при авторизации
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: ID сущности
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/entitySearchQueryParams'
+      responses:
+        200:
+          description: В случае успешного выполнения
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/entitySearchQueryResult'
         500:
           description: В случае ошибки на сервере
           content:
@@ -3790,6 +3989,25 @@ components:
             enum:
               - 1
               - 2
+    userInfoList:
+      description: Описание информации, которая дополнительно передается при авторизации
+      type: object
+      properties:
+        dbUserName:
+          description: Имя пользователя в БД
+          type: string
+        osUserName:
+          description: Имя пользователя в ОС
+          type: string
+        ipAddress:
+          description: ($ipv4)Ip-адрес с которого производилась регистрация
+          type: string
+        compName:
+          description: Наименование компьютера пользователя
+          type: string
+        moduleName:
+          description: Название программного модуля
+          type: string
     userManagementTicketList:
       description: Список активных заявок по управлению пользователями
       type: object
@@ -5696,4 +5914,140 @@ components:
           type: string
         bdType:
           description: Название типа БД, к которой подключен пользователь (Oracle, PostgresSQL)
+          type: string
+    mainEntityTypes:
+      description: Список объектов с описанием основных используемых сущностей (ПУ, ОУ, УСД)
+      type: array
+      items:
+        type: object
+        properties:
+          id:
+            description: ID сущности (используемый в других методах)
+            type: string
+          name:
+            description: Наименование сущности (для отображения пользователю)
+            type: string
+          isCustomize:
+            description: Можно или нельзя настраивать отображение полей пользователем
+            type: boolean
+          isEnergy:
+            description: Принадлежит ли сущность Энергии+
+            type: boolean
+          isUseInImport:
+            description: Использование для шаблонов загрузки НСИ
+            type: boolean
+          isUseInConstructor:
+            description: Использование для шаблонов формирования отчетов
+            type: boolean
+    allFieldsDescrByEntity:
+      description: Описание поля элемента сущности
+      type: object
+      properties:
+        field:
+          description: Идентификатор поля
+          type: string
+        caption:
+          description: Наименование поля, для отображения пользователю
+          type: string
+        type:
+          description: Описание типа данных поля для отображения пользователю
+          type: object
+          properties:
+            name:
+              description: Тип данных поля
+              type: string
+              enum:
+                - integer
+                - float
+                - boolean
+                - datetime
+                - string
+            enum:
+              description: Массив с перечислением всех возможных вариантов значений поля
+              type: array
+              items:
+                type: string
+            length:
+              description: Максимальное количество символов допустимое для значения поля
+              type: integer
+    entitySearchQueryParams:
+      description: Параметры запроса элементов сущности
+      type: object
+      properties:
+        entity:
+          description: Идентификатор сущности (SREZ, SCHET_FR и т.п.)
+          type: string
+        fields:
+          description: Массив с описанием полей сущности, которые необходимо включить в результаты вывода запроса
+          type: array
+          items:
+            $ref: '#/components/schemas/entitySearchQueryFields'
+        limit:
+          description: Максимальное количество записей, которое можно извлечь в запросе
+    entitySearchQueryFields:
+      description: Описание поля для запроса элементов сущности
+      type: object
+      properties:
+        fieldName:
+          description: Идентификатор поля сущности
+          type: string
+        conditions:
+          description: Массив условий для поля в запросе поиска элемента сущности
+          type: array
+          items:
+            $ref: '#/components/schemas/entitySearchQueryFieldConditions'
+    entitySearchQueryFieldConditions:
+      description: Условие для поля в запросе поиска элемента сущности
+      type: object
+      properties:
+        type:
+          description: Тип условия ("=", "<", ">", "<=", ">=", "%", "%%", "between")
+          type: string
+          enum:
+            - "="
+            - "<"
+            - ">"
+            - "<="
+            - ">="
+            - "%"
+            - "%%"
+            - between
+        v:
+          description: Значение для условия поиска
+          type: string
+        v2:
+          description: Второе значение для условия поиска для условия between (необязательный параметр)
+          type: string
+    entitySearchQueryResult:
+      description: Результаты выполнения запроса поиска элементов сущности
+      type: object
+      properties:
+        fieldsDescr:
+          description: Описание полей элементов сущности использованных в запросе
+          type: array
+          items:
+            $ref: '#/components/schemas/allFieldsDescrByEntity'
+        rows:
+          description: Строки результата выполнения запроса
+          type: array
+          items:
+            $ref: '#/components/schemas/entitySearchQueryResultRow'
+    entitySearchQueryResultRow:
+      description: Строка с результатом выполнения запроса элементов сущности
+      type: object
+      properties:
+        cols:
+          description: Столбцы с результатами выполнения запроса элементов сущности
+          type: array
+          items:
+            $ref: '#/components/schemas/entitySearchQueryResultCol'
+    entitySearchQueryResultCol:
+      description: Столбец с результатом выполнения запроса элементов сущности
+      type: object
+      properties:
+        n:
+          description: Идентификатор поля сущности
+          type: string
+        v:
+          description: Значение поля элемента сущности
           type: string

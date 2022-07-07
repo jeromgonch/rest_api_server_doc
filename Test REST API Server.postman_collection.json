@@ -390,6 +390,216 @@
 					]
 				},
 				{
+					"name": "Авторизоваться на сервере по имени пользователя и хешу пароля из desktop приложения.",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"eval(pm.collectionVariables.get(\"SHA256\"));",
+									"let hashPassword = SHA256(pm.collectionVariables.get(\"password\"));",
+									"pm.sendRequest(pm.collectionVariables.get(\"baseUrl\")+\"/get_open_key\", (err, res) => {",
+									"        let rsaKeys = JSON.parse(res.text());",
+									"        pm.collectionVariables.set(\"uidKey\", rsaKeys.keyUid);",
+									"        eval(pm.collectionVariables.get('forgeJS'));",
+									"        let publicKey = '-----BEGIN PUBLIC KEY-----\\n' +",
+									"            rsaKeys.keyPublic +",
+									"            '\\n-----END PUBLIC KEY-----';",
+									"        publicKey = forge.pki.publicKeyFromPem(publicKey);",
+									"        let encryptedText = forge.util.encode64(publicKey.encrypt(hashPassword, 'RSAES-PKCS1-V1_5', {",
+									"            md: forge.md.sha256.create(),",
+									"            mgf1: { md: forge.md.sha256.create() }",
+									"        }));",
+									"        pm.collectionVariables.set(\"hashPassword\", encryptedText);",
+									"    });",
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"    var jsonData = pm.response.json();",
+									"    pm.collectionVariables.set(\"token\", jsonData.token);",
+									"    pm.collectionVariables.set(\"refreshToken\", jsonData.refreshToken);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disabledSystemHeaders": {
+							"connection": true,
+							"accept-encoding": true,
+							"accept": true
+						}
+					},
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"description": "(Required) Имя пользователя",
+								"key": "user",
+								"value": "{{login}}"
+							},
+							{
+								"description": "(Required) Закодированное значение hashPassword",
+								"key": "hashPassword",
+								"value": "{{hashPassword}}"
+							},
+							{
+								"key": "keyUid",
+								"value": "{{uidKey}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"dbUserName\": \"Test\",\r\n    \"osUserName\": \"Test2\",\r\n    \"ipAddress\": \"192.168.0.44\",\r\n    \"compName\": \"CompName\",\r\n    \"moduleName\": \"BPAdmin\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/login/user_desktop",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"login",
+								"user_desktop"
+							]
+						},
+						"description": "Авторизация на сервере по имени пользователя и хешу пароля. Для авторизации на сервера хеш пароля кодируется с добавлением текущего времени. Для передачи на сервер к хешу пароля подмешивается значение текущего времени, при этом конечное значение ***heshPassword*** зависит от времени авторизации, чтобы исключить возможность повторного использования перехваченного ***hashPassword*** злоумышленниками. Расчитанная последовательность символов ***hashPassword***'я действителена в течении 10 секунд. В связи с чем требуется синхронизация времени сервера и клиента. IP адрес клиента не проверяется. В ответ передаются сгенерированные на стороне сервиса два ***token***'а. Первый используется для идентификации при вызове всех остальных функций. Время жизни даннго ***token***'а отграничена 10 минутами, по истечению которых необходимо запросить новый ***token***. Второй ***refreshToken*** используется для получения новой пары ***token*** и ***refreshToken***, время его жизни ограничено 1 часом. При получении новой пары ***token*** и ***refreshToken*** старые токены становятся недействительными."
+					},
+					"response": [
+						{
+							"name": "Успешная авторизация",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"description": "(Required) Имя пользователя",
+										"key": "user",
+										"value": "fugiat ex"
+									},
+									{
+										"description": "(Required) Закодированное значение hashPassword",
+										"key": "hashPassword",
+										"value": "fugiat ex"
+									}
+								],
+								"url": {
+									"raw": "{{baseUrl}}/login/user",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"login",
+										"user"
+									]
+								}
+							},
+							"status": "Accepted",
+							"code": 202,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n \"token\": \"tempor labor\",\n \"refreshToken\": \"Lorem sit ea esse\"\n}"
+						},
+						{
+							"name": "Во случае невалидной пары user и hashPassword",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"description": "(Required) Имя пользователя",
+										"key": "user",
+										"value": "fugiat ex"
+									},
+									{
+										"description": "(Required) Закодированное значение hashPassword",
+										"key": "hashPassword",
+										"value": "fugiat ex"
+									}
+								],
+								"url": {
+									"raw": "{{baseUrl}}/login/user",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"login",
+										"user"
+									]
+								}
+							},
+							"status": "Unauthorized",
+							"code": 401,
+							"_postman_previewlanguage": "text",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "text/plain"
+								}
+							],
+							"cookie": [],
+							"body": ""
+						},
+						{
+							"name": "В случае ошибки на сервере",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"description": "(Required) Имя пользователя",
+										"key": "user",
+										"value": "fugiat ex"
+									},
+									{
+										"description": "(Required) Закодированное значение hashPassword",
+										"key": "hashPassword",
+										"value": "fugiat ex"
+									}
+								],
+								"url": {
+									"raw": "{{baseUrl}}/login/user",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"login",
+										"user"
+									]
+								}
+							},
+							"status": "Internal Server Error",
+							"code": 500,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n \"error\": \"in magna dolor\",\n \"message\": \"non ex sed eu\"\n}"
+						}
+					]
+				},
+				{
 					"name": "Авторизоваться на сервере из мобильного приложения по имени пользователя и хешу пароля.",
 					"event": [
 						{
@@ -10176,6 +10386,662 @@
 							"path": [
 								"view",
 								"get_tree_devices"
+							]
+						},
+						"description": "Устанавливает новое значение статуса задания (дополняет историю изменения статусов)"
+					},
+					"response": [
+						{
+							"name": "Новый статус задания успешно установлен",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"description": "(Required) Token, полученный при авторизации",
+										"key": "token",
+										"value": "eiusmod"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"idTask\": -44336666,\n  \"idNewStatus\": -94617596,\n  \"idEmployee\": 47445072,\n  \"comment\": \"aute est Lorem\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/mobile_inspector/set_task_status",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"mobile_inspector",
+										"set_task_status"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "text",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "text/plain"
+								}
+							],
+							"cookie": [],
+							"body": ""
+						},
+						{
+							"name": "В случае если истек срок действия token'а или token невалиден",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"description": "(Required) Token, полученный при авторизации",
+										"key": "token",
+										"value": "eiusmod"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"idTask\": -44336666,\n  \"idNewStatus\": -94617596,\n  \"idEmployee\": 47445072,\n  \"comment\": \"aute est Lorem\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/mobile_inspector/set_task_status",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"mobile_inspector",
+										"set_task_status"
+									]
+								}
+							},
+							"status": "Unauthorized",
+							"code": 401,
+							"_postman_previewlanguage": "text",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "text/plain"
+								}
+							],
+							"cookie": [],
+							"body": ""
+						},
+						{
+							"name": "В случае какой-либо ошибки",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"description": "(Required) Token, полученный при авторизации",
+										"key": "token",
+										"value": "eiusmod"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"idTask\": -44336666,\n  \"idNewStatus\": -94617596,\n  \"idEmployee\": 47445072,\n  \"comment\": \"aute est Lorem\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/mobile_inspector/set_task_status",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"mobile_inspector",
+										"set_task_status"
+									]
+								}
+							},
+							"status": "Internal Server Error",
+							"code": 500,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n  \"error\": \"reprehenderit dolor officia ullamco\",\n  \"message\": \"in eu cillum\"\n}"
+						}
+					]
+				},
+				{
+					"name": "Прочитать справочник типов сущностей",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"description": "(Required) Token, полученный при авторизации",
+								"key": "token",
+								"value": "{{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/view/entities_types",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"view",
+								"entities_types"
+							]
+						},
+						"description": "Устанавливает новое значение статуса задания (дополняет историю изменения статусов)"
+					},
+					"response": [
+						{
+							"name": "Новый статус задания успешно установлен",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"description": "(Required) Token, полученный при авторизации",
+										"key": "token",
+										"value": "eiusmod"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"idTask\": -44336666,\n  \"idNewStatus\": -94617596,\n  \"idEmployee\": 47445072,\n  \"comment\": \"aute est Lorem\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/mobile_inspector/set_task_status",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"mobile_inspector",
+										"set_task_status"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "text",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "text/plain"
+								}
+							],
+							"cookie": [],
+							"body": ""
+						},
+						{
+							"name": "В случае если истек срок действия token'а или token невалиден",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"description": "(Required) Token, полученный при авторизации",
+										"key": "token",
+										"value": "eiusmod"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"idTask\": -44336666,\n  \"idNewStatus\": -94617596,\n  \"idEmployee\": 47445072,\n  \"comment\": \"aute est Lorem\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/mobile_inspector/set_task_status",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"mobile_inspector",
+										"set_task_status"
+									]
+								}
+							},
+							"status": "Unauthorized",
+							"code": 401,
+							"_postman_previewlanguage": "text",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "text/plain"
+								}
+							],
+							"cookie": [],
+							"body": ""
+						},
+						{
+							"name": "В случае какой-либо ошибки",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"description": "(Required) Token, полученный при авторизации",
+										"key": "token",
+										"value": "eiusmod"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"idTask\": -44336666,\n  \"idNewStatus\": -94617596,\n  \"idEmployee\": 47445072,\n  \"comment\": \"aute est Lorem\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/mobile_inspector/set_task_status",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"mobile_inspector",
+										"set_task_status"
+									]
+								}
+							},
+							"status": "Internal Server Error",
+							"code": 500,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n  \"error\": \"reprehenderit dolor officia ullamco\",\n  \"message\": \"in eu cillum\"\n}"
+						}
+					]
+				},
+				{
+					"name": "Получить список всех полей сущности",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"description": "(Required) Token, полученный при авторизации",
+								"key": "token",
+								"value": "{{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"id\": \"SCHET_FR\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/view/get_all_fields_by_entity",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"view",
+								"get_all_fields_by_entity"
+							]
+						},
+						"description": "Устанавливает новое значение статуса задания (дополняет историю изменения статусов)"
+					},
+					"response": [
+						{
+							"name": "Новый статус задания успешно установлен",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"description": "(Required) Token, полученный при авторизации",
+										"key": "token",
+										"value": "eiusmod"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"idTask\": -44336666,\n  \"idNewStatus\": -94617596,\n  \"idEmployee\": 47445072,\n  \"comment\": \"aute est Lorem\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/mobile_inspector/set_task_status",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"mobile_inspector",
+										"set_task_status"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "text",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "text/plain"
+								}
+							],
+							"cookie": [],
+							"body": ""
+						},
+						{
+							"name": "В случае если истек срок действия token'а или token невалиден",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"description": "(Required) Token, полученный при авторизации",
+										"key": "token",
+										"value": "eiusmod"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"idTask\": -44336666,\n  \"idNewStatus\": -94617596,\n  \"idEmployee\": 47445072,\n  \"comment\": \"aute est Lorem\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/mobile_inspector/set_task_status",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"mobile_inspector",
+										"set_task_status"
+									]
+								}
+							},
+							"status": "Unauthorized",
+							"code": 401,
+							"_postman_previewlanguage": "text",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "text/plain"
+								}
+							],
+							"cookie": [],
+							"body": ""
+						},
+						{
+							"name": "В случае какой-либо ошибки",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"description": "(Required) Token, полученный при авторизации",
+										"key": "token",
+										"value": "eiusmod"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"idTask\": -44336666,\n  \"idNewStatus\": -94617596,\n  \"idEmployee\": 47445072,\n  \"comment\": \"aute est Lorem\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/mobile_inspector/set_task_status",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"mobile_inspector",
+										"set_task_status"
+									]
+								}
+							},
+							"status": "Internal Server Error",
+							"code": 500,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n  \"error\": \"reprehenderit dolor officia ullamco\",\n  \"message\": \"in eu cillum\"\n}"
+						}
+					]
+				},
+				{
+					"name": "Получить список полей сущности для использования в поиске",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"description": "(Required) Token, полученный при авторизации",
+								"key": "token",
+								"value": "{{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"id\": \"SCHET_FR\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/view/get_fields_used_for_search",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"view",
+								"get_fields_used_for_search"
+							]
+						},
+						"description": "Устанавливает новое значение статуса задания (дополняет историю изменения статусов)"
+					},
+					"response": [
+						{
+							"name": "Новый статус задания успешно установлен",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"description": "(Required) Token, полученный при авторизации",
+										"key": "token",
+										"value": "eiusmod"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"idTask\": -44336666,\n  \"idNewStatus\": -94617596,\n  \"idEmployee\": 47445072,\n  \"comment\": \"aute est Lorem\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/mobile_inspector/set_task_status",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"mobile_inspector",
+										"set_task_status"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "text",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "text/plain"
+								}
+							],
+							"cookie": [],
+							"body": ""
+						},
+						{
+							"name": "В случае если истек срок действия token'а или token невалиден",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"description": "(Required) Token, полученный при авторизации",
+										"key": "token",
+										"value": "eiusmod"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"idTask\": -44336666,\n  \"idNewStatus\": -94617596,\n  \"idEmployee\": 47445072,\n  \"comment\": \"aute est Lorem\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/mobile_inspector/set_task_status",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"mobile_inspector",
+										"set_task_status"
+									]
+								}
+							},
+							"status": "Unauthorized",
+							"code": 401,
+							"_postman_previewlanguage": "text",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "text/plain"
+								}
+							],
+							"cookie": [],
+							"body": ""
+						},
+						{
+							"name": "В случае какой-либо ошибки",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"description": "(Required) Token, полученный при авторизации",
+										"key": "token",
+										"value": "eiusmod"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"idTask\": -44336666,\n  \"idNewStatus\": -94617596,\n  \"idEmployee\": 47445072,\n  \"comment\": \"aute est Lorem\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/mobile_inspector/set_task_status",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"mobile_inspector",
+										"set_task_status"
+									]
+								}
+							},
+							"status": "Internal Server Error",
+							"code": 500,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n  \"error\": \"reprehenderit dolor officia ullamco\",\n  \"message\": \"in eu cillum\"\n}"
+						}
+					]
+				},
+				{
+					"name": "Выполнить запрос поиска для сущности",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"description": "(Required) Token, полученный при авторизации",
+								"key": "token",
+								"value": "{{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"entity\": \"SCHET_FR\",\r\n    \"fields\": [\r\n        {\"fieldName\": \"ID\"},\r\n        {\"fieldName\": \"IDNAME\"},\r\n        {\"fieldName\": \"ID_TYPE_MP\"},\r\n        {\"fieldName\": \"ID_SS\"},\r\n        {\"fieldName\": \"ID_AIIS\"},\r\n        {\"fieldName\": \"DEVICE_ID\", \"conditions\": [\r\n            {\"type\": \"%\", \"v\": \"44441305\"}]}\r\n    ],\r\n    \"limit\": 3\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/view/do_search_query",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"view",
+								"do_search_query"
 							]
 						},
 						"description": "Устанавливает новое значение статуса задания (дополняет историю изменения статусов)"
