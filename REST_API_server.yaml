@@ -5473,7 +5473,14 @@ components:
         idTypeStatus:
           $ref: '#/components/schemas/mobileInspectorTaskStatus'
         idUser:
-          $ref: '#/components/schemas/mobileInspectorEmployee'
+          type: object
+          properties:
+            id:
+              description: ID пользователя, утановившего статус
+              type: integer
+            user_name:
+              description: Логин пользователя, утановившего статус
+              type: string
         comm:
           description: Комментарий
           type: string
