@@ -2085,7 +2085,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/mobileInspectorTaskEmployeeList'
+                $ref: '#/components/schemas/mobileInspectorTaskEmployeeAndStatus'
         500:
           description: В случае какой-либо ошибки
           content:
@@ -5426,6 +5426,19 @@ components:
           $ref: '#/components/schemas/mobileInspectorTask'
         user:
           $ref: '#/components/schemas/mobileInspectorEmployee'
+    mobileInspectorTaskEmployeeAndStatus:
+      type: array
+      items:
+        properties:
+          employeeTask:
+            $ref: '#/components/schemas/mobileInspectorTaskEmployee'
+          comm:
+            description: Комментарий
+            type: string
+          lastTaskStatus:
+            $ref: '#/components/schemas/mobileInspectorTaskHistory'
+          isControlUser:
+            type: integer
     mobileInspectorTaskEmployeeWrap:
       type: object
       properties:
