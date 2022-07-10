@@ -8155,6 +8155,11 @@
 								"key": "token",
 								"value": "{{token}}",
 								"type": "text"
+							},
+							{
+								"key": "idTask",
+								"value": "601",
+								"type": "text"
 							}
 						],
 						"body": {
@@ -8163,7 +8168,7 @@
 								{
 									"key": "file",
 									"type": "file",
-									"src": "/C:/Projects/Java/rest_api_general/rest_api_enforce/readme.md"
+									"src": "/Users/jerom/Documents/Programing/JavaProjects/rest_api_general/rest_api_enforce/readme.md"
 								}
 							]
 						},
@@ -8189,30 +8194,39 @@
 						}
 					},
 					"request": {
-						"method": "GET",
+						"method": "POST",
 						"header": [
 							{
 								"key": "token",
 								"value": "{{token}}",
 								"type": "text"
+							},
+							{
+								"key": "idTask",
+								"value": "601",
+								"type": "text"
+							},
+							{
+								"key": "fileUid",
+								"value": "{{fileUid}}",
+								"type": "text"
 							}
 						],
 						"url": {
-							"raw": "{{baseUrl}}/mobile_inspector/file/{{fileUid}}",
+							"raw": "{{baseUrl}}/mobile_inspector/file",
 							"host": [
 								"{{baseUrl}}"
 							],
 							"path": [
 								"mobile_inspector",
-								"file",
-								"{{fileUid}}"
+								"file"
 							]
 						}
 					},
 					"response": []
 				},
 				{
-					"name": "Удалить файл по его UID",
+					"name": "Получить список файлов связанных с заданием",
 					"protocolProfileBehavior": {
 						"disabledSystemHeaders": {
 							"accept-encoding": true,
@@ -8220,23 +8234,67 @@
 						}
 					},
 					"request": {
-						"method": "GET",
+						"method": "POST",
 						"header": [
 							{
 								"key": "token",
 								"value": "{{token}}",
 								"type": "text"
+							},
+							{
+								"key": "idTask",
+								"value": "601",
+								"type": "text"
 							}
 						],
 						"url": {
-							"raw": "{{baseUrl}}/mobile_inspector/delete/{{fileUid}}",
+							"raw": "{{baseUrl}}/mobile_inspector/list",
 							"host": [
 								"{{baseUrl}}"
 							],
 							"path": [
 								"mobile_inspector",
-								"delete",
-								"{{fileUid}}"
+								"list"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Удалить файл задания по его UID",
+					"protocolProfileBehavior": {
+						"disabledSystemHeaders": {
+							"accept-encoding": true,
+							"user-agent": true
+						}
+					},
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "token",
+								"value": "{{token}}",
+								"type": "text"
+							},
+							{
+								"key": "idTask",
+								"value": "601",
+								"type": "text"
+							},
+							{
+								"key": "fileUid",
+								"value": "{{fileUid}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/mobile_inspector/delete",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"mobile_inspector",
+								"delete"
 							]
 						}
 					},
@@ -8285,7 +8343,7 @@
 								{
 									"key": "file",
 									"type": "file",
-									"src": "/D:/Download/UniDAC_v8.4.2_FULL_Sources_Downloadly.ir.rar"
+									"src": "/Users/jerom/Documents/Programing/JavaProjects/rest_api_general/rest_api_enforce/readme.md"
 								}
 							]
 						},
@@ -8332,7 +8390,37 @@
 					"response": []
 				},
 				{
-					"name": "Получить файл по его UID Copy",
+					"name": "Получить список файлов по их UID",
+					"protocolProfileBehavior": {
+						"disabledSystemHeaders": {
+							"accept-encoding": true,
+							"user-agent": true
+						}
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "token",
+								"value": "{{token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrlFileServer}}/list/{{fileUid}},{{fileUid}},{{fileUid}}",
+							"host": [
+								"{{baseUrlFileServer}}"
+							],
+							"path": [
+								"list",
+								"{{fileUid}},{{fileUid}},{{fileUid}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Получить файл по его UID",
 					"protocolProfileBehavior": {
 						"disabledSystemHeaders": {
 							"accept-encoding": true,

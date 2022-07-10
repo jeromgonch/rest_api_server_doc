@@ -2312,6 +2312,12 @@ paths:
           required: true
           schema:
             type: string
+        - name: idTask
+          in: header
+          description: ID задания, к которому добавляется файл
+          required: true
+          schema:
+            type: integer
       requestBody:
         required: true
         content:
@@ -2346,8 +2352,8 @@ paths:
                 $ref: '#/components/schemas/errorMessage'
         401:
           description: В случае если истек срок действия token'а или token невалиден
-  /mobile_inspector/file/{file_uid}:
-    get:
+  /mobile_inspector/file:
+    post:
       tags:
         - mobile_inspector
       summary: Получить ранее загруженный в хранилище файл
@@ -2360,8 +2366,14 @@ paths:
           required: true
           schema:
             type: string
-        - name: file_uid
-          in: path
+        - name: idTask
+          in: header
+          description: ID задания, к которому добавляется файл
+          required: true
+          schema:
+            type: integer
+        - name: fileUid
+          in: header
           description: UID файла в хранилище
           required: true
           schema:
@@ -2369,6 +2381,8 @@ paths:
       responses:
         200:
           description: Содержимое файла
+        204:
+          description: Указанный UID не связан с заданием с указанным ID
         500:
           description: В случае какой-либо ошибки
           content:
@@ -2377,8 +2391,8 @@ paths:
                 $ref: '#/components/schemas/errorMessage'
         401:
           description: В случае если истек срок действия token'а или token невалиден
-  /mobile_inspector/delete/{file_uid}:
-    get:
+  /mobile_inspector/delete:
+    post:
       tags:
         - mobile_inspector
       summary: Удалить ранее загруженный в хранилище файл
@@ -2391,8 +2405,14 @@ paths:
           required: true
           schema:
             type: string
-        - name: file_uid
-          in: path
+        - name: idTask
+          in: header
+          description: ID задания, к которому был добавлен файл
+          required: true
+          schema:
+            type: integer
+        - name: fileUid
+          in: header
           description: UID файла в хранилище
           required: true
           schema:
@@ -2400,6 +2420,8 @@ paths:
       responses:
         200:
           description: В случае успешного удаления файла
+        204:
+          description: Указанный UID не связан с заданием с указанным ID
         500:
           description: В случае какой-либо ошибки
           content:
@@ -2408,7 +2430,46 @@ paths:
                 $ref: '#/components/schemas/errorMessage'
         401:
           description: В случае если истек срок действия token'а или token невалиден
-
+  /mobile_inspector/list:
+    post:
+      tags:
+        - mobile_inspector
+      summary: Получить список файлов связанных с заданием
+      description: Формирует список файлов связанных с заданием
+      operationId: getFiles
+      parameters:
+        - name: token
+          in: header
+          description: Token, полученный при авторизации
+          required: true
+          schema:
+            type: string
+        - name: idTask
+          in: header
+          description: ID задания, к которому был добавлен файл
+          required: true
+          schema:
+            type: integer
+      responses:
+        200:
+          description: Массив объектов с названиями файлов и их UID
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  fileName:
+                    type: string
+                  uid:
+                    type: string
+        500:
+          description: В случае какой-либо ошибки
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorMessage'
+        401:
+          description: В случае если истек срок действия token'а или token невалиден
   /wcon/get_nodes:
     post:
       tags:
