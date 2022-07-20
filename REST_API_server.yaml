@@ -3904,6 +3904,326 @@ paths:
                 $ref: '#/components/schemas/errorMessage'
         401:
           description: В случае если истек срок действия token'а или token невалиден
+  /device_commands/init_task:
+    post:
+      tags:
+        - device_commands
+      summary: Инициализировать задачу с указанным GUID на сервере
+      operationId: initTask
+      parameters:
+        - name: token
+          in: header
+          description: Token авторизации от допустимого сервиса
+          required: true
+          schema:
+            type: string
+        - name: guid
+          in: header
+          description: GUID задачи, генерируемый клиентом
+          required: true
+          schema:
+            type: string
+        - name: type
+          in: header
+          description: тип задачи
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        description: информация о пользователе
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/userInfo'
+      responses:
+        200:
+          description: Задачу успешно добавили на сервер
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/statusTask'
+        500:
+          description: В случае ошибки на сервере
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorMessage'
+        401:
+          description: В случае если истек срок действия token'а или token невалиден
+  /device_commands/add_commands:
+    post:
+      tags:
+        - device_commands
+      summary: Добавить команды для ПУ к задаче с указанным GUID
+      description: Получить значение нескольких свойств НСИ ПУ по универсальному ***GUID*** прибора учета
+      operationId: addCommands
+      parameters:
+        - name: token
+          in: header
+          description: Token авторизации от допустимого сервиса
+          required: true
+          schema:
+            type: string
+        - name: guid
+          in: header
+          description: GUID задачи, генерируемый клиентом
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: список команд ПУ с параметрами
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/deviceCommands'
+        required: true
+      responses:
+        200:
+          description: Список команд ПУ успешно было добавлен к задаче
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/statusTask'
+        404:
+          description: Не существует задачи с указанным GUID
+        500:
+          description: В случае ошибки на сервере
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorMessage'
+        401:
+          description: В случае если истек срок действия token'а или token невалиден
+  /device_commands/start_task:
+    post:
+      tags:
+        - device_commands
+      summary: Стартовать задачу с указанным GUID на выполнение
+      operationId: startTask
+      parameters:
+        - name: token
+          in: header
+          description: Token авторизации от допустимого сервиса
+          required: true
+          schema:
+            type: string
+        - name: guid
+          in: header
+          description: GUID задачи, гененрируемый клиентом
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: информация о пользователе
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/userInfo'
+      responses:
+        200:
+          description: Задачу успешно стартовали на выполнение
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/statusTask'
+        404:
+          description: Не существует задачи с указанным GUID
+        500:
+          description: В случае ошибки на сервере
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorMessage'
+        401:
+          description: В случае если истек срок действия token'а или token невалиден
+  /device_commands/stop_task:
+    post:
+      tags:
+        - device_commands
+      summary: Остановить задачу с указанным GUID
+      operationId: stopTask
+      parameters:
+        - name: token
+          in: header
+          description: Token авторизации от допустимого сервиса
+          required: true
+          schema:
+            type: string
+        - name: guid
+          in: header
+          description: GUID задачи, гененрируемый клиентом
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: информация о пользователе
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/userInfo'
+      responses:
+        200:
+          description: Помечаем задачу на остановку, возвращаем текущий статус задачи
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/statusTask'
+        404:
+          description: Не существует задачи с указанным GUID
+        500:
+          description: В случае ошибки на сервере
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorMessage'
+        401:
+          description: В случае если истек срок действия token'а или token невалиден
+  /device_commands/status_task:
+    get:
+      tags:
+        - device_commands
+      summary: Получить статус задачи с указанным GUID
+      operationId: getStatusTask
+      parameters:
+        - name: guid
+          in: header
+          description: GUID задачи, гененрируемый клиентом
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: Статус запрошенной задачи
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/statusTask'
+        404:
+          description: Не существует задачи с указанным GUID
+        500:
+          description: В случае ошибки на сервере
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorMessage'
+  /device_commands/task_log:
+    post:
+      tags:
+        - device_commands
+      summary: Получить лог выполнения задачи с указанным GUID
+      description: Лог получается от последнего запрошенного момента до текущего момента. Сервис запоминает последнее отправленное лог-сообщение по указанной задаче, и при последующем запросе отправляет сообщения с сохраненной точки.
+      operationId: getTaskLog
+      parameters:
+        - name: guid
+          in: header
+          description: GUID задачи, гененрируемый клиентом
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: информация о пользователе
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/userInfo'
+      responses:
+        200:
+          description: Массив лог-сообщений по задаче
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/logMessages'
+        404:
+          description: Не существует задачи с указанным GUID
+        500:
+          description: В случае ошибки на сервере
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorMessage'
+  /device_commands/list_task_log_files:
+    post:
+      tags:
+        - device_commands
+      summary: Получить список лог-файлов задачи с указанным GUID
+      operationId: getListTaskLogFiles
+      parameters:
+        - name: guid
+          in: header
+          description: GUID задачи, гененрируемый клиентом
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: информация о пользователе
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/userInfo'
+      responses:
+        200:
+          description: Массив лог-файлов по задаче
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/logFiles'
+        404:
+          description: Не существует задачи с указанным GUID
+        500:
+          description: В случае ошибки на сервере
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorMessage'
+  /device_commands/task_log_files:
+    post:
+      tags:
+        - device_commands
+      summary: Получить лог-файлы задачи с указанным GUID в виде архива со списком файлов
+      operationId: getTaskLogFiles
+      parameters:
+        - name: guid
+          in: header
+          description: GUID задачи, гененрируемый клиентом
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: список лог-файлов
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/logFiles'
+      responses:
+        200:
+          description: Возвращает полный объем бинарных данных архива с лог-файлами
+          content:
+            application/zip:
+              schema:
+                type: string
+                format: binary
+        206:
+          description: Возвращает запрошенный диапазон бинарных данных архива с лог-файлами
+          headers:
+            Content-Range:
+              description: Описание диапазона возвращаемых данных в формате "bytes <range-start>-<range-end>/<size>"
+              schema:
+                type: string
+                format: binary
+          content:
+            application/octet-stream:
+              schema:
+                type: string
+                format: binary
+        404:
+          description: Не существует задачи с указанным GUID
+        500:
+          description: В случае ошибки на сервере
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorMessage'
 
 components:
   schemas:
@@ -5996,6 +6316,103 @@ components:
         bdType:
           description: Название типа БД, к которой подключен пользователь (Oracle, PostgresSQL)
           type: string
+    userInfo:
+      description: для передачи информации о пользователе
+      type: object
+      properties:
+        dbUserName:
+          description: имя пользователя в БД
+          type: string
+        osUserName:
+          description: имя пользователя в ОС
+          type: string
+        ipAddress:
+          description: ip-адрес запроса
+          type: string
+          format: ipv4
+        compName:
+          description: наименование компьютера пользователя
+          type: string
+        moduleName:
+          description: название программного модуля
+          type: string
+    statusTask:
+      description: Тип статуса задачи
+      type: string
+      enum:
+        #Unknown, Adding, Added, InProgress, Stopped, Success, Error
+        - adding
+        - added
+        - inProgress
+        - stopping
+        - stopped
+        - success
+        - error
+    idDevice:
+      description: тип для идентификации устройства (ПУ, УСПД или т.д.)
+      type: object
+      properties:
+        id:
+          type: integer
+        deviceType:
+          description: тип устройства (1 - УСПД, 2 - ПУ)
+          type: integer
+          enum:
+            - 1
+            - 2
+    deviceCommands:
+      description: список команд ПУ с параметрами
+      type: object
+      properties:
+        userInfo:
+          description: информация о пользователе
+          $ref: '#/components/schemas/userInfo'
+        commands:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                description: ID устройства
+                $ref: '#/components/schemas/idDevice'
+              params:
+                description: параметры команды, структура зависит от типа созданной задачи
+                type: object
+    logMessages:
+      description: список лог-сообщений по задаче
+      type: array
+      items:
+        type: object
+        properties:
+          id:
+            description: ID устройства
+            $ref: '#/components/schemas/idDevice'
+          logTimestamp:
+            description: Дата и время лог-сообщения в формате "yyyy.MM.dd HH:mm:ss.zzz"
+            type: string
+            pattern: '^\d{4}\.\d{2}\.\d{2} \d{2}\:\d{2}\:\d{2}\.\d{3}$'
+          logLevel:
+            description: уровень лог-сообщения
+            type: string
+            enum:
+              - debug
+              - info
+              - error
+          message:
+            description: текст лог-сообщения
+            type: string
+    logFiles:
+      description: список лог-файлов по задаче
+      type: object
+      properties:
+        userInfo:
+          description: информация о пользователе
+          $ref: '#/components/schemas/userInfo'
+        fileNames:
+          type: array
+          items:
+            description: имена лог-файлов
+            type: string
     mainEntityTypes:
       description: Список объектов с описанием основных используемых сущностей (ПУ, ОУ, УСД)
       type: array
