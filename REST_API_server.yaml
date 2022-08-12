@@ -274,6 +274,78 @@ paths:
                 $ref: '#/components/schemas/errorMessage'
         401:
           description: Во случае невалидного ***token***; в случае, если для пользователя установлен разрешенный IP адрес и запрос впроизведен не с него; в случае, если переданный ***old_hash_password*** не совпадает с установленным ранее
+  /login/change_password_desktop:
+    post:
+      tags:
+        - login
+      summary: Запрос изменения пароля пользователя (для использования в BP_Admin)
+      description: Для пользователя зарегистрированного с ***token*** запросить изменение пароля (в отличии от /login/change_password также меняет пароль пользователя DB)
+      operationId: changePasswordDesktop
+      parameters:
+        - name: token
+          in: header
+          description: Полученный ранее ***token***
+          required: true
+          schema:
+            type: string
+        - name: keyUid
+          in: header
+          description: Уникальный UID открытого ключа, полученного в методе /get_open_key
+          required: true
+          schema:
+            type: string
+        - name: old_hash_password
+          in: header
+          description: Старый хеш пароля пользователя (закодирован с использованием открытокго ключа, полученного методом /get_open_key, по алгоритму RSA (RSAES-PKCS1-V1_5 в формате Base64))
+          required: true
+          schema:
+            type: string
+        - name: new_password
+          in: header
+          description: Новый пароль пользователя (закодирован с использованием открытокго ключа, полученного методом /get_open_key, по алгоритму RSA (RSAES-PKCS1-V1_5 в формате Base64))
+          required: true
+          schema:
+            type: string
+      responses:
+        202:
+          description: Успешное завершение операции - хеш пароля пользователя заменен на новый
+        500:
+          description: В случае ошибки на сервере
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorMessage'
+        401:
+          description: Во случае невалидного ***token***; в случае, если для пользователя установлен разрешенный IP адрес и запрос впроизведен не с него; в случае, если переданный ***old_hash_password*** не совпадает с установленным ранее
+  /login/check_user_password:
+    post:
+      tags:
+        - login
+      summary: Проверка пароля пользователя на валидность
+      description: Проверяет пароль пользователя на соответствие его заданным правилам (таблица BP_VARIABLE значения PASSWORD_CHAR_CONSTRAINT и PASSWORD_LEN_CONSTRAINT)
+      operationId: checkUserPassword
+      parameters:
+        - name: keyUid
+          in: header
+          description: Уникальный UID открытого ключа, полученного в методе /get_open_key
+          required: true
+          schema:
+            type: string
+        - name: encodedPassword
+          in: header
+          description: Зашифрованный пароль пользователя для проверки
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: Пароль удовлетворяет всем требованиям
+        500:
+          description: В случае ошибки
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorMessage'
   /login/auto_register_user:
     post:
       tags:
@@ -4250,6 +4322,35 @@ components:
             idname:
               example: 'Физ. лицо'
               type: string
+        passwordInfo:
+          description: Описание состояния пароля пользователя
+          type: object
+          properties:
+            daysLeft:
+              example: 364
+              description: Количество оставшихся дней которое текущий пароль будет актуальным
+              type: integer
+            daysAll:
+              example: 365
+              description: Количество дней жизни пароля после его изменения
+              type: integer
+            lastDateChange:
+              example: 2022.08.04 16:25:47
+              type: string
+              description: Дата и время последнего изменения пароля в формате "yyyy.MM.dd HH:mm:ss"
+              pattern: '^\d{4}.\d{2}.\d{2} \d{2}:\d{2}:\d{2}$'
+            userCanUpdate:
+              example: true
+              type: boolean
+              description: Разрешено ли пользователю самостоятельно менять пароль
+            firstLogin:
+              example: false
+              type: boolean
+              description: Признак того, что выполнен первый вход в систему после создания пользователя
+            needUpdate:
+              example: false
+              type: boolean
+              description: Признак того, что необходимо обновить пароль пользователя
     errorMessage:
       description: Сообщение об ошибке
       type: object
@@ -5727,11 +5828,6 @@ components:
           type: array
           items:
             type: integer
-        taskTypes:
-          description: Массив ID статусов заданий (фильтр поиска, пустой массив - любой статус)
-          type: array
-          items:
-            type: integer
         addressFilter:
           type: string
           description: Строка для поиска по адресу объекта
@@ -5765,8 +5861,6 @@ components:
           type: integer
         name:
           type: string
-        typeTask:
-          $ref: '#/components/schemas/mobileInspectorTaskType'
         dt:
           description: Дата постановки задачи в формате "yyyy.MM.dd"
           type: string
@@ -6316,6 +6410,12 @@ components:
         bdType:
           description: Название типа БД, к которой подключен пользователь (Oracle, PostgresSQL)
           type: string
+        bdAddr:
+          description: Адрес хоста для доступа к БД
+          type: string
+        bdPort:
+          description: Порт для доступа к БД
+          type: integer
     userInfo:
       description: для передачи информации о пользователе
       type: object

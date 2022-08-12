@@ -1115,7 +1115,9 @@
 							"listen": "prerequest",
 							"script": {
 								"exec": [
-									"let hashPassword = pm.collectionVariables.get(\"password\");\r",
+									"eval(pm.collectionVariables.get(\"SHA256\"));\r",
+									"let newHashPassword = SHA256(pm.collectionVariables.get(\"newUserPassword\"));\r",
+									"let hashPassword = SHA256(pm.collectionVariables.get(\"password\"));\r",
 									"pm.sendRequest(pm.collectionVariables.get(\"baseUrl\")+\"/get_open_key\", (err, res) => {\r",
 									"        let rsaKeys = JSON.parse(res.text());\r",
 									"        pm.collectionVariables.set(\"uidKey\", rsaKeys.keyUid);\r",
@@ -1129,7 +1131,7 @@
 									"            mgf1: { md: forge.md.sha256.create() }\r",
 									"        }));\r",
 									"        pm.collectionVariables.set(\"hashPassword\", encryptedText);\r",
-									"        encryptedText = forge.util.encode64(publicKey.encrypt('0000000077', 'RSAES-PKCS1-V1_5', {\r",
+									"        encryptedText = forge.util.encode64(publicKey.encrypt(newHashPassword, 'RSAES-PKCS1-V1_5', {\r",
 									"            md: forge.md.sha256.create(),\r",
 									"            mgf1: { md: forge.md.sha256.create() }\r",
 									"        }));\r",
@@ -1191,6 +1193,230 @@
 							"path": [
 								"login",
 								"change_password"
+							]
+						},
+						"description": "Для пользователя зарегистрированного с ***token*** запросить изменение хеша пароля"
+					},
+					"response": [
+						{
+							"name": "Успешное завершение завершение операции - хеш пароля пользователя заменен на новый",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"description": "(Required) Полученный ранее ***token***",
+										"key": "token",
+										"value": "fugiat ex"
+									},
+									{
+										"description": "(Required) Старый хеш пароля пользователя",
+										"key": "old_hash_password",
+										"value": "fugiat ex"
+									},
+									{
+										"description": "(Required) Новый хеш пароля пользователя",
+										"key": "new_hash_password",
+										"value": "fugiat ex"
+									}
+								],
+								"url": {
+									"raw": "{{baseUrl}}/login/change_password",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"login",
+										"change_password"
+									]
+								}
+							},
+							"status": "Accepted",
+							"code": 202,
+							"_postman_previewlanguage": "text",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "text/plain"
+								}
+							],
+							"cookie": [],
+							"body": ""
+						},
+						{
+							"name": "Во случае невалидного ***token***; в случае, если для пользователя установлен разрешенный IP адрес и запрос впроизведен не с него; в случае, если переданный ***old_hash_password*** не совпадает с установленным ранее",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"description": "(Required) Полученный ранее ***token***",
+										"key": "token",
+										"value": "fugiat ex"
+									},
+									{
+										"description": "(Required) Старый хеш пароля пользователя",
+										"key": "old_hash_password",
+										"value": "fugiat ex"
+									},
+									{
+										"description": "(Required) Новый хеш пароля пользователя",
+										"key": "new_hash_password",
+										"value": "fugiat ex"
+									}
+								],
+								"url": {
+									"raw": "{{baseUrl}}/login/change_password",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"login",
+										"change_password"
+									]
+								}
+							},
+							"status": "Unauthorized",
+							"code": 401,
+							"_postman_previewlanguage": "text",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "text/plain"
+								}
+							],
+							"cookie": [],
+							"body": ""
+						},
+						{
+							"name": "В случае ошибки на сервере",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"description": "(Required) Полученный ранее ***token***",
+										"key": "token",
+										"value": "fugiat ex"
+									},
+									{
+										"description": "(Required) Старый хеш пароля пользователя",
+										"key": "old_hash_password",
+										"value": "fugiat ex"
+									},
+									{
+										"description": "(Required) Новый хеш пароля пользователя",
+										"key": "new_hash_password",
+										"value": "fugiat ex"
+									}
+								],
+								"url": {
+									"raw": "{{baseUrl}}/login/change_password",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"login",
+										"change_password"
+									]
+								}
+							},
+							"status": "Internal Server Error",
+							"code": 500,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n \"error\": \"in magna dolor\",\n \"message\": \"non ex sed eu\"\n}"
+						}
+					]
+				},
+				{
+					"name": "Запрос изменения пароля пользователя Desktop пользователя",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"eval(pm.collectionVariables.get(\"SHA256\"));\r",
+									"let newHashPassword = pm.collectionVariables.get(\"newUserPassword\");\r",
+									"let hashPassword = SHA256(pm.collectionVariables.get(\"password\"));\r",
+									"pm.sendRequest(pm.collectionVariables.get(\"baseUrl\")+\"/get_open_key\", (err, res) => {\r",
+									"        let rsaKeys = JSON.parse(res.text());\r",
+									"        pm.collectionVariables.set(\"uidKey\", rsaKeys.keyUid);\r",
+									"        eval(pm.collectionVariables.get('forgeJS'));\r",
+									"        let publicKey = '-----BEGIN PUBLIC KEY-----\\n' +\r",
+									"            rsaKeys.keyPublic +\r",
+									"            '\\n-----END PUBLIC KEY-----';\r",
+									"        publicKey = forge.pki.publicKeyFromPem(publicKey);\r",
+									"        let encryptedText = forge.util.encode64(publicKey.encrypt(hashPassword, 'RSAES-PKCS1-V1_5', {\r",
+									"            md: forge.md.sha256.create(),\r",
+									"            mgf1: { md: forge.md.sha256.create() }\r",
+									"        }));\r",
+									"        pm.collectionVariables.set(\"hashPassword\", encryptedText);\r",
+									"        encryptedText = forge.util.encode64(publicKey.encrypt(newHashPassword, 'RSAES-PKCS1-V1_5', {\r",
+									"            md: forge.md.sha256.create(),\r",
+									"            mgf1: { md: forge.md.sha256.create() }\r",
+									"        }));\r",
+									"        pm.collectionVariables.set(\"newHashPassword\", encryptedText);\r",
+									"    });\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 202\", function () {",
+									"    pm.response.to.have.status(202);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disabledSystemHeaders": {
+							"connection": true,
+							"accept-encoding": true,
+							"accept": true
+						}
+					},
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"description": "(Required) Полученный ранее ***token***",
+								"key": "token",
+								"value": "{{token}}"
+							},
+							{
+								"description": "(Required) Старый хеш пароля пользователя",
+								"key": "old_hash_password",
+								"value": "{{hashPassword}}"
+							},
+							{
+								"description": "(Required) Новый хеш пароля пользователя",
+								"key": "new_password",
+								"value": "{{newHashPassword}}"
+							},
+							{
+								"key": "keyUid",
+								"value": "{{uidKey}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/login/change_password_desktop",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"login",
+								"change_password_desktop"
 							]
 						},
 						"description": "Для пользователя зарегистрированного с ***token*** запросить изменение хеша пароля"
@@ -1760,7 +1986,7 @@
 							"script": {
 								"exec": [
 									"eval(pm.collectionVariables.get(\"SHA256\"));\r",
-									"let hashPassword = SHA256(pm.collectionVariables.get(\"password\"));\r",
+									"let hashPassword = SHA256(pm.collectionVariables.get(\"newUserPassword\"));\r",
 									"pm.sendRequest(pm.collectionVariables.get(\"baseUrl\")+\"/get_open_key\", (err, res) => {\r",
 									"        let rsaKeys = JSON.parse(res.text());\r",
 									"        pm.collectionVariables.set(\"uidKey\", rsaKeys.keyUid);\r",
@@ -1773,7 +1999,7 @@
 									"            md: forge.md.sha256.create(),\r",
 									"            mgf1: { md: forge.md.sha256.create() }\r",
 									"        }));\r",
-									"        pm.collectionVariables.set(\"newUserPassword\", encryptedText);\r",
+									"        pm.collectionVariables.set(\"newHashPassword\", encryptedText);\r",
 									"    });"
 								],
 								"type": "text/javascript"
@@ -1793,7 +2019,7 @@
 							{
 								"description": "(Required) uid заявки, переданный через ссылку",
 								"key": "requisitionUid",
-								"value": "21ff5a75-bf6d-4800-810c-0f34513d9e8a"
+								"value": "cd41c0b2-e6c6-4eb5-8390-8719ffb1838d"
 							},
 							{
 								"description": "(Required) Уникальный UID открытого ключа, полученного в методе /get_open_key",
@@ -1803,7 +2029,7 @@
 							{
 								"description": "(Required) Новый хеш пароля зашифрованный с помощью RSA алгоритма открытым ключом, полученным в методе /get_open_key",
 								"key": "newHashPassword",
-								"value": "{{newUserPassword}}"
+								"value": "{{newHashPassword}}"
 							}
 						],
 						"url": {
@@ -1952,6 +2178,30 @@
 							"body": "{\n \"error\": \"Excepteur culpa\",\n \"message\": \"culpa incididunt in laboris cupidatat\"\n}"
 						}
 					]
+				},
+				{
+					"name": "Запрос получение информации о текущей сесии пользователя",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "token",
+								"value": "{{token}}",
+								"type": "default"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/login/session_info",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"login",
+								"session_info"
+							]
+						}
+					},
+					"response": []
 				},
 				{
 					"name": "Запрос RSA public key для передачи хеша пароля в других методах (512 бит)",
@@ -6942,7 +7192,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"begin\": \"2020.01.01 00:00:00\",\n    \"end\": \"2023.03.01 00:00:00\",\n    \"taskStatusTypes\": [\n        \n    ],\n    \"taskTypes\": [\n        \n    ],\n    \"addressFilter\": \"\",\n    \"deviceIdFilter\": \"\"\n}",
+							"raw": "{\n    \"begin\": \"2020.01.01 00:00:00\",\n    \"end\": \"2023.03.01 00:00:00\",\n    \"taskStatusTypes\": [\n    ],\n    \"taskTypes\": [\n    ],\n    \"addressFilter\": \"\",\n    \"deviceIdFilter\": \"\"\n}",
 							"options": {
 								"raw": {
 									"language": "json"
