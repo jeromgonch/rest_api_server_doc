@@ -1,6 +1,6 @@
 {
 	"info": {
-		"_postman_id": "f665eba2-32ce-4219-bcdc-5c3806676d7a",
+		"_postman_id": "e41bb598-e516-482f-aa76-5eeb84f8845b",
 		"name": "Test REST API Server",
 		"description": "Описание REST API функций для интеграции с ПО Энфорс",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
@@ -7158,6 +7158,134 @@
 									"path": [
 										"mobile_inspector",
 										"find_employee"
+									]
+								}
+							},
+							"status": "Internal Server Error",
+							"code": 500,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n \"error\": \"in sed fugiat aliquip\",\n \"message\": \"Lorem in magna consequat\"\n}"
+						}
+					]
+				},
+				{
+					"name": "Получить справочник типов заданий",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"description": "(Required) Token, полученный при авторизации",
+								"key": "token",
+								"value": "{{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/mobile_inspector/get_tasks_types",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"mobile_inspector",
+								"get_tasks_types"
+							]
+						},
+						"description": "Возвращает справочник типов инструментов"
+					},
+					"response": [
+						{
+							"name": "Массив описания типов инструментов",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"description": "(Required) Token, полученный при авторизации",
+										"key": "token",
+										"value": "qui ipsum ullamco ea"
+									}
+								],
+								"url": {
+									"raw": "{{baseUrl}}/mobile_inspector/type_instrument_directory",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"mobile_inspector",
+										"type_instrument_directory"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "[\n {\n  \"id\": -43595984,\n  \"name\": \"Duis in exercit\"\n },\n {\n  \"id\": -85729834,\n  \"name\": \"ipsum exercitati\"\n }\n]"
+						},
+						{
+							"name": "В случае если истек срок действия token'а или token невалиден",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"description": "(Required) Token, полученный при авторизации",
+										"key": "token",
+										"value": "qui ipsum ullamco ea"
+									}
+								],
+								"url": {
+									"raw": "{{baseUrl}}/mobile_inspector/type_instrument_directory",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"mobile_inspector",
+										"type_instrument_directory"
+									]
+								}
+							},
+							"status": "Unauthorized",
+							"code": 401,
+							"_postman_previewlanguage": "text",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "text/plain"
+								}
+							],
+							"cookie": [],
+							"body": ""
+						},
+						{
+							"name": "В случае какой-либо ошибки",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"description": "(Required) Token, полученный при авторизации",
+										"key": "token",
+										"value": "qui ipsum ullamco ea"
+									}
+								],
+								"url": {
+									"raw": "{{baseUrl}}/mobile_inspector/type_instrument_directory",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"mobile_inspector",
+										"type_instrument_directory"
 									]
 								}
 							},

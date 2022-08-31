@@ -2130,6 +2130,35 @@ paths:
                 $ref: '#/components/schemas/errorMessage'
         401:
           description: В случае если истек срок действия token'а или token невалиден
+  /mobile_inspector/get_tasks_types:
+    post:
+      tags:
+        - mobile_inspector
+      summary: Получить справочник типов заданий
+      description: Возвращает справочник типов заданий
+      operationId: getMobileInspectorTasksTypes
+      parameters:
+        - name: token
+          in: header
+          description: Token, полученный при авторизации
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: Массив описания типов заданий
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/mobileInspectorTasksTypesArray'
+        500:
+          description: В случае какой-либо ошибки
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorMessage'
+        401:
+          description: В случае если истек срок действия token'а или token невалиден
   /mobile_inspector/get_tasks:
     post:
       tags:
@@ -3784,7 +3813,7 @@ paths:
               $ref: '#/components/schemas/generateReport'
       responses:
         200:
-          description: '<b>Ответ:</b><br />
+          description: <b>Ответ:</b><br />
                        {"type":"object","properties":{"success":{"type":"boolean"},"errMsg":{"type":"string"},"reportKey":{"type":"string"},"result":{"type":"object","properties":{"files":{"type":"array","item":{"item":{"type":"object","properties":{"file":{"type":"string"},"userInteraceFileName":{"type":"string"},"status":{"type":"number"}}}}}}}}}<br /><br />
                        <b>Описание:</b><br />
                        "success" - Результат запроса<br />
@@ -5828,6 +5857,11 @@ components:
           type: array
           items:
             type: integer
+        tasksTypes:
+          description: Массив ID типов заданий (фильтр поиска, пустой массив - любой тип)
+          type: array
+          items:
+            type: integer
         addressFilter:
           type: string
           description: Строка для поиска по адресу объекта
@@ -5865,6 +5899,9 @@ components:
           description: Дата постановки задачи в формате "yyyy.MM.dd"
           type: string
           pattern: '^\d{4}.\d{2}.\d{2}$'
+        typeTask:
+          description: Тип задачи
+          type: integer
         typeDevice:
           description: Тип устройства (0 - приборприбор учета, 1 - УСД, 2 - трансформатор)
           type: integer
@@ -6321,6 +6358,18 @@ components:
             - prop
             - usd
             - energy
+    mobileInspectorTasksTypesArray:
+      description: Список типов заданий
+      type: array
+      items:
+        type: object
+        properties:
+          id:
+            description: ID
+            type: integer
+          name:
+            description: Наименование типа задания
+            type: string
     treeNodesList:
       description: Список подчиненных объектов для дерева
       type: array
