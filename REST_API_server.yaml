@@ -6648,10 +6648,11 @@ components:
       type: object
       properties:
         type:
-          description: Тип условия ("=", "<", ">", "<=", ">=", "%", "%%", "between")
+          description: Тип условия ("=", "in", "<", ">", "<=", ">=", "%", "%%", "between")
           type: string
           enum:
             - "="
+            - in
             - "<"
             - ">"
             - "<="
