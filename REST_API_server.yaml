@@ -866,13 +866,13 @@ paths:
                 $ref: '#/components/schemas/errorMessage'
         401:
           description: В случае если истек срок действия token'а или token невалиден
-  /events:
+  /events/directory/events_types_group:
     post:
       tags:
         - events
-      summary: Запросить список событий из журнала ПУ за период
-      description: Возвращает массив событий журнала ПУ за период и время их регистрации.
-      operationId: eventsRead
+      summary: Запросить список групп событий ПУ
+      description: Возвращает массив групп событий ПУ
+      operationId: eventsDirectoryGroup
       parameters:
         - name: token
           in: header
@@ -880,30 +880,15 @@ paths:
           required: true
           schema:
             type: string
-        - name: guid
-          in: header
-          description: Универсальный GUID прибора учета
-          required: true
-          schema:
-            type: string
-      requestBody:
-        description: Массив ID запрашиваемых событий журнала ПУ с периодами запроса
-        required: true
-        content:
-          application/json:
-            schema:
-              type: array
-              items:
-                $ref: '#/components/schemas/eventIdAndPeriods'
       responses:
         200:
-          description: Массив с перечислением ID событий журнала ПУ с временными метками их регистрации
+          description: Массив с описаниями групп событий ПУ
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/eventRegistration'
+                  $ref: '#/components/schemas/eventGroupDescription'
         500:
           description: В случае ошибки на сервере
           content:
@@ -912,13 +897,13 @@ paths:
                 $ref: '#/components/schemas/errorMessage'
         401:
           description: В случае если истек срок действия token'а или token невалиден
-  /events/directory:
+  /events/directory/events_types:
     post:
       tags:
         - events
-      summary: Получить справочник-перечень событий ПУ
-      description: Возвращает массив с описанием запрошенных типов событий. Если в теле запроса будет передан пустой массив, то функция вернет полный список всех доступных событий.
-      operationId: eventsDirectory
+      summary: Запросить список событий ПУ
+      description: Возвращает массив событий ПУ
+      operationId: eventsDirectoryEventsTypes
       parameters:
         - name: token
           in: header
@@ -932,14 +917,52 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/eventDescriptionId'
+              $ref: '#/components/schemas/eventIdParams'
       responses:
         200:
-          description: Массив с описанием событий
+          description: Массив с описаниями событий ПУ
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/eventDescription'
+                type: array
+                items:
+                  $ref: '#/components/schemas/eventDescription'
+        500:
+          description: В случае ошибки на сервере
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorMessage'
+        401:
+          description: В случае если истек срок действия token'а или token невалиден
+  /events:
+    post:
+      tags:
+        - events
+      summary: Получить записи из журнала событий для ПУ
+      description: Возвращает массив с описанием событий из журнала событий для ПУ
+      operationId: eventsLogForPu
+      parameters:
+        - name: token
+          in: header
+          description: Token, полученный при авторизации
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: Параметры для запроса записей из журнала событий для ПУ
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/eventPuParams'
+      responses:
+        200:
+          description: Массив с описаниями записей событий для ПУ
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/eventLogRecords'
         500:
           description: В случае ошибки на сервере
           content:
@@ -4712,46 +4735,117 @@ components:
               val:
                 description: Значение показателя
                 type: number
-    eventDescriptionId:
-      description: Массив ID типов событий журнала ПУ
+    eventGroupDescription:
+      description: Массив с описаниями групп событий ПУ
+      type: array
+      items:
+        type: object
+        properties:
+          id:
+            type: integer
+          idname:
+            type: string
+    eventIdParams:
+      description: Параметры для запроса событий ПУ
       type: object
       properties:
         id:
+          description: Массив ID групп событий или событий ПУ (если массив пустой, то возвращается полный список)
           type: array
           items:
             type: integer
+        idType:
+          description: тип ID в массиве ("event" - ID событий, "group" - ID групп событий)
+          type: string
+          enum:
+            - event
+            - group
+    eventPuDescription:
+      description: Описание ПУ для событий журнала
+      type: object
+      properties:
+        id:
+          type: integer
+        idname:
+          type: string
+        isVisible:
+          type: boolean
     eventDescription:
-      description: Описание типа события журнала ПУ
+      description: Массив с описаниями событий ПУ
+      type: array
+      items:
+        $ref: '#/components/schemas/eventSingleDescription'
+    eventSingleDescription:
+      description: Описание события ПУ
       type: object
       properties:
         id:
-          description: Числовой идентификатор события
           type: integer
+        group:
+          type: array
+          items:
+            properties:
+              id:
+                type: integer
+              idname:
+                type: string
         name:
-          description: Описание события
           type: string
-    eventIdAndPeriods:
-      description: ID типа события журнала ПУ и период для запроса
+        mainPuType:
+          $ref: '#/components/schemas/eventPuDescription'
+        puTypes:
+          type: array
+          items:
+            $ref: '#/components/schemas/eventPuDescription'
+        idEventBegin:
+          type: integer
+        idEventEnd:
+          type: integer
+    eventPuParams:
+      description: Массив с описаниями событий ПУ
       type: object
       properties:
-        id:
+        idPu:
+          description: ID ПУ, для которого запрашиваются записи из журнала событий
           type: integer
-        dt_begin:
-          description: Дата и время начала запрашиваемого интервала (формат DDMMYYYYHHMM)
+        eventFilter:
+          $ref: '#/components/schemas/eventIdParams'
+        beginDt:
+          description: Дата-время начала периода формате "dd.MM.yyyy HH:mm"
+          pattern: '^\d{2}.\d{2}.\d{4} \d{2}:\d{2}:\d{2}$'
           type: string
-        dt_end:
-          description: Дата и время окончания запрашиваемого интервала (формат DDMMYYYYHHMM)
+        endDt:
+          description: Дата-время окончания периода формате "dd.MM.yyyy HH:mm"
+          pattern: '^\d{2}.\d{2}.\d{4} \d{2}:\d{2}:\d{2}$'
           type: string
-    eventRegistration:
-      description: ID события журнала ПУ и время его регистрации
-      type: object
-      properties:
-        id:
-          description: ID события журнала ПУ
-          type: integer
-        dt:
-          description: Время регистрации события в формате DDMMYYYYHHMMSS
-          type: string
+    eventLogRecords:
+      description: Массив с описаниями записей из журнала событий ПУ
+      type: array
+      items:
+        type: object
+        properties:
+          id:
+            type: object
+            properties:
+              id:
+                description: ID ПУ
+                type: integer
+              idEv:
+                description: ID события
+                type: integer
+              dt:
+                description: Дата-время наступления события в формате "dd.MM.yyyy HH:mm:ss"
+                type: string
+          event:
+            $ref: "#/components/schemas/eventSingleDescription"
+          message:
+            type: string
+          dtLog:
+            description: Время наступления события в формате "dd.MM.yyyy HH:mm:ss"
+            type: string
+          dtLogInsert:
+            description: Время записи события в журнал в формате "dd.MM.yyyy HH:mm:ss"
+            type: string
     objectDocumentIds:
       description: ID объекта и ID типа объекта для получения списка привязанных документов
       type: object
